@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>APIT · RAICE LABZ — Rice Grain Analyzer</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <img src="assets/apit-logo.jpeg" alt="APIT Logo" class="logo">
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#why">Why</a></li>
+      <li><a href="#what">What It Does</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How it Works</a></li>
+      <li><a href="#specs">Specs</a></li>
+      <li><a href="#booking">Book</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero (Landing redesigned) -->
+<header class="hero hero-2col reveal">
+  <div class="hero-left">
+    <span class="hero-kicker">RICE DOCTOR</span>
+    <h1><span>Precision Grain Analysis</span><br/><span>in Seconds</span></h1>
+    <p class="hero-sub">AI-powered quality grading that’s fast, consistent, and audit-ready.<br/>
+    Built by APIT — pioneers in parboiling &amp; milling machinery.</p>
+
+    <div class="hero-ctas">
+      <a href="#booking" class="btn-primary hero-btn" id="cta-book">Book Now</a>
+      <a href="#features" class="btn-secondary hero-btn" id="cta-explore">Explore Features</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">3</div>
+        <div class="stat-cap"><span>DAY</span> INSTALLATION</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">12</div>
+        <div class="stat-cap"><span>MONTH</span> WARRANTY</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Multiple</div>
+        <div class="stat-cap">INDUSTRIES SERVED</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-frame">
+      <img src="assets/analyzer.jpeg" alt="APIT Rice Analyzer" class="hero-photo"/>
+      <div class="hero-quote">“Per-grain imaging with AI ensures unbiased grading.”</div>
+    </div>
+  </div>
+
+  <div class="hero-glow" aria-hidden="true"></div>
+</header>
+<!-- =========================
+       ABOUT (half / half)
+       ========================= -->
+  <section id="about" class="about section-pad">
+    <div class="about-wrap">
+      <article class="about-card about-apit reveal left">
+        <header class="about-head">
+          <span class="chip">About APIT</span>
+          <h2>We redefine the future of rice technology.</h2>
+        </header>
+        <p>
+          At <strong>APIT (Agri Process Innovation Technologies)</strong>, we redefine the future of rice technology.
+          For over two decades, our innovations have transformed rice milling, parboiling, and sorting across the globe.
+          Now, with <strong>RAICE LABZ</strong>, we are setting the world’s first digital benchmark for rice quality.
+        </p>
+        <ul class="about-bullets">
+          <li>Empower rice millers with intelligent automation.</li>
+          <li>Build trust between traders and buyers.</li>
+          <li>Give consumers transparent, tamper-proof quality assurance.</li>
+        </ul>
+      </article>
+
+      <article class="about-card about-labz reveal right">
+        <header class="about-head">
+          <span class="chip chip-dark">About RAICE LABZ</span>
+          <h2>Where grain analysis meets trust.</h2>
+        </header>
+        <p>
+          RAICE LABZ brings Machine Vision and AI to the mill floor, converting every grain into reliable data points.
+          From per-grain images to standardized, tamper-proof reports, it delivers consistency, speed, and confidence
+          for mills, exporters, and institutions.
+        </p>
+        <div class="about-badges">
+          <div class="badge">AI/ML</div>
+          <div class="badge">Machine Vision</div>
+          <div class="badge">QR Traceability</div>
+          <div class="badge">Export-Ready</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- =========================
+       WHY YOU NEED RAICE LABZ
+       ========================= -->
+  <section id="why" class="why section-pad">
+    <div class="why-container">
+      <header class="why-head reveal">
+        <span class="chip">Why You Need RAICE LABZ</span>
+        <h2>No more guesswork. No more disputes. Only facts, speed, and trust.</h2>
+        <p>Today, rice quality testing is:</p>
+      </header>
+
+      <div class="why-grid">
+        <div class="why-card reveal left hover-slide">
+          <ul class="why-list bad">
+            <li>❌ Manual</li>
+            <li>❌ Slow</li>
+            <li>❌ Inconsistent</li>
+            <li>❌ Full of disputes and approximations</li>
+          </ul>
+        </div>
+        <div class="why-card reveal right hover-slide">
+          <p class="why-copy">
+            <strong>RAICE LABZ changes everything.</strong><br/>
+            It is the first Machine Vision &amp; AI-powered analyzer that can scan thousands of grains in minutes,
+            predict cooking quality, and generate <em>tamper-proof</em> reports with <strong>QR traceability</strong>.
+          </p>
+          <ul class="why-points">
+            <li>✅ Thousands of grains in minutes</li>
+            <li>✅ Cooking quality prediction</li>
+            <li>✅ Tamper-proof, QR-linked reports</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       WHAT IT DOES
+       ========================= -->
+  <section id="what" class="what section-pad">
+    <header class="what-head reveal">
+      <span class="chip chip-dark">What It Does</span>
+      <h2>Instant, complete, export-ready quality reports.</h2>
+    </header>
+    <div class="what-grid">
+      <div class="what-card reveal">
+        <h3>Physical Analysis</h3>
+        <p>Head rice yield, impurities, geometric measurements.</p>
+      </div>
+      <div class="what-card reveal">
+        <h3>Optical Analysis</h3>
+        <p>Whiteness index, translucency index, degree of milling.</p>
+      </div>
+      <div class="what-card reveal">
+        <h3>Defect Analysis</h3>
+        <p>Broken rice, discolored grains, foreign matter.</p>
+      </div>
+      <div class="what-card reveal">
+        <h3>Cooking Prediction</h3>
+        <p>Water uptake ratio, cooking time, elongation, burst rate.</p>
+      </div>
+    
+    
+    
+    <p class="what-note reveal">
+      Reports are digital, tamper-proof, and export-ready — ready for traders, buyers, and institutions worldwide.
+    </p>
+  </section>
+
+  <!-- =========================
+       FEATURES (updated list)
+       ========================= -->
+  <section id="features" class="features-section">
+    <h2 class="section-title">Key Features</h2>
+    <div class="features-list">
+      <div class="feature-card reveal left">
+        <span class="feature-number">01</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M12 2v20M4 12h16"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>AI-Powered Machine Vision</h3>
+          <p>DeepStream GPU technology for unmatched accuracy.</p>
+        </div>
+      </div>
+
+      <div class="feature-card reveal right">
+        <span class="feature-number">02</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>High-Speed Processing</h3>
+          <p>Analyzes thousands of grains in minutes.</p>
+        </div>
+      </div>
+
+      <div class="feature-card reveal left">
+        <span class="feature-number">03</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M4 20c6-8 10-8 16 0"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>Cooking Quality Prediction</h3>
+          <p>Beyond looks — predicts real cooking performance.</p>
+        </div>
+      </div>
+
+      <div class="feature-card reveal right">
+        <span class="feature-number">04</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M6 2h12v6H6zM4 10h16v12H4z"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>Instant Reports</h3>
+          <p>Standardized lab reports with a single click.</p>
+        </div>
+      </div>
+
+      <div class="feature-card reveal left">
+        <span class="feature-number">05</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M3 12l7 7L21 5"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>QR Integration</h3>
+          <p>Secure QR codes for bags and trade documents.</p>
+        </div>
+      </div>
+
+      <div class="feature-card reveal right">
+        <span class="feature-number">06</span>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </span>
+        <div class="feature-text">
+          <h3>Universal Compatibility</h3>
+          <p>For millers, traders, exporters, institutions &amp; consumers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+     HOW IT WORKS (existing block kept)
+     ========================= -->
+  <section id="how-it-works" class="howitworks">
+    <div class="hiw-container">
+      <div class="hiw-header">
+        <span class="hiw-kicker">Grain Analyzer</span>
+        <h2>How It Works</h2>
+        <p>From power-on to a detailed analysis report — in just a few simple steps.</p>
+        <div class="hiw-progress" aria-hidden="true">
+          <div class="hiw-progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="hiw-steps">
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">1</div>
+            <h3>Power On</h3>
+            <p>Turn on the Grain Analyzer to begin your session.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M12 2v10m6.364-6.364a9 9 0 11-12.728 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">2</div>
+            <h3>Set Sample Weight</h3>
+            <p>Place your grains and fix the desired sample weight.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M4 7h16M6 7l3 8h6l3-8M10 19h4M12 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">3</div>
+            <h3>Go to Dashboard</h3>
+            <p>Navigate to the dashboard for a guided workflow.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" fill="currentColor"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">4</div>
+            <h3>Enter Sample Details</h3>
+            <p>Fill variety, age, and process type to tailor the analysis.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">5</div>
+            <h3>Press Go</h3>
+            <p>Start the scan and analysis with a single click.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M8 5v14l11-7z" fill="currentColor"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="hiw-step reveal">
+          <div class="hiw-step-left">
+            <div class="hiw-num">6</div>
+            <h3>Get Instant Results</h3>
+            <p>Within minutes, receive a detailed grain analysis report.</p>
+          </div>
+          <div class="hiw-step-right">
+            <svg viewBox="0 0 24 24" class="hiw-icon" aria-hidden="true">
+              <path d="M6 2h9l5 5v15H6zM15 2v5h5M9 13h6M9 17h6M9 9h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </article>
+      </div>
+
+      <div class="hiw-cta reveal">
+        <a href="#booking" class="hiw-btn">Start Analysis</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       SPECS (Characteristics)
+       ========================= -->
+  <section id="specs" class="specs-section specs-light">
+    <div class="specs-container">
+      <header class="specs-header reveal">
+        <span class="specs-kicker">Characteristics</span>
+        <h2>Built for accuracy, speed, and trust.</h2>
+        <div class="specs-progress" aria-hidden="true"><div class="specs-progress-bar"></div></div>
+      </header>
+
+      <ul class="specs-list">
+        <li class="spec-item reveal"><span class="spec-text"><strong>Accuracy:</strong> &gt;99% consistency compared to manual testing.</span></li>
+        <li class="spec-item reveal"><span class="spec-text"><strong>Speed:</strong> Processes 10,000+ grains per minute.</span></li>
+        <li class="spec-item reveal"><span class="spec-text"><strong>Scalability:</strong> Suitable for small mills, mega-exporters, and government labs.</span></li>
+        <li class="spec-item reveal"><span class="spec-text"><strong>Transparency:</strong> Digital reports prevent manipulation and disputes.</span></li>
+        <li class="spec-item reveal"><span class="spec-text"><strong>Traceability:</strong> Consumers can scan and verify rice quality at purchase.</span></li>
+        <li class="spec-item reveal"><span class="spec-text"><strong>Global Standard:</strong> First-of-its-kind AI/ML benchmark in rice.</span></li>
+      </ul>
+
+      <div class="specs-cta reveal">
+        <a href="#booking" class="specs-btn">Request Full Datasheet</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       BOOKING (Form)
+       ========================= -->
+  <section id="booking" class="booking section-pad">
+    <div class="booking-wrap">
+      <header class="booking-head reveal">
+        <span class="chip chip-dark">Book</span>
+        <h2>Experience the future of rice quality.</h2>
+        <p>Book your demo of RAICE LABZ today.</p>
+        <ul class="booking-points">
+          <li>Live demo (online or on-site)</li>
+          <li>Custom report generation for your rice samples</li>
+          <li>Free consultation on integrating RAICE LABZ into your plant</li>
+        </ul>
+      </header>
+
+      <form id="booking-form" class="form-card reveal" novalidate>
+        <div class="form-row">
+          <label>Full Name<span>*</span></label>
+          <input type="text" name="name" placeholder="Your name" required />
+        </div>
+        <div class="form-row">
+          <label>Email<span>*</span></label>
+          <input type="email" name="email" placeholder="you@company.com" required />
+        </div>
+        <div class="form-row">
+          <label>Phone<span>*</span></label>
+          <input type="tel" name="phone" placeholder="+91-XXXXXXXXXX" required />
+        </div>
+        <div class="form-row">
+          <label>Company</label>
+          <input type="text" name="company" placeholder="Organization / Mill name" />
+        </div>
+        <div class="form-row">
+          <label>Preferred Mode</label>
+          <select name="mode">
+            <option value="online">Online</option>
+            <option value="onsite">On-site</option>
+          </select>
+        </div>
+        <div class="form-row full">
+          <label>Message</label>
+          <textarea name="message" rows="4" placeholder="Tell us about your requirements"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary">👉 Book a Demo</button>
+        <p id="booking-status" class="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- =========================
+       FAQ
+       ========================= -->
+  <section id="faq" class="faq section-pad">
+    <div class="faq-container">
+      <header class="faq-header">
+        <span class="faq-kicker">Grain Analyzer</span>
+        <h2>Frequently Asked Questions</h2>
+        <p>Answers to common questions about setup, accuracy, reporting, and maintenance.</p>
+        <div class="faq-actions">
+          <button class="faq-toggle-all" data-action="expand">Expand all</button>
+          <button class="faq-toggle-all" data-action="collapse">Collapse all</button>
+        </div>
+        <div class="faq-progress" aria-hidden="true">
+          <div class="faq-progress-bar"></div>
+        </div>
+      </header>
+
+      <div class="faq-list">
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a1" id="faq-q1">
+              <span class="faq-num">1</span>
+              What sample weight is recommended for best results?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a1" class="faq-a" role="region" aria-labelledby="faq-q1">
+            <p>We recommend 50–100 g for routine checks and up to 250 g for certification-grade analysis. The dashboard shows live weight so you can fine-tune before pressing <em>Go</em>.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">
+              <span class="faq-num">2</span>
+              Which grain types are supported?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a2" class="faq-a" role="region" aria-labelledby="faq-q2">
+            <p>Optimized for rice (raw, parboiled, steam), paddy, and common impurities. You can add custom profiles for local varieties from <em>Settings &gt; Varieties</em>.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">
+              <span class="faq-num">3</span>
+              How accurate is the defect and classification analysis?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a3" class="faq-a" role="region" aria-labelledby="faq-q3">
+            <p>With proper calibration and lighting, typical classification accuracy ranges from 95–98% for full/broken/chalky segmentation. Accuracy may vary with variety, moisture, and sample cleanliness.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">
+              <span class="faq-num">4</span>
+              How long does one test take?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a4" class="faq-a" role="region" aria-labelledby="faq-q4">
+            <p>Most analyses complete in under a minute. Larger samples or high-resolution per-grain archiving can extend runtime to 2–3 minutes.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a5" id="faq-q5">
+              <span class="faq-num">5</span>
+              Can I export reports and per-grain images?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a5" class="faq-a" role="region" aria-labelledby="faq-q5">
+            <p>Yes. Export summary and detailed results to PDF/CSV, and optionally save per-grain PNGs for traceability. Configure auto-export in <em>Settings &gt; Reporting</em>.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a6" id="faq-q6">
+              <span class="faq-num">6</span>
+              Does it integrate with my ERP or LIMS?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a6" class="faq-a" role="region" aria-labelledby="faq-q6">
+            <p>Absolutely. Use the REST API or CSV drop to sync results with ERP/LIMS. Webhooks can push real-time results to your systems.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a7" id="faq-q7">
+              <span class="faq-num">7</span>
+              How do I set good/defective thresholds?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a7" class="faq-a" role="region" aria-labelledby="faq-q7">
+            <p>Go to <em>Settings &gt; Thresholds</em>. Adjust limits (e.g., whiteness index, broken percentage). You can save multiple profiles and switch per batch.</p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <h3>
+            <button class="faq-q" aria-expanded="false" aria-controls="faq-a8" id="faq-q8">
+              <span class="faq-num">8</span>
+              What maintenance or calibration is required?
+              <svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </h3>
+          <div id="faq-a8" class="faq-a" role="region" aria-labelledby="faq-q8">
+            <p>Clean the imaging area daily, check LED uniformity weekly, and run the built-in calibration target monthly or whenever ambient conditions change.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       CONTACT
+       ========================= -->
+  <section id="contact" class="contact section-pad">
+    <div class="contact-wrap">
+      <header class="contact-head reveal">
+        <span class="chip">Contact</span>
+        <h2>We’d love to hear from you</h2>
+      </header>
+
+      <div class="contact-grid">
+        <div class="contact-card reveal">
+          <h3>Head Office</h3>
+          <p><strong>APIT Machinery Pvt. Ltd.</strong><br/>Bangalore, India</p>
+          <ul class="contact-list">
+            <li>📞 Phone: <a href="tel:+91XXXXXXXXXX">+91-XXXXXXXXXX</a></li>
+            <li>📧 Email: <a href="mailto:info@apit.co.in">info@apit.co.in</a></li>
+            <li>🌐 Website: <a href="https://www.apit.co.in" target="_blank" rel="noopener">www.apit.co.in</a></li>
+          </ul>
+          <div class="socials">
+            <a href="#" aria-label="LinkedIn">LinkedIn</a>
+            <a href="#" aria-label="YouTube">YouTube</a>
+            <a href="#" aria-label="Twitter">Twitter</a>
+          </div>
+        </div>
+
+        <form id="contact-form" class="form-card reveal" novalidate>
+          <div class="form-row">
+            <label>Your Name<span>*</span></label>
+            <input type="text" name="c_name" required />
+          </div>
+          <div class="form-row">
+            <label>Email<span>*</span></label>
+            <input type="email" name="c_email" required />
+          </div>
+          <div class="form-row">
+            <label>Message<span>*</span></label>
+            <textarea name="c_message" rows="5" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Send Message</button>
+          <p id="contact-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© APIT · All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
