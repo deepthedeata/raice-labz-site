@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+.vite/
+coverage/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# env files
+.env
+.env.*
+!.env.example
+
+# editor/OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# package manager cache/store
+.npm/
+.pnpm-store/
+.yarn/
+
+# deployment/platform
+.vercel/
+.netlify/
+
+# runtime artifacts
+*.pid
+*.seed
+*.pid.lock
