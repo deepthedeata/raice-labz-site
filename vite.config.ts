@@ -8,13 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    // No proxy needed - mockApi.ts intercepts all fetch calls
   },
   plugins: [
     react(),
@@ -24,6 +18,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Redirect socket.io-client to our mock implementation
+      "socket.io-client": path.resolve(__dirname, "./src/socketio-mock.ts"),
     },
   },
   define: {
