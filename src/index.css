@@ -1,0 +1,884 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ────────────────────────────────────────────────────────
+   THEME TOKENS — 9 themes
+   classic (original RAICE LABZ rice-primary), and 8 themes
+   lifted from the sales_crm project: kuber, light, apple,
+   salesforce, slack, notion, nord, linear.
+
+   Each theme defines the canonical sales_crm tokens
+   (--bg-base, --bg-surface, --text-primary, --accent, ...)
+   AND the shadcn HSL tokens (--background, --foreground, ...)
+   AND the iOS-specific tokens (--ios-canvas, --ios-surface, ...)
+   so every existing primitive picks up the right colour.
+
+   The .dark class is added to <html> for dark themes
+   (kuber, nord, linear) so Tailwind's `dark:` variants flip too.
+──────────────────────────────────────────────────────── */
+
+@layer base {
+
+  /* ─── GRAIN CLASS COLOURS — single source of truth ───
+     Used by gauges, the grain wall, ring composites, mini metrics, and
+     report swatches across all themes so the same hue identifies the
+     same class everywhere. Theme-independent on purpose. */
+  :root {
+    --grain-head:       217 91% 60%;   /* #3B82F6  Head Rice    (Blue)  */
+    --grain-broken:     187 92% 43%;   /* #06B6D4  Broken       (Cyan)  */
+    --grain-rejection:    0 84% 60%;   /* #EF4444  Rejection    (Red)   */
+    --grain-foreign:    330 81% 60%;   /* #EC4899  Foreign Matter (Pink)*/
+    --grain-chalky:      32 100% 50%;  /* iOS-orange — chalky stays warm */
+  }
+
+  /* ─── CLASSIC — original rice-primary blue + yellow look ─── */
+  :root,
+  html[data-theme="classic"] {
+    /* canonical tokens (kept for cross-theme primitives) */
+    --bg-base:       0 0% 96%;
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   210 40% 98%;
+    --bg-hover:      210 40% 96%;
+    --border-token:  214 32% 91%;
+    --border-subtle: 214 32% 95%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        216 76% 36%;
+    --accent-dim:    216 76% 36% / 0.10;
+    --accent-hover:  216 76% 30%;
+
+    /* shadcn HSL tokens (legacy classic palette) */
+    --background: 0 0% 100%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 216 76% 36%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 45 100% 56%;
+    --accent-foreground: 218 75% 18%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 218 75% 18%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 216 76% 36%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 240 6% 10%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+
+    /* iOS tokens (mirrors classic; iOS shell hidden in classic mode) */
+    --ios-canvas: 0 0% 96%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 210 40% 96%;
+    --ios-separator: 214 32% 91%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 216 76% 36%;
+    --ios-green: 142 71% 45%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+
+    --rice-primary: #0B4CAD;
+    --rice-secondary: #FFDA22;
+    --rice-white: #FFFFFF;
+  }
+
+  /* ─── APIT — corporate brand: APIT Blue + APIT Yellow ─── */
+  html[data-theme="apit"] {
+    --bg-base:        0 0% 95%;        /* #F3F3F3 light grey canvas */
+    --bg-surface:     0 0% 100%;       /* white surface */
+    --bg-elevated:    0 0% 97%;
+    --bg-hover:      218 30% 95%;      /* faint blue tint on hover */
+    --border-token:  220 13% 88%;
+    --border-subtle: 0 0% 92%;
+    --text-primary:  218 75% 18%;       /* navy blue body */
+    --text-secondary:218 70% 30%;       /* navy blue secondary */
+    --text-muted:    218 60% 45%;
+    --accent:        218 69% 37%;      /* #1E4DA1 APIT Blue */
+    --accent-dim:    218 69% 37% / 0.10;
+    --accent-hover:  218 69% 30%;
+
+    --background:           0 0% 100%;
+    --foreground:           218 75% 18%;
+    --card:                 0 0% 100%;
+    --card-foreground:      218 75% 18%;
+    --popover:              0 0% 100%;
+    --popover-foreground:   218 75% 18%;
+    --primary:              218 69% 37%;   /* APIT Blue */
+    --primary-foreground:   0 0% 100%;
+    --secondary:            0 0% 95%;
+    --secondary-foreground: 218 75% 18%;
+    --muted:                0 0% 95%;
+    --muted-foreground:     218 70% 30%;
+    --accent-bg:            51 100% 50%;   /* APIT Yellow #FFD700 */
+    --accent-foreground:    218 75% 18%;
+    --destructive:          4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border:               220 13% 88%;
+    --input:                220 13% 88%;
+    --ring:                 218 75% 18%;
+    --radius:               0.5rem;
+
+    /* Brand sidebar — APIT Blue background, white text. */
+    --sidebar-background:        218 69% 37%;
+    --sidebar-foreground:        0 0% 100%;
+    --sidebar-primary:           51 100% 50%;
+    --sidebar-primary-foreground:218 75% 18%;
+    --sidebar-accent:            51 100% 50%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border:            218 60% 30%;
+    --sidebar-ring:              51 100% 50%;
+
+    --ios-canvas:         0 0% 95%;
+    --ios-surface:        0 0% 100%;
+    --ios-raised:         0 0% 97%;
+    --ios-separator:      220 13% 88%;
+    --ios-text:           218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary:  218 60% 45%;
+    --ios-blue:           218 69% 37%;     /* APIT Blue is the iOS-blue here */
+    --ios-green:          142 71% 38%;
+    --ios-orange:         32 100% 50%;
+    --ios-red:            4 90% 58%;
+    --ios-yellow:         51 100% 50%;     /* APIT Yellow */
+  }
+
+  /* ─── KUBER / Midnight — softened navy, brighter text ─── */
+  html[data-theme="kuber"] {
+    --bg-base:       217 45% 13%;     /* #122036 — softer midnight */
+    --bg-surface:    216 42% 17%;     /* #1a2842 */
+    --bg-elevated:   215 40% 22%;     /* #25344f */
+    --bg-hover:      214 38% 27%;     /* #2f3e5d */
+    --border-token:  214 40% 32%;     /* #3a4a6c */
+    --border-subtle: 215 42% 22%;     /* #24344f */
+    --text-primary:  218 75% 18%;     /* navy blue */
+    --text-secondary:218 70% 30%;     /* navy blue secondary */
+    --text-muted:    218 60% 45%;     /* navy blue muted */
+    --accent:        217 95% 68%;     /* #5b9aff — brighter blue */
+    --accent-dim:    217 95% 68% / 0.18;
+    --accent-hover:  221 88% 60%;     /* #3b78f1 */
+
+    --background: 217 45% 13%;
+    --foreground: 218 75% 18%;
+    --card: 216 42% 17%;
+    --card-foreground: 218 75% 18%;
+    --popover: 216 42% 17%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 217 95% 68%;
+    --primary-foreground: 218 75% 18%;
+    --secondary: 215 40% 22%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 214 38% 27%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 217 95% 68%;
+    --accent-foreground: 218 75% 18%;
+    --destructive: 4 96% 68%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 40% 32%;
+    --input: 214 40% 32%;
+    --ring: 217 95% 68%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 216 42% 17%;
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 217 95% 68%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 215 40% 22%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 214 40% 32%;
+    --sidebar-ring: 217 95% 68%;
+
+    --ios-canvas: 217 45% 13%;
+    --ios-surface: 216 42% 17%;
+    --ios-raised: 215 40% 22%;
+    --ios-separator: 214 40% 32%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 217 95% 68%;
+    --ios-green: 142 71% 58%;
+    --ios-orange: 32 100% 62%;
+    --ios-red: 4 96% 68%;
+    --ios-yellow: 45 100% 62%;
+
+    --rice-primary: #5b9aff;
+    --rice-secondary: #FFDA22;
+  }
+
+  /* ─── LIGHT — Microsoft Fluent-style ─── */
+  html[data-theme="light"] {
+    --bg-base:       0 0% 95%;
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   0 0% 98%;
+    --bg-hover:      213 43% 95%;
+    --border-token:  0 0% 82%;
+    --border-subtle: 0 0% 90%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        206 100% 42%;
+    --accent-dim:    206 100% 42% / 0.08;
+    --accent-hover:  208 86% 41%;
+
+    --background: 0 0% 95%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 206 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 206 100% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 82%;
+    --input: 0 0% 82%;
+    --ring: 206 100% 42%;
+    --radius: 0.625rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 206 100% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 0 0% 82%;
+    --sidebar-ring: 206 100% 42%;
+
+    --ios-canvas: 0 0% 95%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 0 0% 95%;
+    --ios-separator: 0 0% 82%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 206 100% 42%;
+    --ios-green: 142 71% 45%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+  }
+
+  /* ─── APPLE — iOS light, default ─── */
+  html[data-theme="apple"] {
+    --bg-base:       240 10% 96%;     /* #f5f5f7 */
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   240 14% 99%;
+    --bg-hover:      240 14% 95%;
+    --border-token:  240 7% 83%;      /* #d2d2d7 */
+    --border-subtle: 240 11% 92%;
+    --text-primary:  218 75% 18%;      /* navy blue */
+    --text-secondary:218 70% 30%;      /* navy blue secondary */
+    --text-muted:    218 60% 45%;      /* navy blue muted */
+    --accent:        211 100% 50%;    /* #007aff */
+    --accent-dim:    211 100% 50% / 0.10;
+    --accent-hover:  211 100% 35%;
+
+    --background: 240 10% 96%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 11% 92%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 240 11% 92%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 211 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 7% 83%;
+    --input: 240 7% 83%;
+    --ring: 211 100% 50%;
+    --radius: 0.875rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 11% 92%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 240 7% 83%;
+    --sidebar-ring: 211 100% 50%;
+
+    --ios-canvas: 240 10% 96%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 240 11% 95%;
+    --ios-separator: 240 7% 83%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 211 100% 50%;
+    --ios-green: 142 71% 45%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+  }
+
+  /* ─── SALESFORCE — light cards, deep blue sidebar ─── */
+  html[data-theme="salesforce"] {
+    --bg-base:       0 0% 95%;
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   45 4% 98%;
+    --bg-hover:      45 4% 92%;
+    --border-token:  45 4% 86%;
+    --border-subtle: 0 0% 90%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        207 99% 42%;
+    --accent-dim:    207 99% 42% / 0.10;
+    --accent-hover:  214 98% 27%;
+
+    --background: 0 0% 95%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 207 99% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 45 4% 92%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 207 99% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 4% 86%;
+    --input: 45 4% 86%;
+    --ring: 207 99% 42%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 214 95% 19%;       /* #032d60 — deep blue */
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 207 99% 42%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 214 70% 27%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 214 60% 30%;
+    --sidebar-ring: 207 99% 42%;
+
+    --ios-canvas: 0 0% 95%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 45 4% 96%;
+    --ios-separator: 45 4% 86%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 207 99% 42%;
+    --ios-green: 142 71% 38%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+  }
+
+  /* ─── SLACK — cream surface, eggplant sidebar, green accent ─── */
+  html[data-theme="slack"] {
+    --bg-base:       0 0% 97%;
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   33 36% 92%;       /* #f4ede4 */
+    --bg-hover:      33 36% 90%;
+    --border-token:  33 17% 84%;       /* #ddd5cc */
+    --border-subtle: 33 23% 88%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        165 100% 24%;     /* #007a5a */
+    --accent-dim:    165 100% 24% / 0.10;
+    --accent-hover:  165 100% 18%;
+
+    --background: 0 0% 97%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 165 100% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 33 36% 92%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 33 36% 92%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 165 100% 24%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 33 17% 84%;
+    --input: 33 17% 84%;
+    --ring: 165 100% 24%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 299 56% 19%;   /* #4a154b */
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 207 71% 35%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 299 30% 28%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 299 30% 30%;
+    --sidebar-ring: 207 71% 35%;
+
+    --ios-canvas: 0 0% 97%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 33 36% 95%;
+    --ios-separator: 33 17% 84%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 165 100% 24%;
+    --ios-green: 165 100% 24%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+  }
+
+  /* ─── NOTION — minimal cream/white ─── */
+  html[data-theme="notion"] {
+    --bg-base:       0 0% 100%;
+    --bg-surface:    0 0% 100%;
+    --bg-elevated:   40 11% 96%;        /* #f7f6f3 */
+    --bg-hover:      0 0% 94%;
+    --border-token:  40 6% 88%;         /* #e3e2df */
+    --border-subtle: 0 0% 93%;
+    --text-primary:  218 75% 18%;         /* navy blue */
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        196 71% 53%;       /* #2eaadc */
+    --accent-dim:    196 71% 53% / 0.10;
+    --accent-hover:  198 75% 41%;
+
+    --background: 0 0% 100%;
+    --foreground: 218 75% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 75% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 196 71% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 11% 96%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 40 11% 96%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 196 71% 53%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 40 6% 88%;
+    --input: 40 6% 88%;
+    --ring: 196 71% 53%;
+    --radius: 0.25rem;
+
+    --sidebar-background: 36 27% 98%;     /* #fbfaf8 */
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 196 71% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 11% 96%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 40 6% 88%;
+    --sidebar-ring: 196 71% 53%;
+
+    --ios-canvas: 0 0% 100%;
+    --ios-surface: 0 0% 100%;
+    --ios-raised: 40 11% 96%;
+    --ios-separator: 40 6% 88%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 196 71% 53%;
+    --ios-green: 142 71% 45%;
+    --ios-orange: 32 100% 50%;
+    --ios-red: 4 90% 58%;
+    --ios-yellow: 45 100% 50%;
+  }
+
+  /* ─── NORD — cool dark, soft cyan accent ─── */
+  html[data-theme="nord"] {
+    --bg-base:       220 16% 22%;
+    --bg-surface:    222 16% 28%;
+    --bg-elevated:   220 16% 32%;
+    --bg-hover:      220 16% 35%;
+    --border-token:  220 16% 36%;
+    --border-subtle: 222 16% 32%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        193 43% 67%;
+    --accent-dim:    193 43% 67% / 0.15;
+    --accent-hover:  213 32% 63%;
+
+    --background: 220 16% 22%;
+    --foreground: 218 75% 18%;
+    --card: 222 16% 28%;
+    --card-foreground: 218 75% 18%;
+    --popover: 222 16% 28%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 193 43% 67%;
+    --primary-foreground: 218 75% 18%;
+    --secondary: 220 16% 32%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 220 16% 35%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 193 43% 67%;
+    --accent-foreground: 218 75% 18%;
+    --destructive: 354 42% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 16% 36%;
+    --input: 220 16% 36%;
+    --ring: 193 43% 67%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 220 16% 22%;
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 193 43% 67%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 220 16% 32%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 222 16% 32%;
+    --sidebar-ring: 193 43% 67%;
+
+    --ios-canvas: 220 16% 22%;
+    --ios-surface: 222 16% 28%;
+    --ios-raised: 220 16% 32%;
+    --ios-separator: 220 16% 36%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 193 43% 67%;
+    --ios-green: 92 28% 65%;
+    --ios-orange: 14 51% 63%;
+    --ios-red: 354 42% 56%;
+    --ios-yellow: 40 71% 73%;
+  }
+
+  /* ─── LINEAR — deep indigo dark ─── */
+  html[data-theme="linear"] {
+    --bg-base:       240 16% 13%;
+    --bg-surface:    240 14% 16%;
+    --bg-elevated:   240 14% 19%;
+    --bg-hover:      240 16% 24%;
+    --border-token:  240 15% 25%;
+    --border-subtle: 240 16% 21%;
+    --text-primary:  218 75% 18%;
+    --text-secondary:218 70% 30%;
+    --text-muted:    218 60% 45%;
+    --accent:        232 56% 60%;
+    --accent-dim:    232 56% 60% / 0.15;
+    --accent-hover:  232 50% 53%;
+
+    --background: 240 16% 13%;
+    --foreground: 218 75% 18%;
+    --card: 240 14% 16%;
+    --card-foreground: 218 75% 18%;
+    --popover: 240 14% 16%;
+    --popover-foreground: 218 75% 18%;
+    --primary: 232 56% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 14% 19%;
+    --secondary-foreground: 218 75% 18%;
+    --muted: 240 16% 24%;
+    --muted-foreground: 218 70% 30%;
+    --accent-bg: 232 56% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 4 96% 64%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 15% 25%;
+    --input: 240 15% 25%;
+    --ring: 232 56% 60%;
+    --radius: 0.625rem;
+
+    --sidebar-background: 240 16% 13%;
+    --sidebar-foreground: 218 75% 18%;
+    --sidebar-primary: 232 56% 60%;
+    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-accent: 240 14% 19%;
+    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-border: 240 15% 25%;
+    --sidebar-ring: 232 56% 60%;
+
+    --ios-canvas: 240 16% 13%;
+    --ios-surface: 240 14% 16%;
+    --ios-raised: 240 14% 19%;
+    --ios-separator: 240 15% 25%;
+    --ios-text: 218 75% 18%;
+    --ios-text-secondary: 218 70% 30%;
+    --ios-text-tertiary: 218 60% 45%;
+    --ios-blue: 232 56% 60%;
+    --ios-green: 142 71% 50%;
+    --ios-orange: 32 100% 55%;
+    --ios-red: 4 96% 64%;
+    --ios-yellow: 45 100% 55%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tabular numerals on every theme — metrics never reflow when digits change. */
+  body { font-feature-settings: "tnum" 1, "ss01" 1, "cv11" 1; }
+
+  /* Dark themes — slight letter-spacing relaxation reads more comfortably
+     against deep navy backgrounds. */
+  html.dark body { letter-spacing: 0.005em; }
+}
+
+/* ─── animations (kept) ─── */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes iosFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes iosPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.15); } }
+@keyframes ribbonShine { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes grainWallScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes ricePop { 0% { transform: translateY(8px) scale(0.8); opacity: 0; } 60% { transform: translateY(-2px) scale(1.05); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+@layer utilities {
+  /* legacy classic utilities */
+  .rice-primary { color: var(--rice-primary); }
+  .bg-rice-primary { background-color: var(--rice-primary); }
+  .rice-secondary { color: var(--rice-secondary); }
+  .bg-rice-secondary { background-color: var(--rice-secondary); }
+  .rice-white { color: var(--rice-white); }
+  .bg-rice-white { background-color: var(--rice-white); }
+  .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+  .animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+  .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+
+  /* iOS surface utilities */
+  .ios-canvas { background-color: hsl(var(--ios-canvas)); }
+  .ios-surface { background-color: hsl(var(--ios-surface)); }
+  .ios-raised { background-color: hsl(var(--ios-raised)); }
+  .ios-separator { background-color: hsl(var(--ios-separator)); }
+  .ios-hairline { border-color: hsl(var(--ios-separator)); }
+  .ios-text { color: hsl(var(--ios-text)); }
+  .ios-text-secondary { color: hsl(var(--ios-text-secondary)); }
+  .ios-text-tertiary { color: hsl(var(--ios-text-tertiary)); }
+  .ios-blue { color: hsl(var(--ios-blue)); }
+  .ios-green { color: hsl(var(--ios-green)); }
+  .ios-orange { color: hsl(var(--ios-orange)); }
+  .ios-red { color: hsl(var(--ios-red)); }
+  .ios-yellow { color: hsl(var(--ios-yellow)); }
+  .bg-ios-blue { background-color: hsl(var(--ios-blue)); }
+  .bg-ios-green { background-color: hsl(var(--ios-green)); }
+  .bg-ios-orange { background-color: hsl(var(--ios-orange)); }
+  .bg-ios-red { background-color: hsl(var(--ios-red)); }
+  .bg-ios-yellow { background-color: hsl(var(--ios-yellow)); }
+
+  /* glass topbar surface */
+  .ios-glass {
+    background: hsl(var(--ios-surface) / 0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  .ios-fade { animation: iosFade 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+  .ios-pulse { animation: iosPulse 1.6s ease-in-out infinite; }
+  .ios-spring { transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+/* ─── Sidebar nav row states (theme-adaptive) ─── */
+.nav-row-inactive {
+  color: hsl(var(--sidebar-foreground) / 0.85);
+}
+.nav-row-inactive:hover {
+  background: hsl(var(--sidebar-foreground) / 0.07);
+  color: hsl(var(--sidebar-foreground));
+}
+.nav-row-active {
+  background: hsl(var(--accent) / 0.15);
+  color: hsl(var(--accent));
+}
+/* For dark sidebar themes (Salesforce / Slack / Kuber / etc.), the accent
+   colour against the dark sidebar can read poorly — fall back to a light
+   tint of the sidebar foreground instead. */
+html[data-theme="salesforce"] .nav-row-active,
+html[data-theme="slack"] .nav-row-active,
+html[data-theme="kuber"] .nav-row-active,
+html[data-theme="nord"] .nav-row-active,
+html[data-theme="linear"] .nav-row-active {
+  background: hsl(var(--sidebar-foreground) / 0.15);
+  color: hsl(var(--sidebar-foreground));
+}
+
+/* ─── APIT brand surfacing ──────────────────────────────────────────
+   APIT has APIT Blue both as sidebar background AND as --accent, so
+   the default blue-on-blue active state is invisible. Surface the
+   yellow brand colour as the active highlight, then sprinkle yellow
+   on key page elements so the brand reads beyond the sidebar.
+─────────────────────────────────────────────────────────────────── */
+
+/* Sidebar — yellow active row + yellow hover halo */
+html[data-theme="apit"] .nav-row-inactive {
+  color: hsl(0 0% 100% / 0.85);
+}
+html[data-theme="apit"] .nav-row-inactive:hover {
+  background: hsl(51 100% 50% / 0.12);
+  color: hsl(51 100% 50%);
+}
+html[data-theme="apit"] .nav-row-active {
+  background: hsl(51 100% 50% / 0.22);
+  color: hsl(51 100% 50%);
+  box-shadow: inset 3px 0 0 hsl(51 100% 50%);
+}
+
+/* Topbar — thin yellow brand strip under the glass header */
+html[data-theme="apit"] header.ios-glass {
+  border-bottom: 2px solid hsl(51 100% 50%);
+}
+
+/* Tile / iOS-surface cards — paint a 2px yellow accent line at the top
+   of every elevated surface so the brand colour is visible everywhere
+   without overwhelming the white surfaces. */
+html[data-theme="apit"] .ios-surface {
+  box-shadow:
+    inset 0 2px 0 hsl(51 100% 50%),
+    0 1px 0 hsl(220 13% 92%);
+}
+
+/* ─── Midnight / Dark theme contrast remap ─────────────────────────
+   Many pages use hardcoded Tailwind grey utilities (text-gray-500,
+   bg-white, border-gray-200, etc.) that don't adapt to dark themes,
+   so on Midnight (kuber) the form labels, inputs, and section
+   surfaces become almost invisible. Remap them to lighter values
+   here so every page reads correctly without rewriting each form.
+─────────────────────────────────────────────────────────────────── */
+
+/* Text utilities — bump greys toward readable on dark navy */
+html[data-theme="kuber"] .text-gray-400 { color: hsl(215 25% 78%) !important; }
+html[data-theme="kuber"] .text-gray-500 { color: hsl(215 28% 82%) !important; }
+html[data-theme="kuber"] .text-gray-600 { color: hsl(213 30% 90%) !important; }
+html[data-theme="kuber"] .text-gray-700 { color: hsl(213 32% 94%) !important; }
+html[data-theme="kuber"] .text-gray-800 { color: hsl(213 33% 96%) !important; }
+html[data-theme="kuber"] .text-gray-900 { color: hsl(213 35% 98%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-400:hover { color: hsl(217 91% 76%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-500:hover { color: hsl(217 91% 72%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-600:hover { color: hsl(217 91% 66%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-700:hover { color: hsl(217 91% 60%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-800:hover { color: hsl(217 91% 54%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-900:hover { color: hsl(217 91% 48%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-400 { color: hsl(217 91% 76%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-500 { color: hsl(217 91% 72%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-600 { color: hsl(217 91% 66%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-700 { color: hsl(217 91% 60%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-800 { color: hsl(217 91% 54%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-900 { color: hsl(217 91% 48%) !important; }
+
+/* Muted foreground (shadcn) — operator-facing helper text */
+html[data-theme="kuber"] .text-muted-foreground { color: hsl(217 23% 75%) !important; }
+
+/* Input/Card/surface backgrounds — lift inputs above page so they
+   read as interactive instead of blending into the canvas. */
+html[data-theme="kuber"] input,
+html[data-theme="kuber"] select,
+html[data-theme="kuber"] textarea,
+html[data-theme="kuber"] [class*="border-input"],
+html[data-theme="kuber"] [class*="bg-background"] {
+  background-color: hsl(216 53% 18%) !important;
+  border-color: hsl(214 51% 28%) !important;
+  color: hsl(213 23% 95%) !important;
+}
+html[data-theme="kuber"] input::placeholder,
+html[data-theme="kuber"] textarea::placeholder {
+  color: hsl(217 23% 60%) !important;
+}
+
+/* Cards that hardcode bg-white — lift to surface */
+html[data-theme="kuber"] .bg-white { background-color: hsl(216 53% 13%) !important; }
+html[data-theme="kuber"] .bg-gray-50 { background-color: hsl(216 53% 11%) !important; }
+html[data-theme="kuber"] .bg-gray-100 { background-color: hsl(216 53% 16%) !important; }
+html[data-theme="kuber"] .bg-gray-200 { background-color: hsl(214 51% 22%) !important; }
+
+
+/* Borders */
+html[data-theme="kuber"] .border-gray-100,
+html[data-theme="kuber"] .border-gray-200,
+html[data-theme="kuber"] .border-gray-300 {
+  border-color: hsl(214 51% 25%) !important;
+}
+
+/* Rice-primary text on dark navy is unreadable — boost to accent blue */
+html[data-theme="kuber"] .text-rice-primary { color: hsl(217 91% 70%) !important; }
+
+/* When a table row uses a near-white hover background (hover:bg-gray-50,
+   hover:bg-gray-50/80, hover:bg-white) in dark mode, the row's light text
+   becomes invisible. Flip the text + descendants to a dark tone on hover. */
+html[data-theme="kuber"] tr.hover\:bg-gray-50\/80:hover,
+html[data-theme="kuber"] tr.hover\:bg-gray-50:hover,
+html[data-theme="kuber"] tr.hover\:bg-white:hover {
+  color: hsl(217 45% 13%) !important;
+}
+html[data-theme="kuber"] tr.hover\:bg-gray-50\/80:hover td,
+html[data-theme="kuber"] tr.hover\:bg-gray-50\/80:hover span,
+html[data-theme="kuber"] tr.hover\:bg-gray-50:hover td,
+html[data-theme="kuber"] tr.hover\:bg-gray-50:hover span,
+html[data-theme="kuber"] tr.hover\:bg-white:hover td,
+html[data-theme="kuber"] tr.hover\:bg-white:hover span {
+  color: hsl(217 45% 13%) !important;
+}
+
+/* ─── Dark-theme Tabs: active state visibility ─────────────────────
+   shadcn Tabs use --background for the active trigger. In dark themes
+   that lands DARKER than the surrounding --muted bar, so "selected"
+   looks like a hole. Re-target active triggers to an elevated surface
+   with an accent ring; also add a subtle separator between triggers
+   so the two tabs read as distinct buttons.
+─────────────────────────────────────────────────────────────────── */
+html.dark [role="tablist"] {
+  background-color: hsl(var(--ios-surface));
+  border: 1px solid hsl(var(--ios-separator));
+  gap: 4px;
+}
+
+html.dark [role="tablist"] > [role="tab"] {
+  color: hsl(var(--ios-text-secondary));
+  border: 1px solid transparent;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+html.dark [role="tablist"] > [role="tab"]:hover:not([data-state="active"]) {
+  background-color: hsl(var(--ios-raised));
+  color: hsl(var(--ios-text));
+}
+
+html.dark [role="tablist"] > [role="tab"][data-state="active"] {
+  background-color: hsl(var(--ios-raised)) !important;
+  color: hsl(var(--ios-text)) !important;
+  border-color: hsl(var(--accent) / 0.55) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--accent) / 0.35),
+    0 2px 8px -2px hsl(var(--accent) / 0.4) !important;
+}
+
