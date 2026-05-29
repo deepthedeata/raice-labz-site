@@ -191,7 +191,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex flex-col items-center justify-center text-center">
         <div className="mb-6 animate-logo-glow">
-          <img src="/raicelabslogo.jpeg" alt="Raice Labs Logo" className="h-40 w-auto mx-auto" />
+          <img src="/company-logo.png" alt="Company Logo" className="h-40 w-auto mx-auto" />
         </div>
         <div className="mb-6">
           <p className="text-white text-2xl font-bold tracking-widest">
@@ -312,8 +312,8 @@ const themeStyles: Record<Exclude<ThemeMode, "classic">, {
     cardBg: "rgba(10, 25, 49, 0.86)",
     buttonBg: "#60A5FA",
     buttonText: "#0F172A",
-    text: "#F8FAFC",
-    subtext: "#94A3B8",
+    text: "#FFFFFF",
+    subtext: "#E2E8F0",
     accent: "#60A5FA",
     accentSoft: "rgba(96, 165, 250, 0.22)",
     glow: "rgba(96, 165, 250, 0.2)",
@@ -365,7 +365,7 @@ const LoadingPageIOS: React.FC<IOSProps> = ({ progress, checks, allDone, canEnte
         <div className="overflow-hidden rounded-[36px] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.45)] border" style={{ background: visual.heroBg, borderColor: visual.accentSoft }}>
           <div className="px-8 py-10 sm:px-10 sm:py-12 text-center flex items-center justify-center">
             <div className="mx-auto flex items-center justify-center animate-[logoPulse_2s_ease-in-out_infinite]" style={{ width: "fit-content" }}>
-              <img src="/raicelabslogo.jpeg" alt="Raice Labs Logo" className="block h-32 w-auto" />
+              <img src="/company-logo.png" alt="Company Logo" className="block h-32 w-auto" />
             </div>
           </div>
 
@@ -399,7 +399,7 @@ const LoadingPageIOS: React.FC<IOSProps> = ({ progress, checks, allDone, canEnte
                     <div className="text-[11px] truncate" style={{ color: visual.subtext }}>{check.message}</div>
                   )}
                 </div>
-                <CheckBadge status={check.status} />
+                <CheckBadge status={check.status} visual={visual} />
               </div>
             ))}
           </div>
@@ -451,9 +451,9 @@ function CheckDot({ status }: { status: CheckStatus }) {
   );
 }
 
-function CheckBadge({ status }: { status: CheckStatus }) {
-  if (status === "pending") return <span className="text-[11px] ios-text-tertiary font-medium">Queued</span>;
-  if (status === "running") return <span className="text-[11px] font-medium" style={{ color: "hsl(var(--accent))" }}>Checking…</span>;
+function CheckBadge({ status, visual }: { status: CheckStatus; visual: typeof themeStyles.apit }) {
+  if (status === "pending") return <span className="text-[11px] font-medium" style={{ color: visual.subtext }}>Queued</span>;
+  if (status === "running") return <span className="text-[11px] font-medium" style={{ color: visual.accent }}>Checking…</span>;
   if (status === "success") return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="animate-checkmark" style={{ color: "hsl(var(--ios-green))" }}>
       <path
