@@ -159,7 +159,7 @@
     --ios-yellow:         51 100% 50%;     /* APIT Yellow */
   }
 
-  /* ─── KUBER / Midnight — softened navy, brighter text ─── */
+  /* ─── KUBER / Midnight — softened navy, white text ─── */
   html[data-theme="kuber"] {
     --bg-base:       217 45% 13%;     /* #122036 — softer midnight */
     --bg-surface:    216 42% 17%;     /* #1a2842 */
@@ -167,27 +167,27 @@
     --bg-hover:      214 38% 27%;     /* #2f3e5d */
     --border-token:  214 40% 32%;     /* #3a4a6c */
     --border-subtle: 215 42% 22%;     /* #24344f */
-    --text-primary:  218 75% 18%;     /* navy blue */
-    --text-secondary:218 70% 30%;     /* navy blue secondary */
-    --text-muted:    218 60% 45%;     /* navy blue muted */
+    --text-primary:  0 0% 100%;       /* white */
+    --text-secondary:0 0% 95%;        /* light gray */
+    --text-muted:    0 0% 85%;        /* medium gray */
     --accent:        217 95% 68%;     /* #5b9aff — brighter blue */
     --accent-dim:    217 95% 68% / 0.18;
     --accent-hover:  221 88% 60%;     /* #3b78f1 */
 
     --background: 217 45% 13%;
-    --foreground: 218 75% 18%;
+    --foreground: 0 0% 100%;
     --card: 216 42% 17%;
-    --card-foreground: 218 75% 18%;
+    --card-foreground: 0 0% 100%;
     --popover: 216 42% 17%;
-    --popover-foreground: 218 75% 18%;
+    --popover-foreground: 0 0% 100%;
     --primary: 217 95% 68%;
-    --primary-foreground: 218 75% 18%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 215 40% 22%;
-    --secondary-foreground: 218 75% 18%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 214 38% 27%;
-    --muted-foreground: 218 70% 30%;
+    --muted-foreground: 0 0% 85%;
     --accent-bg: 217 95% 68%;
-    --accent-foreground: 218 75% 18%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 4 96% 68%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 40% 32%;
@@ -196,11 +196,11 @@
     --radius: 0.5rem;
 
     --sidebar-background: 216 42% 17%;
-    --sidebar-foreground: 218 75% 18%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 95% 68%;
-    --sidebar-primary-foreground: 218 75% 18%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 215 40% 22%;
-    --sidebar-accent-foreground: 218 75% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 214 40% 32%;
     --sidebar-ring: 217 95% 68%;
 
@@ -208,9 +208,9 @@
     --ios-surface: 216 42% 17%;
     --ios-raised: 215 40% 22%;
     --ios-separator: 214 40% 32%;
-    --ios-text: 218 75% 18%;
-    --ios-text-secondary: 218 70% 30%;
-    --ios-text-tertiary: 218 60% 45%;
+    --ios-text: 0 0% 100%;
+    --ios-text-secondary: 0 0% 95%;
+    --ios-text-tertiary: 0 0% 85%;
     --ios-blue: 217 95% 68%;
     --ios-green: 142 71% 58%;
     --ios-orange: 32 100% 62%;
@@ -769,35 +769,40 @@ html[data-theme="apit"] .ios-surface {
 }
 
 /* ─── Midnight / Dark theme contrast remap ─────────────────────────
-   Many pages use hardcoded Tailwind grey utilities (text-gray-500,
-   bg-white, border-gray-200, etc.) that don't adapt to dark themes,
-   so on Midnight (kuber) the form labels, inputs, and section
-   surfaces become almost invisible. Remap them to lighter values
-   here so every page reads correctly without rewriting each form.
+   Remap all text utilities to white for maximum visibility in the
+   midnight/kuber theme. All text should be white or light gray.
 ─────────────────────────────────────────────────────────────────── */
 
-/* Text utilities — bump greys toward readable on dark navy */
-html[data-theme="kuber"] .text-gray-400 { color: hsl(215 25% 78%) !important; }
-html[data-theme="kuber"] .text-gray-500 { color: hsl(215 28% 82%) !important; }
-html[data-theme="kuber"] .text-gray-600 { color: hsl(213 30% 90%) !important; }
-html[data-theme="kuber"] .text-gray-700 { color: hsl(213 32% 94%) !important; }
-html[data-theme="kuber"] .text-gray-800 { color: hsl(213 33% 96%) !important; }
-html[data-theme="kuber"] .text-gray-900 { color: hsl(213 35% 98%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-400:hover { color: hsl(217 91% 76%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-500:hover { color: hsl(217 91% 72%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-600:hover { color: hsl(217 91% 66%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-700:hover { color: hsl(217 91% 60%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-800:hover { color: hsl(217 91% 54%) !important; }
-html[data-theme="kuber"] .hover\:text-gray-900:hover { color: hsl(217 91% 48%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-400 { color: hsl(217 91% 76%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-500 { color: hsl(217 91% 72%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-600 { color: hsl(217 91% 66%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-700 { color: hsl(217 91% 60%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-800 { color: hsl(217 91% 54%) !important; }
-html[data-theme="kuber"] .group:hover .group-hover\:text-gray-900 { color: hsl(217 91% 48%) !important; }
+/* Text utilities — all white for midnight theme */
+html[data-theme="kuber"] .text-gray-400 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-gray-500 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-gray-600 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-gray-700 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-gray-800 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-gray-900 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-400 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-500 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-600 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-700 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-800 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .text-slate-900 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-400:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-500:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-600:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-700:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-800:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .hover\:text-gray-900:hover { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-400 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-500 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-600 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-700 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-800 { color: hsl(0 0% 100%) !important; }
+html[data-theme="kuber"] .group:hover .group-hover\:text-gray-900 { color: hsl(0 0% 100%) !important; }
 
 /* Muted foreground (shadcn) — operator-facing helper text */
-html[data-theme="kuber"] .text-muted-foreground { color: hsl(217 23% 75%) !important; }
+html[data-theme="kuber"] .text-muted-foreground { color: hsl(0 0% 95%) !important; }
+html[data-theme="kuber"] .placeholder-gray-500::placeholder { color: hsl(0 0% 85%) !important; }
+html[data-theme="kuber"] .placeholder-slate-500::placeholder { color: hsl(0 0% 85%) !important; }
 
 /* Input/Card/surface backgrounds — lift inputs above page so they
    read as interactive instead of blending into the canvas. */
