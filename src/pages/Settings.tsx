@@ -20,6 +20,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 type MachineEntryObj = { name: string; machineNumber?: string; machineModel?: string; customLabel?: string; status?: string };
 type LineConfig = { id: string; name: string; output: string; machines: (string | MachineEntryObj)[] };
 
+type RiceMillInfo = {
+  riceMillName: string;
+  operatorName: string;
+  location: string;
+  region: "basmati" | "non-basmati";
+  ownerContact: string;
+  personalEmail: string;
+  supportEmail: string;
+  supportContact: string;
+  gstNumber: string;
+};
+
 interface SegCategory {
   key: string;
   label: string;
@@ -68,6 +80,12 @@ interface MillSettingsPayload {
   location: string;
   riceMillName: string;
   region: string;
+  ownerContact?: string;
+  personalEmail?: string;
+  supportEmail?: string;
+  supportContact?: string;
+  gstNumber?: string;
+  otherRiceMills?: RiceMillInfo[];
   lines: LineConfig[];
   currentLineIndex: number;
   lineOutput: string;
@@ -144,6 +162,21 @@ const Settings = () => {
     const saved = localStorage.getItem('riceMill_region');
     return saved || "non-basmati";
   });
+  const [ownerContact, setOwnerContact] = useState(() => localStorage.getItem('riceMill_ownerContact') || "");
+  const [personalEmail, setPersonalEmail] = useState(() => localStorage.getItem('riceMill_personalEmail') || "");
+  const [supportEmail, setSupportEmail] = useState(() => localStorage.getItem('riceMill_supportEmail') || "");
+  const [supportContact, setSupportContact] = useState(() => localStorage.getItem('riceMill_supportContact') || "");
+  const [gstNumber, setGstNumber] = useState(() => localStorage.getItem('riceMill_gstNumber') || "");
+  const [otherRiceMills, setOtherRiceMills] = useState<RiceMillInfo[]>(() => {
+    try {
+      const saved = localStorage.getItem('riceMill_otherMills');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
   const [locationSearchOpen, setLocationSearchOpen] = useState(false);
   const [locationSearchText, setLocationSearchText] = useState("");
 
@@ -171,6 +204,42 @@ const Settings = () => {
   const [newLineOutput, setNewLineOutput] = useState("10.0");
   const [newLineMachines, setNewLineMachines] = useState<string[]>([]);
   const [newLineMachineInput, setNewLineMachineInput] = useState("");
+
+  const createEmptyRiceMill = (): RiceMillInfo => ({
+    riceMillName: "",
+    operatorName: "",
+    location: "",
+    region: "non-basmati",
+    ownerContact: "",
+    personalEmail: "",
+    supportEmail: "",
+    supportContact: "",
+    gstNumber: "",
+  });
+
+  const addOtherRiceMill = useCallback(() => {
+    setOtherRiceMills((prev) => {
+      const next = [...prev, createEmptyRiceMill()];
+      localStorage.setItem('riceMill_otherMills', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const updateOtherRiceMill = useCallback((index: number, changes: Partial<RiceMillInfo>) => {
+    setOtherRiceMills((prev) => {
+      const next = prev.map((mill, idx) => idx === index ? { ...mill, ...changes } : mill);
+      localStorage.setItem('riceMill_otherMills', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const removeOtherRiceMill = useCallback((index: number) => {
+    setOtherRiceMills((prev) => {
+      const next = prev.filter((_, idx) => idx !== index);
+      localStorage.setItem('riceMill_otherMills', JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   // Segmentation config state
   const [segConfig, setSegConfig] = useState<SegmentationConfig>(DEFAULT_SEGMENTATION_CONFIG);
@@ -451,11 +520,17 @@ const Settings = () => {
     location: overrides.location ?? location,
     riceMillName: overrides.riceMillName ?? millName,
     region: overrides.region ?? region,
+    ownerContact: overrides.ownerContact ?? ownerContact,
+    personalEmail: overrides.personalEmail ?? personalEmail,
+    supportEmail: overrides.supportEmail ?? supportEmail,
+    supportContact: overrides.supportContact ?? supportContact,
+    gstNumber: overrides.gstNumber ?? gstNumber,
+    otherRiceMills: overrides.otherRiceMills ?? otherRiceMills,
     lines: overrides.lines ?? lines,
     currentLineIndex: overrides.currentLineIndex ?? currentLineIndex,
     lineOutput: overrides.lineOutput ?? lineOutput,
     machines: overrides.machines ?? machines,
-  }), [operatorName, location, millName, region, lines, currentLineIndex, lineOutput, machines]);
+  }), [operatorName, location, millName, region, ownerContact, personalEmail, supportEmail, supportContact, gstNumber, otherRiceMills, lines, currentLineIndex, lineOutput, machines]);
 
   const persistMillInformation = useCallback(async (overrides: Partial<MillSettingsPayload> = {}, options: PersistOptions = {}) => {
     try {
@@ -1094,6 +1169,73 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="settings-owner-contact">Contact number (Owner)</Label>
+                      <Input
+                        id="settings-owner-contact"
+                        placeholder="Owner contact number"
+                        value={ownerContact}
+                        onChange={(e) => {
+                          setOwnerContact(e.target.value);
+                          localStorage.setItem('riceMill_ownerContact', e.target.value);
+                        }}
+                        onBlur={() => persistMillInformation({})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="settings-personal-email">Personal Email ID</Label>
+                      <Input
+                        id="settings-personal-email"
+                        type="email"
+                        placeholder="Owner personal email"
+                        value={personalEmail}
+                        onChange={(e) => {
+                          setPersonalEmail(e.target.value);
+                          localStorage.setItem('riceMill_personalEmail', e.target.value);
+                        }}
+                        onBlur={() => persistMillInformation({})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="settings-support-email">Support Email ID</Label>
+                      <Input
+                        id="settings-support-email"
+                        type="email"
+                        placeholder="Support email"
+                        value={supportEmail}
+                        onChange={(e) => {
+                          setSupportEmail(e.target.value);
+                          localStorage.setItem('riceMill_supportEmail', e.target.value);
+                        }}
+                        onBlur={() => persistMillInformation({})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="settings-support-contact">Contact number (support)</Label>
+                      <Input
+                        id="settings-support-contact"
+                        placeholder="Support contact number"
+                        value={supportContact}
+                        onChange={(e) => {
+                          setSupportContact(e.target.value);
+                          localStorage.setItem('riceMill_supportContact', e.target.value);
+                        }}
+                        onBlur={() => persistMillInformation({})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="settings-gst-number">GST</Label>
+                      <Input
+                        id="settings-gst-number"
+                        placeholder="GST number"
+                        value={gstNumber}
+                        onChange={(e) => {
+                          setGstNumber(e.target.value);
+                          localStorage.setItem('riceMill_gstNumber', e.target.value);
+                        }}
+                        onBlur={() => persistMillInformation({})}
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="settings-location">Location</Label>
                       <Input
                         id="settings-location"
@@ -1130,6 +1272,114 @@ const Settings = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" type="button" onClick={addOtherRiceMill}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add another rice mill
+                </Button>
+              </div>
+
+              {otherRiceMills.length > 0 && otherRiceMills.map((mill, index) => (
+                <Card key={`rice-mill-${index}`}>
+                  <CardHeader className="flex items-center justify-between gap-4">
+                    <CardTitle className="text-rice-primary flex items-center gap-2">
+                      <Building2 className="w-5 h-5" />
+                      <span>Additional Rice Mill {index + 1}</span>
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => removeOtherRiceMill(index)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label>Rice Mill</Label>
+                        <Input
+                          value={mill.riceMillName}
+                          onChange={(e) => updateOtherRiceMill(index, { riceMillName: e.target.value })}
+                          placeholder="Enter rice mill name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Machine/Lab Incharge</Label>
+                        <Input
+                          value={mill.operatorName}
+                          onChange={(e) => updateOtherRiceMill(index, { operatorName: e.target.value })}
+                          placeholder="Enter incharge name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Owner Contact</Label>
+                        <Input
+                          value={mill.ownerContact}
+                          onChange={(e) => updateOtherRiceMill(index, { ownerContact: e.target.value })}
+                          placeholder="Owner contact number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Personal Email ID</Label>
+                        <Input
+                          type="email"
+                          value={mill.personalEmail}
+                          onChange={(e) => updateOtherRiceMill(index, { personalEmail: e.target.value })}
+                          placeholder="Owner personal email"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Support Email ID</Label>
+                        <Input
+                          type="email"
+                          value={mill.supportEmail}
+                          onChange={(e) => updateOtherRiceMill(index, { supportEmail: e.target.value })}
+                          placeholder="Support email"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Support Contact</Label>
+                        <Input
+                          value={mill.supportContact}
+                          onChange={(e) => updateOtherRiceMill(index, { supportContact: e.target.value })}
+                          placeholder="Support contact number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>GST</Label>
+                        <Input
+                          value={mill.gstNumber}
+                          onChange={(e) => updateOtherRiceMill(index, { gstNumber: e.target.value })}
+                          placeholder="GST number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Location</Label>
+                        <Input
+                          value={mill.location}
+                          onChange={(e) => updateOtherRiceMill(index, { location: e.target.value })}
+                          placeholder="Enter location"
+                        />
+                      </div>
+                      <div className="space-y-2 sm:col-span-2 xl:col-span-4">
+                        <Label>Mill Region</Label>
+                        <RadioGroup
+                          value={mill.region}
+                          onValueChange={(val) => updateOtherRiceMill(index, { region: val as "basmati" | "non-basmati" })}
+                          className="flex items-center gap-4 h-10"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <RadioGroupItem value="basmati" id={`region-basmati-${index}`} />
+                            <Label htmlFor={`region-basmati-${index}`} className="text-sm font-medium cursor-pointer">Basmati</Label>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <RadioGroupItem value="non-basmati" id={`region-non-basmati-${index}`} />
+                            <Label htmlFor={`region-non-basmati-${index}`} className="text-sm font-medium cursor-pointer">Non-Basmati</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
 
             {/* Two-column layout: Segmentation + Color Index */}
             <div className="grid grid-cols-3 gap-6">
