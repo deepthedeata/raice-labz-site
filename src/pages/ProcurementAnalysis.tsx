@@ -75,6 +75,26 @@ const INDIAN_CITIES = [
   "Dehradun, Uttarakhand", "Ranchi, Jharkhand", "Jamshedpur, Jharkhand", "Tirupati, Andhra Pradesh",
 ];
 
+const VARIETY_BRAN_HUSK_PRESETS: Record<string, { branPct: string; huskPct: string }> = {
+  "1121": { branPct: "10", huskPct: "18" },
+  "1509": { branPct: "10", huskPct: "18" },
+  "pusa-basmati": { branPct: "10", huskPct: "18" },
+  "sharbati": { branPct: "12", huskPct: "18" },
+  "sona-masuri": { branPct: "11", huskPct: "19" },
+  "bpt": { branPct: "12", huskPct: "19" },
+  "hmt": { branPct: "12", huskPct: "19" },
+  "kolam": { branPct: "11", huskPct: "19" },
+  "ponni": { branPct: "10", huskPct: "18" },
+  "jaya": { branPct: "11", huskPct: "18" },
+  "matta": { branPct: "11", huskPct: "20" },
+  "gobindobhog": { branPct: "10", huskPct: "18" },
+  "ir-64": { branPct: "12", huskPct: "20" },
+  "pr-11": { branPct: "10", huskPct: "18" },
+};
+
+const normalizeVariety = (value: string) =>
+  value.trim().toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9\-]/g, "");
+
 // ── Types for Step 3 (Insights & Reports) ──────────────────────────────
 interface GrainMetrics {
   goodRice: {
@@ -224,7 +244,7 @@ function computeOutputParams(metrics: GrainMetrics, whitenessIndex?: number, seg
     chalkyPct: +(((rej.chalky || 0) / total) * 100).toFixed(1),
     foreignMatterPct: +(((fm.total || 0) / total) * 100).toFixed(1),
     totalGrains: metrics.totalGrains || 0,
-};
+  };
 }
 
 const parseNumericValue = (value: string): number => {
@@ -237,7 +257,13 @@ const formatCurrency = (value: number) => {
   return `₹ ${value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 };
 
-const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+const formatNumber = (value: number) => {
+  return `${value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+};
+
+const formatPercent = (value: number) => {
+  return `${value.toFixed(1)}%`;
+};
 
 function averageMetrics(trials: TrialData[]): GrainMetrics {
   const completed = trials.filter((t) => t.sessionStatus === "completed" || t.GrainMetrics);
@@ -371,30 +397,40 @@ const ProcurementAnalysis = () => {
   });
   const [freeWeightInput, setFreeWeightInput] = useState("");
 
-  const [pricePerQuintal, setPricePerQuintal] = useState("");
-  const [pricePerMT, setPricePerMT] = useState("");
-  const [quantityLotProcessed, setQuantityLotProcessed] = useState("");
-  const [moisture, setMoisture] = useState("");
-  const [foreignMatter, setForeignMatter] = useState("");
-  const [transportationCostPerMT, setTransportationCostPerMT] = useState("");
-  const [unloadingCostPerMT, setUnloadingCostPerMT] = useState("");
-  const [commissionPerMT, setCommissionPerMT] = useState("");
+  const [transportationCostPerMT, setTransportationCostPerMT] = useState(() => sessionStorage.getItem("procurement_transportation_cost_mt") || "");
+  const [loadingCostINR, setLoadingCostINR] = useState(() => sessionStorage.getItem("procurement_loading_cost_inr") || "");
+  const [unloadingCostPerMT, setUnloadingCostPerMT] = useState(() => sessionStorage.getItem("procurement_unloading_cost_mt") || "");
 
-  const [yieldUnit, setYieldUnit] = useState<"kg" | "mt">(() => {
+  // Additional purchased data fields
+  const [vehicleNos, setVehicleNos] = useState(() => sessionStorage.getItem("procurement_vehicle_nos") || "");
+  const [paddyPricePerKg, setPaddyPricePerKg] = useState(() => sessionStorage.getItem("procurement_paddy_price_kg") || "");
+  const [mandiName, setMandiName] = useState(() => sessionStorage.getItem("procurement_mandi_name") || "");
+  const [kgPerBag, setKgPerBag] = useState(() => sessionStorage.getItem("procurement_kg_per_bag") || "");
+  const [totalBags, setTotalBags] = useState(() => sessionStorage.getItem("procurement_total_bags") || "");
+
+  const [yieldUnit, setYieldUnit] = useState<"kg" | "tons">(() => {
     const stored = sessionStorage.getItem("procurement_yield_unit");
-    return stored === "kg" ? "kg" : "mt";
+    return stored === "kg" ? "kg" : (stored === "tons" ? "tons" : "kg");
   });
-  const [headRicePricePerMT, setHeadRicePricePerMT] = useState(() => sessionStorage.getItem("procurement_head_rice_price_mt") || "");
-  const [brokenPricePerMT, setBrokenPricePerMT] = useState(() => sessionStorage.getItem("procurement_broken_price_mt") || "");
-  const [branPricePerMT, setBranPricePerMT] = useState(() => sessionStorage.getItem("procurement_bran_price_mt") || "");
-  const [huskPricePerMT, setHuskPricePerMT] = useState(() => sessionStorage.getItem("procurement_husk_price_mt") || "");
-  const [processingCostPerMT, setProcessingCostPerMT] = useState(() => sessionStorage.getItem("procurement_processing_cost_mt") || "");
-  const [electricityCost, setElectricityCost] = useState(() => sessionStorage.getItem("procurement_electricity_cost") || "");
+  // Yield estimation additional inputs (percentages and per-kg prices)
+  const [dryPaddyMoisture, setDryPaddyMoisture] = useState(() => sessionStorage.getItem("procurement_dry_paddy_moisture") || "");
+  const [paddyMoisture, setPaddyMoisture] = useState(() => sessionStorage.getItem("procurement_paddy_moisture") || "");
+  const [huskPct, setHuskPct] = useState(() => sessionStorage.getItem("procurement_husk_pct") || "");
+  const [huskPricePerKg, setHuskPricePerKg] = useState(() => sessionStorage.getItem("procurement_husk_price_kg") || "");
+  const [branPct, setBranPct] = useState(() => sessionStorage.getItem("procurement_bran_pct") || "");
+  const [branPricePerKg, setBranPricePerKg] = useState(() => sessionStorage.getItem("procurement_bran_price_kg") || "");
+  const [headRicePctInput, setHeadRicePctInput] = useState(() => sessionStorage.getItem("procurement_headrice_pct") || "");
+  const [headRicePricePerKg, setHeadRicePricePerKg] = useState(() => sessionStorage.getItem("procurement_headrice_price_kg") || "");
+  const [brokenCombinePct, setBrokenCombinePct] = useState(() => sessionStorage.getItem("procurement_broken_combine_pct") || "");
+  const [brokenCombinePricePerKg, setBrokenCombinePricePerKg] = useState(() => sessionStorage.getItem("procurement_broken_combine_price_kg") || "");
+  const [immatureGrainPct, setImmatureGrainPct] = useState(() => sessionStorage.getItem("procurement_immature_pct") || "");
+  const [immatureGrainPricePerKg, setImmatureGrainPricePerKg] = useState(() => sessionStorage.getItem("procurement_immature_price_kg") || "");
+  const [impuritiesPct, setImpuritiesPct] = useState(() => sessionStorage.getItem("procurement_impurities_pct") || "");
+  const [impuritiesPricePerKg, setImpuritiesPricePerKg] = useState(() => sessionStorage.getItem("procurement_impurities_price_kg") || "");
+  const [commissionPct, setCommissionPct] = useState(() => sessionStorage.getItem("procurement_commission_pct") || "");
   const [autoDamagedGrains, setAutoDamagedGrains] = useState("");
   const [autoHRYield, setAutoHRYield] = useState("");
   const [autoBrokenYield, setAutoBrokenYield] = useState("");
-  const [autoBranPD, setAutoBranPD] = useState("");
-  const [autoHuskPD, setAutoHuskPD] = useState("");
   const [autoDryingShrinkagePD, setAutoDryingShrinkagePD] = useState("");
 
   // Analysis Parameters
@@ -607,6 +643,14 @@ const ProcurementAnalysis = () => {
   }, [variety, millRegion]);
 
   useEffect(() => {
+    const normalized = normalizeVariety(variety);
+    const preset = VARIETY_BRAN_HUSK_PRESETS[normalized];
+    if (!preset) return;
+    setBranPct(preset.branPct);
+    setHuskPct(preset.huskPct);
+  }, [variety]);
+
+  useEffect(() => {
     if (!variety.trim() || !process.trim()) {
       setHarvestSeasonsFromDb([]);
       setHarvestSeason("");
@@ -778,23 +822,32 @@ const ProcurementAnalysis = () => {
             chalkyThreshold: enableChalky ? parseFloat(chalkyThreshold) || 20 : null,
             analysisParameters: { enableChalky, enableDiscolored, chalkyThreshold: enableChalky ? parseFloat(chalkyThreshold) || 20 : null },
             purchasedData: {
-              pricePerQuintal,
-              pricePerMT,
-              quantityLotProcessed,
-              moisture,
-              foreignMatter,
+              vehicleNos,
+              mandiName,
+              paddyPricePerKg,
+              kgPerBag,
+              totalBags,
               transportationCostPerMT,
+              loadingCostINR,
               unloadingCostPerMT,
-              commissionPerMT,
             },
             yieldEstimation: {
               yieldUnit,
-              headRicePricePerMT,
-              brokenPricePerMT,
-              branPricePerMT,
-              huskPricePerMT,
-              processingCostPerMT,
-              electricityCost,
+              dryPaddyMoisture,
+              paddyMoisture,
+              headRicePct: headRicePctInput,
+              headRicePricePerKg,
+              brokenCombinePct,
+              brokenCombinePricePerKg,
+              branPct,
+              branPricePerKg,
+              huskPct,
+              huskPricePerKg,
+              immatureGrainPct,
+              immatureGrainPricePerKg,
+              impuritiesPct,
+              impuritiesPricePerKg,
+              commissionPct,
             },
           };
 
@@ -819,20 +872,35 @@ const ProcurementAnalysis = () => {
           sessionStorage.setItem('procurement_sample_weight', resolvedWeight);
           sessionStorage.setItem('procurement_sample_size_mode', sampleMode);
           sessionStorage.setItem('procurement_yield_unit', yieldUnit);
-          sessionStorage.setItem('procurement_head_rice_price_mt', headRicePricePerMT);
-          sessionStorage.setItem('procurement_broken_price_mt', brokenPricePerMT);
-          sessionStorage.setItem('procurement_bran_price_mt', branPricePerMT);
-          sessionStorage.setItem('procurement_husk_price_mt', huskPricePerMT);
-          sessionStorage.setItem('procurement_processing_cost_mt', processingCostPerMT);
-          sessionStorage.setItem('procurement_electricity_cost', electricityCost);
-          sessionStorage.setItem('procurement_price_per_quintal', pricePerQuintal);
-          sessionStorage.setItem('procurement_price_per_mt', pricePerMT);
-          sessionStorage.setItem('procurement_qty_lot_processed', quantityLotProcessed);
-          sessionStorage.setItem('procurement_moisture', moisture);
-          sessionStorage.setItem('procurement_foreign_matter', foreignMatter);
+          sessionStorage.setItem('procurement_head_rice_price_kg', headRicePricePerKg);
+          sessionStorage.setItem('procurement_broken_price_kg', brokenCombinePricePerKg);
+          sessionStorage.setItem('procurement_bran_price_kg', branPricePerKg);
+          sessionStorage.setItem('procurement_husk_price_kg', huskPricePerKg);
+          // Purchased data persistence
+          sessionStorage.setItem('procurement_vehicle_nos', vehicleNos);
+          sessionStorage.setItem('procurement_mandi_name', mandiName);
+          sessionStorage.setItem('procurement_paddy_price_kg', paddyPricePerKg);
+          sessionStorage.setItem('procurement_kg_per_bag', kgPerBag);
+          sessionStorage.setItem('procurement_total_bags', totalBags);
           sessionStorage.setItem('procurement_transportation_cost_mt', transportationCostPerMT);
+          sessionStorage.setItem('procurement_loading_cost_inr', loadingCostINR);
           sessionStorage.setItem('procurement_unloading_cost_mt', unloadingCostPerMT);
-          sessionStorage.setItem('procurement_commission_mt', commissionPerMT);
+          // Yield estimation persisted percentages/prices
+          sessionStorage.setItem('procurement_dry_paddy_moisture', dryPaddyMoisture);
+          sessionStorage.setItem('procurement_paddy_moisture', paddyMoisture);
+          sessionStorage.setItem('procurement_husk_pct', huskPct);
+          sessionStorage.setItem('procurement_bran_pct', branPct);
+          sessionStorage.setItem('procurement_headrice_pct', headRicePctInput);
+          sessionStorage.setItem('procurement_broken_combine_pct', brokenCombinePct);
+          sessionStorage.setItem('procurement_immature_pct', immatureGrainPct);
+          sessionStorage.setItem('procurement_impurities_pct', impuritiesPct);
+          sessionStorage.setItem('procurement_husk_price_kg', huskPricePerKg);
+          sessionStorage.setItem('procurement_bran_price_kg', branPricePerKg);
+          sessionStorage.setItem('procurement_headrice_price_kg', headRicePricePerKg);
+          sessionStorage.setItem('procurement_broken_combine_price_kg', brokenCombinePricePerKg);
+          sessionStorage.setItem('procurement_immature_price_kg', immatureGrainPricePerKg);
+          sessionStorage.setItem('procurement_impurities_price_kg', impuritiesPricePerKg);
+          sessionStorage.setItem('procurement_commission_pct', commissionPct);
           sessionStorage.setItem('chalky_threshold', chalkyThreshold);
           sessionStorage.setItem('analysis_params', JSON.stringify({ enableChalky, enableDiscolored, chalkyThreshold: enableChalky ? parseFloat(chalkyThreshold) || 20 : null }));
           sessionStorage.setItem('procurement_id_generation', idGeneration);
@@ -977,35 +1045,65 @@ const ProcurementAnalysis = () => {
     return dimensionStats.trialStats[trialKey] ?? dimensionStats.overallStats;
   }, [dimensionStats, activeSampleTab]);
 
+  useEffect(() => {
+    if (!currentOutputParams) return;
+    setHeadRicePctInput(String(currentOutputParams.headRicePct));
+    setBrokenCombinePct(String(currentOutputParams.brokenRicePct));
+  }, [currentOutputParams]);
+
   const procurementEconomics = useMemo(() => {
-    const purchasePrice = parseNumericValue(pricePerMT);
-    const transportHandling = parseNumericValue(transportationCostPerMT) + parseNumericValue(unloadingCostPerMT) + parseNumericValue(commissionPerMT);
-    const landedCost = purchasePrice + transportHandling;
-    const shrinkageLoss = parseNumericValue(pricePerMT) * (parseNumericValue(autoDryingShrinkagePD) / 100);
-    const processingCost = parseNumericValue(processingCostPerMT);
-    const electricity = parseNumericValue(electricityCost);
-    const totalCost = landedCost + shrinkageLoss + processingCost + electricity;
-    const headRevenue = parseNumericValue(headRicePricePerMT) * ((currentOutputParams?.headRicePct || 0) / 100);
-    const avgByproductsPrice = (parseNumericValue(brokenPricePerMT) + parseNumericValue(branPricePerMT) + parseNumericValue(huskPricePerMT)) / 3;
-    const combinedRevenue = avgByproductsPrice * ((currentOutputParams?.brokenRicePct || 0) / 100);
-    const totalRevenue = headRevenue + combinedRevenue;
-    const grossMargin = totalRevenue - totalCost;
-    const breakEven = Math.max(0, totalRevenue - transportHandling - processingCost - electricity);
+    const totalPaddyWeightKg = parseNumericValue(kgPerBag) * parseNumericValue(totalBags);
+    const purchaseCost = totalPaddyWeightKg * parseNumericValue(paddyPricePerKg);
+    const transportCost = parseNumericValue(transportationCostPerMT);
+    const loadingCost = parseNumericValue(loadingCostINR);
+    const unloadingCost = parseNumericValue(unloadingCostPerMT);
+    const paymentAskedBeforeAnalysis = purchaseCost + transportCost + loadingCost + unloadingCost;
+    const landedCostPaddyPerKg = totalPaddyWeightKg > 0 ? paymentAskedBeforeAnalysis / totalPaddyWeightKg : 0;
+
+    const initialPaddyMoisture = parseNumericValue(paddyMoisture);
+    const finalPaddyMoisture = parseNumericValue(dryPaddyMoisture);
+    const driedWeightKg = (finalPaddyMoisture >= 100 || finalPaddyMoisture < 0)
+      ? totalPaddyWeightKg
+      : totalPaddyWeightKg * Math.max(0, (100 - initialPaddyMoisture)) / Math.max(1, (100 - finalPaddyMoisture));
+    const finalWeightKg = driedWeightKg * Math.max(0, 1 - ((parseNumericValue(impuritiesPct) + parseNumericValue(immatureGrainPct)) / 100));
+
+    const headRiceYieldPct = currentOutputParams?.headRicePct ?? parseNumericValue(headRicePctInput);
+    const brokenRiceYieldPct = currentOutputParams?.brokenRicePct ?? parseNumericValue(brokenCombinePct);
+    const riceYieldPct = headRiceYieldPct + brokenRiceYieldPct;
+
+    const headRiceRevenueTotal = driedWeightKg * (headRiceYieldPct / 100) * parseNumericValue(headRicePricePerKg);
+    const brokenCombineRevenueTotal = driedWeightKg * (brokenRiceYieldPct / 100) * parseNumericValue(brokenCombinePricePerKg);
+    const branRevenueTotal = driedWeightKg * (parseNumericValue(branPct) / 100) * parseNumericValue(branPricePerKg);
+    const huskRevenueTotal = driedWeightKg * (parseNumericValue(huskPct) / 100) * parseNumericValue(huskPricePerKg);
+    const immatureRevenueTotal = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100) * parseNumericValue(immatureGrainPricePerKg);
+    const impuritiesRevenueTotal = driedWeightKg * (parseNumericValue(impuritiesPct) / 100) * parseNumericValue(impuritiesPricePerKg);
+
+    const paymentToBeDoneAfterAnalysis = headRiceRevenueTotal + brokenCombineRevenueTotal + branRevenueTotal + huskRevenueTotal + immatureRevenueTotal + impuritiesRevenueTotal;
+    const commissionAmount = paymentToBeDoneAfterAnalysis * (parseNumericValue(commissionPct) / 100);
 
     return {
-      purchasePrice,
-      transportHandling,
-      landedCost,
-      shrinkageLoss,
-      processingCost,
-      totalCost,
-      headRevenue,
-      combinedRevenue,
-      totalRevenue,
-      grossMargin,
-      breakEven,
+      totalPaddyWeightKg,
+      purchaseCost,
+      transportCost,
+      loadingCost,
+      unloadingCost,
+      driedWeightKg,
+      finalWeightKg,
+      paymentAskedBeforeAnalysis,
+      landedCostPaddyPerKg,
+      riceYieldPct,
+      commissionAmount,
+      paymentToBeDoneAfterAnalysis,
+      headRiceRevenueTotal,
+      brokenCombineRevenueTotal,
+      branRevenueTotal,
+      huskRevenueTotal,
+      immatureRevenueTotal,
+      impuritiesRevenueTotal,
+      headRiceYieldPct,
+      brokenRiceYieldPct,
     };
-  }, [pricePerMT, transportationCostPerMT, unloadingCostPerMT, commissionPerMT, autoDryingShrinkagePD, processingCostPerMT, electricityCost, headRicePricePerMT, brokenPricePerMT, branPricePerMT, huskPricePerMT, currentOutputParams?.headRicePct, currentOutputParams?.brokenRicePct]);
+  }, [kgPerBag, totalBags, paddyPricePerKg, transportationCostPerMT, loadingCostINR, unloadingCostPerMT, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, commissionPct]);
 
   const totalGrainsScanned = useMemo(() => {
     return reportTrials.reduce((sum, t) => sum + ((t.GrainMetrics?.totalGrains) || 0), 0);
@@ -1426,52 +1524,54 @@ const ProcurementAnalysis = () => {
                     <CardContent className="space-y-4 text-sm text-gray-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <Label htmlFor="price-per-quintal">Price per Quintal</Label>
+                          <Label htmlFor="vehicle-nos">Vehicle nos.</Label>
                           <Input
-                            id="price-per-quintal"
-                            value={pricePerQuintal}
-                            onChange={(e) => setPricePerQuintal(e.target.value)}
-                            placeholder="₹ / quintal"
+                            id="vehicle-nos"
+                            value={vehicleNos}
+                            onChange={(e) => setVehicleNos(e.target.value)}
+                            placeholder="Comma-separated"
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="price-per-mt">Price per MT</Label>
+                          <Label htmlFor="mandi-name">Mandi name</Label>
                           <Input
-                            id="price-per-mt"
-                            value={pricePerMT}
-                            onChange={(e) => setPricePerMT(e.target.value)}
-                            placeholder="₹ / MT"
+                            id="mandi-name"
+                            value={mandiName}
+                            onChange={(e) => setMandiName(e.target.value)}
+                            placeholder="Mandi / Market"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <Label htmlFor="paddy-price-kg">Paddy price / kg</Label>
+                          <Input
+                            id="paddy-price-kg"
+                            value={paddyPricePerKg}
+                            onChange={(e) => setPaddyPricePerKg(e.target.value)}
+                            placeholder="₹ / kg"
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="qty-lot-processed">Qty / lot processed</Label>
+                          <Label htmlFor="kg-per-bag">kg / bag</Label>
                           <Input
-                            id="qty-lot-processed"
-                            value={quantityLotProcessed}
-                            onChange={(e) => setQuantityLotProcessed(e.target.value)}
-                            placeholder="Quantity"
+                            id="kg-per-bag"
+                            value={kgPerBag}
+                            onChange={(e) => setKgPerBag(e.target.value)}
+                            placeholder="kg per bag"
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="moisture">Moisture</Label>
+                          <Label htmlFor="total-bags">Total Bags</Label>
                           <Input
-                            id="moisture"
-                            value={moisture}
-                            onChange={(e) => setMoisture(e.target.value)}
-                            placeholder="%"
+                            id="total-bags"
+                            value={totalBags}
+                            onChange={(e) => setTotalBags(e.target.value)}
+                            placeholder="Total bags"
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <Label htmlFor="foreign-matter">Foreign matter</Label>
-                          <Input
-                            id="foreign-matter"
-                            value={foreignMatter}
-                            onChange={(e) => setForeignMatter(e.target.value)}
-                            placeholder="%"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="transportation-cost-mt">Transportation cost / MT</Label>
+                          <Label htmlFor="transportation-cost-mt">Transportation cost</Label>
                           <Input
                             id="transportation-cost-mt"
                             value={transportationCostPerMT}
@@ -1480,20 +1580,21 @@ const ProcurementAnalysis = () => {
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="unloading-cost-mt">Unloading cost / MT</Label>
+                          <Label htmlFor="loading-cost-inr">Loading cost (INR)</Label>
+                          <Input
+                            id="loading-cost-inr"
+                            value={loadingCostINR}
+                            onChange={(e) => setLoadingCostINR(e.target.value)}
+                            placeholder="₹"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <Label htmlFor="unloading-cost-mt">Unloading cost</Label>
                           <Input
                             id="unloading-cost-mt"
                             value={unloadingCostPerMT}
                             onChange={(e) => setUnloadingCostPerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="commission-mt">Commission / MT</Label>
-                          <Input
-                            id="commission-mt"
-                            value={commissionPerMT}
-                            onChange={(e) => setCommissionPerMT(e.target.value)}
                             placeholder="₹ / MT"
                           />
                         </div>
@@ -1515,68 +1616,75 @@ const ProcurementAnalysis = () => {
                           type="single"
                           value={yieldUnit}
                           onValueChange={(value) => {
-                            if (value) setYieldUnit(value as "kg" | "mt");
+                            if (value) setYieldUnit(value as "kg" | "tons");
                           }}
                           className="w-full max-w-xs"
                         >
-                          <ToggleGroupItem value="kg">kg</ToggleGroupItem>
-                          <ToggleGroupItem value="mt">MT</ToggleGroupItem>
+                          <ToggleGroupItem value="tons">Tons</ToggleGroupItem>
+                          <ToggleGroupItem value="kg">Kg</ToggleGroupItem>
                         </ToggleGroup>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <Label htmlFor="head-rice-price-mt">Head rice price / MT</Label>
-                          <Input
-                            id="head-rice-price-mt"
-                            value={headRicePricePerMT}
-                            onChange={(e) => setHeadRicePricePerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="broken-price-mt">Broken price / MT</Label>
-                          <Input
-                            id="broken-price-mt"
-                            value={brokenPricePerMT}
-                            onChange={(e) => setBrokenPricePerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="bran-price-mt">Bran price / MT</Label>
-                          <Input
-                            id="bran-price-mt"
-                            value={branPricePerMT}
-                            onChange={(e) => setBranPricePerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="husk-price-mt">Husk price / MT</Label>
-                          <Input
-                            id="husk-price-mt"
-                            value={huskPricePerMT}
-                            onChange={(e) => setHuskPricePerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="processing-cost-mt">Processing cost / MT</Label>
-                          <Input
-                            id="processing-cost-mt"
-                            value={processingCostPerMT}
-                            onChange={(e) => setProcessingCostPerMT(e.target.value)}
-                            placeholder="₹ / MT"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="electricity-cost">Electricity cost</Label>
-                          <Input
-                            id="electricity-cost"
-                            value={electricityCost}
-                            onChange={(e) => setElectricityCost(e.target.value)}
-                            placeholder="₹"
-                          />
+                      <div className="pt-2 border-t border-gray-200">
+                        <div className="text-sm font-semibold text-gray-900">Yield estimation inputs</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <div className="space-y-1">
+                            <Label htmlFor="dry-paddy-moisture">Final paddy moisture (dried)</Label>
+                            <Input id="dry-paddy-moisture" value={dryPaddyMoisture} onChange={(e) => setDryPaddyMoisture(e.target.value)} placeholder="%" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="paddy-moisture">Initial paddy moisture</Label>
+                            <Input id="paddy-moisture" value={paddyMoisture} onChange={(e) => setPaddyMoisture(e.target.value)} placeholder="%" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label>Husk (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={huskPct} onChange={(e) => setHuskPct(e.target.value)} placeholder="%" />
+                              <Input value={huskPricePerKg} onChange={(e) => setHuskPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label>Bran (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={branPct} onChange={(e) => setBranPct(e.target.value)} placeholder="%" />
+                              <Input value={branPricePerKg} onChange={(e) => setBranPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label>Head rice (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={headRicePctInput} onChange={(e) => setHeadRicePctInput(e.target.value)} placeholder="%" />
+                              <Input value={headRicePricePerKg} onChange={(e) => setHeadRicePricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label>Broken combine (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={brokenCombinePct} onChange={(e) => setBrokenCombinePct(e.target.value)} placeholder="%" />
+                              <Input value={brokenCombinePricePerKg} onChange={(e) => setBrokenCombinePricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label>Immature grain (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={immatureGrainPct} onChange={(e) => setImmatureGrainPct(e.target.value)} placeholder="%" />
+                              <Input value={immatureGrainPricePerKg} onChange={(e) => setImmatureGrainPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label>Impurities (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={impuritiesPct} onChange={(e) => setImpuritiesPct(e.target.value)} placeholder="%" />
+                              <Input value={impuritiesPricePerKg} onChange={(e) => setImpuritiesPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="commission-pct">Commission (%)</Label>
+                            <Input id="commission-pct" value={commissionPct} onChange={(e) => setCommissionPct(e.target.value)} placeholder="%" />
+                          </div>
                         </div>
                       </div>
 
@@ -1594,14 +1702,6 @@ const ProcurementAnalysis = () => {
                           <div className="space-y-1">
                             <Label>Broken</Label>
                             <Input disabled value={autoBrokenYield} placeholder="Calculated after analysis" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Bran PD</Label>
-                            <Input disabled value={autoBranPD} placeholder="Calculated after analysis" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Husk PD</Label>
-                            <Input disabled value={autoHuskPD} placeholder="Calculated after analysis" />
                           </div>
                           <div className="space-y-1">
                             <Label>Drying shrinkage PD</Label>
@@ -2013,17 +2113,18 @@ const ProcurementAnalysis = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    <div className="grid gap-3 sm:grid-cols-5">
+                    <div className="grid gap-3 sm:grid-cols-4">
                       {[
-                        { label: "Landed Cost", value: procurementEconomics.landedCost, accent: "text-emerald-700", bg: "bg-emerald-50" },
-                        { label: "Total Cost", value: procurementEconomics.totalCost, accent: "text-slate-700", bg: "bg-slate-50" },
-                        { label: "Total Revenue", value: procurementEconomics.totalRevenue, accent: "text-blue-700", bg: "bg-blue-50" },
-                        { label: "Gross Margin", value: procurementEconomics.grossMargin, accent: "text-emerald-700", bg: "bg-emerald-50" },
-                        { label: "Break-Even", value: procurementEconomics.breakEven, accent: "text-violet-700", bg: "bg-violet-50" },
+                        { label: "Landed cost paddy per kg", value: procurementEconomics.landedCostPaddyPerKg, accent: "text-emerald-700", bg: "bg-emerald-50" },
+                        { label: "Rice yield", value: procurementEconomics.riceYieldPct, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
+                        { label: "Commission", value: procurementEconomics.commissionAmount, accent: "text-blue-700", bg: "bg-blue-50" },
+                        { label: "Total payment to be done", value: procurementEconomics.paymentToBeDoneAfterAnalysis, accent: "text-emerald-700", bg: "bg-emerald-50" },
                       ].map((metric) => (
-                        <div key={metric.label} className={`rounded-2xl border border-gray-200 ${metric.bg} p-4`}> 
+                        <div key={metric.label} className={`rounded-2xl border border-gray-200 ${metric.bg} p-4`}>
                           <p className="text-[11px] font-medium text-gray-500">{metric.label}</p>
-                          <p className={`text-xl font-semibold ${metric.accent} mt-2`}>{formatCurrency(metric.value)}</p>
+                          <p className={`text-xl font-semibold ${metric.accent} mt-2`}>
+                            {metric.isPercent ? formatPercent(metric.value) : formatCurrency(metric.value)}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -2034,26 +2135,33 @@ const ProcurementAnalysis = () => {
                           <tr className="border-b bg-gray-50">
                             <th className="py-3 px-3 font-semibold text-gray-600">#</th>
                             <th className="py-3 px-3 font-semibold text-gray-600">Item</th>
-                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">₹ / MT</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Value</th>
                           </tr>
                         </thead>
                         <tbody>
                           {[
-                            { label: "Purchase Price", value: procurementEconomics.purchasePrice },
-                            { label: "Transport + Handling", value: procurementEconomics.transportHandling },
-                            { label: "Landed Cost", value: procurementEconomics.landedCost, emphasis: true },
-                            { label: "Shrinkage Loss", value: procurementEconomics.shrinkageLoss },
-                            { label: "Processing Cost", value: procurementEconomics.processingCost },
-                            { label: "Total Cost", value: procurementEconomics.totalCost, emphasis: true },
-                            { label: "Head Rice Revenue", value: procurementEconomics.headRevenue },
-                            { label: "Broken+Bran+Husk Rev", value: procurementEconomics.combinedRevenue },
-                            { label: "Total Revenue", value: procurementEconomics.totalRevenue, emphasis: true },
-                            { label: "Gross Margin", value: procurementEconomics.grossMargin, emphasis: true },
+                            { label: "Initial weight", value: procurementEconomics.totalPaddyWeightKg, unit: "kg" },
+                            { label: "Dried weight", value: procurementEconomics.driedWeightKg, unit: "kg" },
+                            { label: "Final weight (after impurities and immature)", value: procurementEconomics.finalWeightKg, unit: "kg" },
+                            { label: "Husk", value: procurementEconomics.huskRevenueTotal, unit: "currency" },
+                            { label: "Bran", value: procurementEconomics.branRevenueTotal, unit: "currency" },
+                            { label: "Head rice", value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
+                            { label: "Broken combine", value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
+                            { label: "Immature grain", value: procurementEconomics.immatureRevenueTotal, unit: "currency" },
+                            { label: "Impurities", value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
+                            { label: `Commission (${commissionPct || "0"}%)`, value: procurementEconomics.commissionAmount, unit: "currency" },
+                            { label: "Transportation cost", value: procurementEconomics.transportCost, unit: "currency" },
+                            { label: "Loading cost", value: procurementEconomics.loadingCost, unit: "currency" },
+                            { label: "Unloading cost", value: procurementEconomics.unloadingCost, unit: "currency" },
+                            { label: "Payment asked before analysis", value: procurementEconomics.paymentAskedBeforeAnalysis, unit: "currency", emphasis: true },
+                            { label: "Payment to be done after analysis", value: procurementEconomics.paymentToBeDoneAfterAnalysis, unit: "currency", emphasis: true },
                           ].map((item, idx) => (
                             <tr key={item.label} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                               <td className="py-3 px-3 text-sm text-gray-500">{idx + 1}</td>
                               <td className={`py-3 px-3 text-sm ${item.emphasis ? "font-semibold text-gray-900" : "text-gray-700"}`}>{item.label}</td>
-                              <td className={`py-3 px-3 text-right text-sm ${item.emphasis ? "font-semibold text-gray-900" : "text-gray-700"}`}>{formatCurrency(item.value)}</td>
+                              <td className={`py-3 px-3 text-right text-sm ${item.emphasis ? "font-semibold text-gray-900" : "text-gray-700"}`}>
+                              {item.unit === "kg" ? `${formatNumber(item.value)} kg` : formatCurrency(item.value)}
+                            </td>
                             </tr>
                           ))}
                         </tbody>
