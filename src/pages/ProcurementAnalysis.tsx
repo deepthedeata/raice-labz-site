@@ -1053,8 +1053,9 @@ const ProcurementAnalysis = () => {
     const transportCost = parseNumericValue(transportationCostPerMT);
     const loadingCost = parseNumericValue(loadingCostINR);
     const unloadingCost = parseNumericValue(unloadingCostPerMT);
-    const paymentAskedBeforeAnalysis = purchaseCost + transportCost + loadingCost + unloadingCost;
-    const landedCostPaddyPerKg = totalPaddyWeightKg > 0 ? paymentAskedBeforeAnalysis / totalPaddyWeightKg : 0;
+    // Exclude transport, loading and unloading from payment asked before analysis
+    const paymentAskedBeforeAnalysis = purchaseCost;
+    const landedCostPaddyPerKg = totalPaddyWeightKg > 0 ? purchaseCost / totalPaddyWeightKg : 0;
 
     const initialPaddyMoisture = parseNumericValue(paddyMoisture);
     const finalPaddyMoisture = parseNumericValue(dryPaddyMoisture);
@@ -1063,8 +1064,19 @@ const ProcurementAnalysis = () => {
       : totalPaddyWeightKg * Math.max(0, (100 - initialPaddyMoisture)) / Math.max(1, (100 - finalPaddyMoisture));
     const finalWeightKg = driedWeightKg * Math.max(0, 1 - ((parseNumericValue(impuritiesPct) + parseNumericValue(immatureGrainPct)) / 100));
 
-    const headRiceYieldPct = currentOutputParams?.headRicePct ?? parseNumericValue(headRicePctInput);
-    const brokenRiceYieldPct = currentOutputParams?.brokenRicePct ?? parseNumericValue(brokenCombinePct);
+    const headRiceYieldPctRaw = currentOutputParams?.headRicePct ?? parseNumericValue(headRicePctInput);
+    const brokenRiceYieldPctRaw = currentOutputParams?.brokenRicePct ?? parseNumericValue(brokenCombinePct);
+    const totalRiceYieldRaw = headRiceYieldPctRaw + brokenRiceYieldPctRaw;
+
+    // Deduct non-rice fractions from total rice yield as requested (bran, husk, impurities, immature)
+    const deductionsPct = parseNumericValue(branPct) + parseNumericValue(huskPct) + parseNumericValue(impuritiesPct) + parseNumericValue(immatureGrainPct);
+    const adjustedTotalRiceYield = Math.max(0, totalRiceYieldRaw - deductionsPct);
+
+    // Scale head rice and broken proportions proportionally so their sum equals adjusted total
+    const scale = totalRiceYieldRaw > 0 ? (adjustedTotalRiceYield / totalRiceYieldRaw) : 0;
+    const headRiceYieldPct = +(headRiceYieldPctRaw * scale).toFixed(2);
+    const brokenRiceYieldPct = +(brokenRiceYieldPctRaw * scale).toFixed(2);
+
     const riceYieldPct = headRiceYieldPct + brokenRiceYieldPct;
 
     const headRiceRevenueTotal = driedWeightKg * (headRiceYieldPct / 100) * parseNumericValue(headRicePricePerKg);
@@ -1074,7 +1086,8 @@ const ProcurementAnalysis = () => {
     const immatureRevenueTotal = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100) * parseNumericValue(immatureGrainPricePerKg);
     const impuritiesRevenueTotal = driedWeightKg * (parseNumericValue(impuritiesPct) / 100) * parseNumericValue(impuritiesPricePerKg);
 
-    const paymentToBeDoneAfterAnalysis = headRiceRevenueTotal + brokenCombineRevenueTotal + branRevenueTotal + huskRevenueTotal + immatureRevenueTotal + impuritiesRevenueTotal;
+    // Payment to be done after analysis = final weight (after impurities and immature) * initial paddy price per kg
+    const paymentToBeDoneAfterAnalysis = finalWeightKg * parseNumericValue(paddyPricePerKg);
     const commissionAmount = paymentToBeDoneAfterAnalysis * (parseNumericValue(commissionPct) / 100);
 
     return {
@@ -2108,10 +2121,10 @@ const ProcurementAnalysis = () => {
                             { label: "Final weight (after impurities and immature)", value: procurementEconomics.finalWeightKg, unit: "kg" },
                             { label: "Husk", value: procurementEconomics.huskRevenueTotal, unit: "currency" },
                             { label: "Bran", value: procurementEconomics.branRevenueTotal, unit: "currency" },
-                            { label: "Head rice", value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
-                            { label: "Broken combine", value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
+                            { label: `Head rice (${procurementEconomics.headRiceYieldPct != null ? formatPercent(procurementEconomics.headRiceYieldPct) : "—"})`, value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
+                            { label: `Broken combine (${procurementEconomics.brokenRiceYieldPct != null ? formatPercent(procurementEconomics.brokenRiceYieldPct) : "—"})`, value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
                             { label: "Immature grain", value: procurementEconomics.immatureRevenueTotal, unit: "currency" },
-                            { label: "Impurities", value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
+                            { label: `Impurities (${formatPercent(parseNumericValue(impuritiesPct))})`, value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
                             { label: `Commission (${commissionPct || "0"}%)`, value: procurementEconomics.commissionAmount, unit: "currency" },
                             { label: "Transportation cost", value: procurementEconomics.transportCost, unit: "currency" },
                             { label: "Loading cost", value: procurementEconomics.loadingCost, unit: "currency" },
