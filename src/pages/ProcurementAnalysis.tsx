@@ -428,10 +428,6 @@ const ProcurementAnalysis = () => {
   const [impuritiesPct, setImpuritiesPct] = useState(() => sessionStorage.getItem("procurement_impurities_pct") || "");
   const [impuritiesPricePerKg, setImpuritiesPricePerKg] = useState(() => sessionStorage.getItem("procurement_impurities_price_kg") || "");
   const [commissionPct, setCommissionPct] = useState(() => sessionStorage.getItem("procurement_commission_pct") || "");
-  const [autoDamagedGrains, setAutoDamagedGrains] = useState("");
-  const [autoHRYield, setAutoHRYield] = useState("");
-  const [autoBrokenYield, setAutoBrokenYield] = useState("");
-  const [autoDryingShrinkagePD, setAutoDryingShrinkagePD] = useState("");
 
   // Analysis Parameters
   const [enableChalky, setEnableChalky] = useState(true);
@@ -1576,7 +1572,7 @@ const ProcurementAnalysis = () => {
                             id="transportation-cost-mt"
                             value={transportationCostPerMT}
                             onChange={(e) => setTransportationCostPerMT(e.target.value)}
-                            placeholder="₹ / MT"
+                            placeholder="₹"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1595,7 +1591,7 @@ const ProcurementAnalysis = () => {
                             id="unloading-cost-mt"
                             value={unloadingCostPerMT}
                             onChange={(e) => setUnloadingCostPerMT(e.target.value)}
-                            placeholder="₹ / MT"
+                            placeholder="₹"
                           />
                         </div>
                       </div>
@@ -1610,20 +1606,7 @@ const ProcurementAnalysis = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-gray-700">
-                      <div className="space-y-1">
-                        <Label>Yield Unit</Label>
-                        <ToggleGroup
-                          type="single"
-                          value={yieldUnit}
-                          onValueChange={(value) => {
-                            if (value) setYieldUnit(value as "kg" | "tons");
-                          }}
-                          className="w-full max-w-xs"
-                        >
-                          <ToggleGroupItem value="tons">Tons</ToggleGroupItem>
-                          <ToggleGroupItem value="kg">Kg</ToggleGroupItem>
-                        </ToggleGroup>
-                      </div>
+                      {/* Yield Unit toggle removed per user request */}
                       <div className="pt-2 border-t border-gray-200">
                         <div className="text-sm font-semibold text-gray-900">Yield estimation inputs</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -1654,14 +1637,14 @@ const ProcurementAnalysis = () => {
                           <div className="space-y-1">
                             <Label>Head rice (%)</Label>
                             <div className="flex gap-2">
-                              <Input value={headRicePctInput} onChange={(e) => setHeadRicePctInput(e.target.value)} placeholder="%" />
+                              <Input value={""} disabled placeholder="Calculated after analysis" />
                               <Input value={headRicePricePerKg} onChange={(e) => setHeadRicePricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
                           <div className="space-y-1">
                             <Label>Broken combine (%)</Label>
                             <div className="flex gap-2">
-                              <Input value={brokenCombinePct} onChange={(e) => setBrokenCombinePct(e.target.value)} placeholder="%" />
+                              <Input value={""} disabled placeholder="Calculated after analysis" />
                               <Input value={brokenCombinePricePerKg} onChange={(e) => setBrokenCombinePricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
@@ -1688,27 +1671,7 @@ const ProcurementAnalysis = () => {
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-gray-200">
-                        <div className="text-sm font-semibold text-gray-900">Auto calculated after analysis</div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                          <div className="space-y-1">
-                            <Label>Damaged grains</Label>
-                            <Input disabled value={autoDamagedGrains} placeholder="Calculated after analysis" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label>HR yield</Label>
-                            <Input disabled value={autoHRYield} placeholder="Calculated after analysis" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Broken</Label>
-                            <Input disabled value={autoBrokenYield} placeholder="Calculated after analysis" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Drying shrinkage PD</Label>
-                            <Input disabled value={autoDryingShrinkagePD} placeholder="Calculated after analysis" />
-                          </div>
-                        </div>
-                      </div>
+                      {/* Auto-calculated summary removed per UI request */}
                     </CardContent>
                   </Card>
                 </div>
