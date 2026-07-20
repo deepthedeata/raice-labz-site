@@ -60,13 +60,11 @@ export function AppSidebarIOS() {
       }}
     >
       {/* Brand */}
-      <div className="px-5 pt-5 pb-4 flex items-center gap-3">
-        <img src="/raicelabslogo.jpeg" alt="Raice Labs" className="w-12 h-12 object-contain" />
-        <div>
-          <div className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: "hsl(var(--sidebar-foreground))" }}>
-            Raice Labs
-          </div>
+      <div className="px-5 pt-4 pb-3 flex flex-col items-center gap-1.5">
+        <div className="text-xs font-bold uppercase tracking-widest text-center leading-tight" style={{ color: "hsl(var(--sidebar-foreground))" }}>
+          Total Mill Analyzer
         </div>
+        <img src="/tma-icon.png" alt="Total Mill Analyzer" className="w-36 h-10" />
       </div>
 
       {/* Nav */}
