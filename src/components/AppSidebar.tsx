@@ -63,12 +63,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-0 h-screen sticky top-0 self-start">
-      <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center space-x-3">
-          <img src="/raicelabslogo.jpeg" alt="Raice Labs" className="w-12 h-12 object-contain" />
-          <div className="text-sidebar-foreground">
-            <div className="font-bold text-xl">Raice Labs</div>
-          </div>
+      <SidebarHeader className="p-4 border-b border-sidebar-border">
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="text-sidebar-foreground font-bold text-xl">TMA</div>
+          <img src="/tma-icon.png" alt="TMA" className="w-20 h-auto" />
         </div>
       </SidebarHeader>
 
