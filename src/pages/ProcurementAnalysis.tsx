@@ -14,7 +14,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { ClipboardList, Activity, BarChart3, CheckCircle2, MapPin, ChevronsUpDown, Wheat, Download, Play, LayoutDashboard, TrendingUp } from "lucide-react";
+import { ClipboardList, Activity, BarChart3, CheckCircle2, MapPin, ChevronsUpDown, Wheat, Download, Play, LayoutDashboard, TrendingUp, IndianRupee, Wallet, Scale, Droplets, AlertTriangle, Sprout, Truck } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import ProcurementLiveAnalysis from "./ProcurementLiveAnalysis";
@@ -37,6 +37,18 @@ const DEFAULT_WI_GRADES = [
   { label: "Amber Yellow", color: "#d4a843", min: 22, max: 25 },
   { label: "Golden", color: "#c8960c", min: 18, max: 22 },
 ];
+
+/* ── Fixed categorical colors for the paddy weight-composition breakdown ──
+ * Order matches procurementEconomics.breakdown; never cycled/reassigned. */
+const BREAKDOWN_COLORS: Record<string, string> = {
+  impurities: "#ef4444",
+  immature: "#a855f7",
+  husk: "#f97316",
+  bran: "#10b981",
+  headRice: "#0B4CAD",
+  brokenCombine: "#eab308",
+  deltaMoisture: "#64748b",
+};
 
 function getWiGradeLabel(wi: number): string {
   for (const g of DEFAULT_WI_GRADES) {
@@ -397,15 +409,8 @@ const ProcurementAnalysis = () => {
   });
   const [freeWeightInput, setFreeWeightInput] = useState("");
 
-  const [transportMillerChecked, setTransportMillerChecked] = useState(() => sessionStorage.getItem("procurement_transport_miller_checked") === "true");
-  const [transportMillerCost, setTransportMillerCost] = useState(() => sessionStorage.getItem("procurement_transport_miller_cost") || "");
-  const [transportTraderChecked, setTransportTraderChecked] = useState(() => sessionStorage.getItem("procurement_transport_trader_checked") === "true");
-  const [transportTraderCost, setTransportTraderCost] = useState(() => sessionStorage.getItem("procurement_transport_trader_cost") || "");
-  const [loadingMillerChecked, setLoadingMillerChecked] = useState(() => sessionStorage.getItem("procurement_loading_miller_checked") === "true");
-  const [loadingMillerCost, setLoadingMillerCost] = useState(() => sessionStorage.getItem("procurement_loading_miller_cost") || "");
-  const [loadingTraderChecked, setLoadingTraderChecked] = useState(() => sessionStorage.getItem("procurement_loading_trader_checked") === "true");
-  const [loadingTraderCost, setLoadingTraderCost] = useState(() => sessionStorage.getItem("procurement_loading_trader_cost") || "");
-  const [unloadingCostPerMT, setUnloadingCostPerMT] = useState(() => sessionStorage.getItem("procurement_unloading_cost_mt") || "");
+  const [transportationCost, setTransportationCost] = useState(() => sessionStorage.getItem("procurement_transportation_cost") || "");
+  const [loadingCost, setLoadingCost] = useState(() => sessionStorage.getItem("procurement_loading_cost") || "");
 
   // Additional purchased data fields
   const [vehicleNos, setVehicleNos] = useState(() => sessionStorage.getItem("procurement_vehicle_nos") || "");
@@ -413,13 +418,13 @@ const ProcurementAnalysis = () => {
   const [mandiName, setMandiName] = useState(() => sessionStorage.getItem("procurement_mandi_name") || "");
   const [kgPerBag, setKgPerBag] = useState(() => sessionStorage.getItem("procurement_kg_per_bag") || "");
   const [totalBags, setTotalBags] = useState(() => sessionStorage.getItem("procurement_total_bags") || "");
+  const [moistureSentByTrader, setMoistureSentByTrader] = useState(() => sessionStorage.getItem("procurement_moisture_sent_by_trader") || "");
 
   const [yieldUnit, setYieldUnit] = useState<"kg" | "tons">(() => {
     const stored = sessionStorage.getItem("procurement_yield_unit");
     return stored === "kg" ? "kg" : (stored === "tons" ? "tons" : "kg");
   });
   // Yield estimation additional inputs (percentages and per-kg prices)
-  const [dryPaddyMoisture, setDryPaddyMoisture] = useState(() => sessionStorage.getItem("procurement_dry_paddy_moisture") || "");
   const [paddyMoisture, setPaddyMoisture] = useState(() => sessionStorage.getItem("procurement_paddy_moisture") || "");
   const [huskPct, setHuskPct] = useState(() => sessionStorage.getItem("procurement_husk_pct") || "");
   const [huskPricePerKg, setHuskPricePerKg] = useState(() => sessionStorage.getItem("procurement_husk_price_kg") || "");
@@ -861,19 +866,12 @@ const ProcurementAnalysis = () => {
               paddyPricePerKg,
               kgPerBag,
               totalBags,
-              transportMillerChecked,
-              transportMillerCost,
-              transportTraderChecked,
-              transportTraderCost,
-              loadingMillerChecked,
-              loadingMillerCost,
-              loadingTraderChecked,
-              loadingTraderCost,
-              unloadingCostPerMT,
+              transportationCost,
+              loadingCost,
+              moistureSentByTrader,
             },
             yieldEstimation: {
               yieldUnit,
-              dryPaddyMoisture,
               paddyMoisture,
               headRicePct: headRicePctInput,
               headRicePricePerKg,
@@ -922,17 +920,10 @@ const ProcurementAnalysis = () => {
           sessionStorage.setItem('procurement_paddy_price_kg', paddyPricePerKg);
           sessionStorage.setItem('procurement_kg_per_bag', kgPerBag);
           sessionStorage.setItem('procurement_total_bags', totalBags);
-          sessionStorage.setItem('procurement_transport_miller_checked', String(transportMillerChecked));
-          sessionStorage.setItem('procurement_transport_miller_cost', transportMillerCost);
-          sessionStorage.setItem('procurement_transport_trader_checked', String(transportTraderChecked));
-          sessionStorage.setItem('procurement_transport_trader_cost', transportTraderCost);
-          sessionStorage.setItem('procurement_loading_miller_checked', String(loadingMillerChecked));
-          sessionStorage.setItem('procurement_loading_miller_cost', loadingMillerCost);
-          sessionStorage.setItem('procurement_loading_trader_checked', String(loadingTraderChecked));
-          sessionStorage.setItem('procurement_loading_trader_cost', loadingTraderCost);
-          sessionStorage.setItem('procurement_unloading_cost_mt', unloadingCostPerMT);
+          sessionStorage.setItem('procurement_transportation_cost', transportationCost);
+          sessionStorage.setItem('procurement_loading_cost', loadingCost);
+          sessionStorage.setItem('procurement_moisture_sent_by_trader', moistureSentByTrader);
           // Yield estimation persisted percentages/prices
-          sessionStorage.setItem('procurement_dry_paddy_moisture', dryPaddyMoisture);
           sessionStorage.setItem('procurement_paddy_moisture', paddyMoisture);
           sessionStorage.setItem('procurement_husk_pct', huskPct);
           sessionStorage.setItem('procurement_bran_pct', branPct);
@@ -1097,81 +1088,105 @@ const ProcurementAnalysis = () => {
     setBrokenCombinePct(String(currentOutputParams.brokenRicePct));
   }, [currentOutputParams]);
 
+  // Mirrors the "Drying process" sheet in proc.xlsx — the reference model for
+  // procurement settlement math. Weight fractions cascade: each deduction (impurities,
+  // immature, husk, bran, head rice, broken combine) is taken out of what's left after
+  // the moisture loss and the deductions before it, not off the raw 100% base.
   const procurementEconomics = useMemo(() => {
     const totalPaddyWeightKg = parseNumericValue(kgPerBag) * parseNumericValue(totalBags);
     const purchaseCost = totalPaddyWeightKg * parseNumericValue(paddyPricePerKg);
-    const transportCost = (transportMillerChecked ? parseNumericValue(transportMillerCost) : 0) + (transportTraderChecked ? parseNumericValue(transportTraderCost) : 0);
-    const loadingCost = (loadingMillerChecked ? parseNumericValue(loadingMillerCost) : 0) + (loadingTraderChecked ? parseNumericValue(loadingTraderCost) : 0);
-    const unloadingCost = parseNumericValue(unloadingCostPerMT);
-    // Exclude transport, loading and unloading from payment asked before analysis
-    const paymentAskedBeforeAnalysis = purchaseCost;
+    const transportCost = parseNumericValue(transportationCost);
+    const loadingCostAmount = parseNumericValue(loadingCost);
     const landedCostPaddyPerKg = totalPaddyWeightKg > 0 ? purchaseCost / totalPaddyWeightKg : 0;
 
-    const initialPaddyMoisture = parseNumericValue(paddyMoisture);
-    const finalPaddyMoisture = parseNumericValue(dryPaddyMoisture);
-    const driedWeightKg = (finalPaddyMoisture >= 100 || finalPaddyMoisture < 0)
-      ? totalPaddyWeightKg
-      : totalPaddyWeightKg * Math.max(0, (100 - initialPaddyMoisture)) / Math.max(1, (100 - finalPaddyMoisture));
-    const finalWeightKg = driedWeightKg * Math.max(0, 1 - ((parseNumericValue(impuritiesPct) + parseNumericValue(immatureGrainPct)) / 100));
+    const actualInputMoisture = parseNumericValue(paddyMoisture);
+    const traderMoisture = parseNumericValue(moistureSentByTrader);
+    const deltaMoisturePct = actualInputMoisture - traderMoisture;
 
-    const headRiceYieldPctRaw = currentOutputParams?.headRicePct ?? parseNumericValue(headRicePctInput);
-    const brokenRiceYieldPctRaw = currentOutputParams?.brokenRicePct ?? parseNumericValue(brokenCombinePct);
-    const totalRiceYieldRaw = headRiceYieldPctRaw + brokenRiceYieldPctRaw;
+    const impuritiesPctNum = parseNumericValue(impuritiesPct);
+    const immatureGrainPctNum = parseNumericValue(immatureGrainPct);
+    const huskPctNum = parseNumericValue(huskPct);
+    const branPctNum = parseNumericValue(branPct);
+    const headRicePctNum = parseNumericValue(headRicePctInput);
+    const brokenCombinePctNum = parseNumericValue(brokenCombinePct);
 
-    // Deduct non-rice fractions from total rice yield as requested (bran, husk, impurities, immature)
-    const deductionsPct = parseNumericValue(branPct) + parseNumericValue(huskPct) + parseNumericValue(impuritiesPct) + parseNumericValue(immatureGrainPct);
-    const adjustedTotalRiceYield = Math.max(0, totalRiceYieldRaw - deductionsPct);
+    const impuritiesFraction = impuritiesPctNum / 100;
+    const immatureFraction = immatureGrainPctNum / 100;
+    const huskFraction = huskPctNum / 100;
+    const branFraction = branPctNum / 100;
+    const headRiceFraction = headRicePctNum / 100;
+    const brokenCombineFraction = brokenCombinePctNum / 100;
 
-    // Scale head rice and broken proportions proportionally so their sum equals adjusted total
-    const scale = totalRiceYieldRaw > 0 ? (adjustedTotalRiceYield / totalRiceYieldRaw) : 0;
-    const headRiceYieldPct = +(headRiceYieldPctRaw * scale).toFixed(2);
-    const brokenRiceYieldPct = +(brokenRiceYieldPctRaw * scale).toFixed(2);
+    // Weight (gms) per 100gms of purchased paddy, cascading through each deduction
+    const impuritiesWeightPer100 = (100 - deltaMoisturePct) * impuritiesFraction;
+    const immatureWeightPer100 = (100 - deltaMoisturePct) * immatureFraction;
+    const afterImmatureImpurities = 100 - immatureWeightPer100 - impuritiesWeightPer100 - deltaMoisturePct;
+    const huskWeightPer100 = afterImmatureImpurities * huskFraction;
+    const branWeightPer100 = afterImmatureImpurities * branFraction;
+    const afterHuskBran = afterImmatureImpurities - huskWeightPer100 - branWeightPer100;
+    const headRiceWeightPer100 = afterHuskBran * headRiceFraction;
+    const brokenCombineWeightPer100 = afterHuskBran * brokenCombineFraction;
 
-    const riceYieldPct = headRiceYieldPct + brokenRiceYieldPct;
+    // Minimum sellable value per kg of purchased paddy
+    const impuritiesMinSellPerKg = parseNumericValue(impuritiesPricePerKg) * impuritiesFraction;
+    const immatureMinSellPerKg = parseNumericValue(immatureGrainPricePerKg) * immatureFraction;
+    const huskMinSellPerKg = parseNumericValue(huskPricePerKg) * huskFraction;
+    const branMinSellPerKg = parseNumericValue(branPricePerKg) * branFraction;
+    const headRiceMinSellPerKg = parseNumericValue(headRicePricePerKg) * headRiceFraction;
+    const brokenCombineMinSellPerKg = parseNumericValue(brokenCombinePricePerKg) * brokenCombineFraction;
 
-    const headRiceRevenueTotal = driedWeightKg * (headRiceYieldPct / 100) * parseNumericValue(headRicePricePerKg);
-    const brokenCombineRevenueTotal = driedWeightKg * (brokenRiceYieldPct / 100) * parseNumericValue(brokenCombinePricePerKg);
-    const branRevenueTotal = driedWeightKg * (parseNumericValue(branPct) / 100) * parseNumericValue(branPricePerKg);
-    const huskRevenueTotal = driedWeightKg * (parseNumericValue(huskPct) / 100) * parseNumericValue(huskPricePerKg);
-    const immatureRevenueTotal = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100) * parseNumericValue(immatureGrainPricePerKg);
-    const impuritiesRevenueTotal = driedWeightKg * (parseNumericValue(impuritiesPct) / 100) * parseNumericValue(impuritiesPricePerKg);
+    // Revenue in ₹ for the whole purchased lot, using the moisture/deduction-adjusted weight fractions
+    const impuritiesRevenueTotal = totalPaddyWeightKg * (impuritiesWeightPer100 / 100) * parseNumericValue(impuritiesPricePerKg);
+    const immatureRevenueTotal = totalPaddyWeightKg * (immatureWeightPer100 / 100) * parseNumericValue(immatureGrainPricePerKg);
+    const huskRevenueTotal = totalPaddyWeightKg * (huskWeightPer100 / 100) * parseNumericValue(huskPricePerKg);
+    const branRevenueTotal = totalPaddyWeightKg * (branWeightPer100 / 100) * parseNumericValue(branPricePerKg);
+    const headRiceRevenueTotal = totalPaddyWeightKg * (headRiceWeightPer100 / 100) * parseNumericValue(headRicePricePerKg);
+    const brokenCombineRevenueTotal = totalPaddyWeightKg * (brokenCombineWeightPer100 / 100) * parseNumericValue(brokenCombinePricePerKg);
 
-    const headRiceWeightKg = driedWeightKg * (headRiceYieldPct / 100);
-    const brokenCombineWeightKg = driedWeightKg * (brokenRiceYieldPct / 100);
-    const immatureWeightKg = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100);
-    const impuritiesWeightKg = driedWeightKg * (parseNumericValue(impuritiesPct) / 100);
+    const riceYieldPct = +(headRiceWeightPer100 + brokenCombineWeightPer100).toFixed(2);
+    const finalWeightKg = totalPaddyWeightKg * (riceYieldPct / 100);
 
-    // Payment to be done after analysis = final weight (after impurities and immature) * initial paddy price per kg
-    const paymentToBeDoneAfterAnalysis = finalWeightKg * parseNumericValue(paddyPricePerKg);
+    // Settlement: total quote → to be paid to miller → landed cost per kg
     const marginAmount = parseNumericValue(marginINR);
+    const paymentAskedBeforeAnalysis = purchaseCost + transportCost; // "total quote"
+    const moistureDeduction = (deltaMoisturePct / 100) * paymentAskedBeforeAnalysis;
+    const afterMoistureDeduction = paymentAskedBeforeAnalysis - moistureDeduction;
+    const impuritiesDeduction = impuritiesFraction * afterMoistureDeduction;
+    const paymentToBeDoneAfterAnalysis = afterMoistureDeduction - impuritiesDeduction - marginAmount; // "to be paid to miller"
+    const landedCost = totalPaddyWeightKg > 0 ? paymentToBeDoneAfterAnalysis / totalPaddyWeightKg : 0;
 
     return {
       totalPaddyWeightKg,
       purchaseCost,
       transportCost,
-      loadingCost,
-      unloadingCost,
-      driedWeightKg,
+      loadingCost: loadingCostAmount,
       finalWeightKg,
       paymentAskedBeforeAnalysis,
       landedCostPaddyPerKg,
       riceYieldPct,
       marginAmount,
       paymentToBeDoneAfterAnalysis,
+      landedCost,
+      deltaMoisturePct,
       headRiceRevenueTotal,
       brokenCombineRevenueTotal,
       branRevenueTotal,
       huskRevenueTotal,
       immatureRevenueTotal,
       impuritiesRevenueTotal,
-      headRiceYieldPct,
-      brokenRiceYieldPct,
-      headRiceWeightKg,
-      brokenCombineWeightKg,
-      immatureWeightKg,
-      impuritiesWeightKg,
+      headRiceYieldPct: headRicePctNum,
+      brokenRiceYieldPct: brokenCombinePctNum,
+      breakdown: [
+        { key: "impurities", label: "Impurities", pct: impuritiesPctNum, weightPer100: impuritiesWeightPer100, minSellPerKg: impuritiesMinSellPerKg },
+        { key: "immature", label: "Immature grains", pct: immatureGrainPctNum, weightPer100: immatureWeightPer100, minSellPerKg: immatureMinSellPerKg },
+        { key: "husk", label: "Husk", pct: huskPctNum, weightPer100: huskWeightPer100, minSellPerKg: huskMinSellPerKg },
+        { key: "bran", label: "Bran", pct: branPctNum, weightPer100: branWeightPer100, minSellPerKg: branMinSellPerKg },
+        { key: "headRice", label: "Head rice", pct: headRicePctNum, weightPer100: headRiceWeightPer100, minSellPerKg: headRiceMinSellPerKg },
+        { key: "brokenCombine", label: "Combined brokens", pct: brokenCombinePctNum, weightPer100: brokenCombineWeightPer100, minSellPerKg: brokenCombineMinSellPerKg },
+        { key: "deltaMoisture", label: "Delta moisture", pct: deltaMoisturePct, weightPer100: deltaMoisturePct, minSellPerKg: 0 },
+      ],
     };
-  }, [kgPerBag, totalBags, paddyPricePerKg, transportMillerChecked, transportMillerCost, transportTraderChecked, transportTraderCost, loadingMillerChecked, loadingMillerCost, loadingTraderChecked, loadingTraderCost, unloadingCostPerMT, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, marginINR]);
+  }, [kgPerBag, totalBags, paddyPricePerKg, transportationCost, loadingCost, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, marginINR, paddyMoisture, moistureSentByTrader]);
 
   const totalGrainsScanned = useMemo(() => {
     return reportTrials.reduce((sum, t) => sum + ((t.GrainMetrics?.totalGrains) || 0), 0);
@@ -1610,16 +1625,7 @@ const ProcurementAnalysis = () => {
                     <CardContent className="space-y-4 text-sm text-gray-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <Label htmlFor="vehicle-nos">Vehicle nos.</Label>
-                          <Input
-                            id="vehicle-nos"
-                            value={vehicleNos}
-                            onChange={(e) => setVehicleNos(e.target.value)}
-                            placeholder="Comma-separated"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="mandi-name">Mandi name</Label>
+                          <Label htmlFor="mandi-name">Mandi</Label>
                           <Input
                             id="mandi-name"
                             value={mandiName}
@@ -1627,9 +1633,18 @@ const ProcurementAnalysis = () => {
                             placeholder="Mandi / Market"
                           />
                         </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="vehicle-nos">Vehicle number</Label>
+                          <Input
+                            id="vehicle-nos"
+                            value={vehicleNos}
+                            onChange={(e) => setVehicleNos(e.target.value)}
+                            placeholder="Comma-separated"
+                          />
+                        </div>
 
                         <div className="space-y-1">
-                          <Label htmlFor="paddy-price-kg">Paddy price / kg</Label>
+                          <Label htmlFor="paddy-price-kg">Paddy price per kg (₹)</Label>
                           <Input
                             id="paddy-price-kg"
                             value={paddyPricePerKg}
@@ -1646,90 +1661,42 @@ const ProcurementAnalysis = () => {
                             placeholder="kg per bag"
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <Label htmlFor="total-bags">Total Bags</Label>
+                          <Label htmlFor="total-bags">Nos of bags</Label>
                           <Input
                             id="total-bags"
                             value={totalBags}
                             onChange={(e) => setTotalBags(e.target.value)}
-                            placeholder="Total bags"
+                            placeholder="Nos of bags"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="transportation-cost">Transportation cost (₹)</Label>
+                          <Input
+                            id="transportation-cost"
+                            value={transportationCost}
+                            onChange={(e) => setTransportationCost(e.target.value)}
+                            placeholder="₹"
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <Label>Transportation cost</Label>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={transportMillerChecked}
-                                onChange={(e) => setTransportMillerChecked(e.target.checked)}
-                                className="accent-rice-primary w-4 h-4 shrink-0"
-                              />
-                              <span className="text-xs text-gray-500 w-12 shrink-0">Miller</span>
-                              <Input
-                                value={transportMillerCost}
-                                onChange={(e) => setTransportMillerCost(e.target.value)}
-                                placeholder="₹"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={transportTraderChecked}
-                                onChange={(e) => setTransportTraderChecked(e.target.checked)}
-                                className="accent-rice-primary w-4 h-4 shrink-0"
-                              />
-                              <span className="text-xs text-gray-500 w-12 shrink-0">Trader</span>
-                              <Input
-                                value={transportTraderCost}
-                                onChange={(e) => setTransportTraderCost(e.target.value)}
-                                placeholder="₹"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <Label>Loading cost</Label>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={loadingMillerChecked}
-                                onChange={(e) => setLoadingMillerChecked(e.target.checked)}
-                                className="accent-rice-primary w-4 h-4 shrink-0"
-                              />
-                              <span className="text-xs text-gray-500 w-12 shrink-0">Miller</span>
-                              <Input
-                                value={loadingMillerCost}
-                                onChange={(e) => setLoadingMillerCost(e.target.value)}
-                                placeholder="₹"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={loadingTraderChecked}
-                                onChange={(e) => setLoadingTraderChecked(e.target.checked)}
-                                className="accent-rice-primary w-4 h-4 shrink-0"
-                              />
-                              <span className="text-xs text-gray-500 w-12 shrink-0">Trader</span>
-                              <Input
-                                value={loadingTraderCost}
-                                onChange={(e) => setLoadingTraderCost(e.target.value)}
-                                placeholder="₹"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-1">
-                          <Label htmlFor="unloading-cost-mt">Unloading cost</Label>
+                          <Label htmlFor="loading-cost">Loading cost (₹)</Label>
                           <Input
-                            id="unloading-cost-mt"
-                            value={unloadingCostPerMT}
-                            onChange={(e) => setUnloadingCostPerMT(e.target.value)}
+                            id="loading-cost"
+                            value={loadingCost}
+                            onChange={(e) => setLoadingCost(e.target.value)}
                             placeholder="₹"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="moisture-sent-by-trader">Moisture of paddy sent by trader (%)</Label>
+                          <Input
+                            id="moisture-sent-by-trader"
+                            value={moistureSentByTrader}
+                            onChange={(e) => setMoistureSentByTrader(e.target.value)}
+                            placeholder="%"
                           />
                         </div>
                       </div>
@@ -1744,17 +1711,27 @@ const ProcurementAnalysis = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-gray-700">
-                      {/* Yield Unit toggle removed per user request */}
                       <div className="pt-2 border-t border-gray-200">
                         <div className="text-sm font-semibold text-gray-900">Yield estimation inputs</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <div className="space-y-1 md:col-span-2">
+                            <Label htmlFor="paddy-moisture">Actual input moisture (%)</Label>
+                            <Input id="paddy-moisture" value={paddyMoisture} onChange={(e) => setPaddyMoisture(e.target.value)} placeholder="%" />
+                          </div>
+
                           <div className="space-y-1">
-                            <Label htmlFor="dry-paddy-moisture">Final paddy moisture (dried)</Label>
-                            <Input id="dry-paddy-moisture" value={dryPaddyMoisture} onChange={(e) => setDryPaddyMoisture(e.target.value)} placeholder="%" />
+                            <Label>Impurities (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={impuritiesPct} onChange={(e) => setImpuritiesPct(e.target.value)} placeholder="%" />
+                              <Input value={impuritiesPricePerKg} onChange={(e) => setImpuritiesPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
                           </div>
                           <div className="space-y-1">
-                            <Label htmlFor="paddy-moisture">Initial paddy moisture</Label>
-                            <Input id="paddy-moisture" value={paddyMoisture} onChange={(e) => setPaddyMoisture(e.target.value)} placeholder="%" />
+                            <Label>Immature grains (%)</Label>
+                            <div className="flex gap-2">
+                              <Input value={immatureGrainPct} onChange={(e) => setImmatureGrainPct(e.target.value)} placeholder="%" />
+                              <Input value={immatureGrainPricePerKg} onChange={(e) => setImmatureGrainPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                            </div>
                           </div>
 
                           <div className="space-y-1">
@@ -1773,47 +1750,30 @@ const ProcurementAnalysis = () => {
                           </div>
 
                           <div className="space-y-1">
-                            <Label>Head rice (%)</Label>
+                            <Label>
+                              Head rice (%) <span className="text-[10px] text-blue-600 font-normal">auto-calculated</span>
+                            </Label>
                             <div className="flex gap-2">
-                              <Input value={""} disabled placeholder="Calculated after analysis" />
+                              <Input value={headRicePctInput ? `${headRicePctInput}%` : ""} disabled placeholder="Calculated after analysis" className="bg-blue-50 font-medium text-blue-900" />
                               <Input value={headRicePricePerKg} onChange={(e) => setHeadRicePricePerKg(e.target.value)} placeholder="₹ / kg" />
-                              <Input value={procurementEconomics.headRiceWeightKg > 0 ? procurementEconomics.headRiceWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <Label>Broken combine (%)</Label>
+                            <Label>
+                              Combined brokens (%) <span className="text-[10px] text-blue-600 font-normal">auto-calculated</span>
+                            </Label>
                             <div className="flex gap-2">
-                              <Input value={""} disabled placeholder="Calculated after analysis" />
+                              <Input value={brokenCombinePct ? `${brokenCombinePct}%` : ""} disabled placeholder="Calculated after analysis" className="bg-blue-50 font-medium text-blue-900" />
                               <Input value={brokenCombinePricePerKg} onChange={(e) => setBrokenCombinePricePerKg(e.target.value)} placeholder="₹ / kg" />
-                              <Input value={procurementEconomics.brokenCombineWeightKg > 0 ? procurementEconomics.brokenCombineWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
 
-                          <div className="space-y-1">
-                            <Label>Immature grain (%)</Label>
-                            <div className="flex gap-2">
-                              <Input value={immatureGrainPct} onChange={(e) => setImmatureGrainPct(e.target.value)} placeholder="%" />
-                              <Input value={immatureGrainPricePerKg} onChange={(e) => setImmatureGrainPricePerKg(e.target.value)} placeholder="₹ / kg" />
-                              <Input value={procurementEconomics.immatureWeightKg > 0 ? procurementEconomics.immatureWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
-                            </div>
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Impurities (%)</Label>
-                            <div className="flex gap-2">
-                              <Input value={impuritiesPct} onChange={(e) => setImpuritiesPct(e.target.value)} placeholder="%" />
-                              <Input value={impuritiesPricePerKg} onChange={(e) => setImpuritiesPricePerKg(e.target.value)} placeholder="₹ / kg" />
-                              <Input value={procurementEconomics.impuritiesWeightKg > 0 ? procurementEconomics.impuritiesWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <Label htmlFor="margin-inr">Margin (₹)</Label>
+                          <div className="space-y-1 md:col-span-2">
+                            <Label htmlFor="margin-inr">Margin / market fee (₹)</Label>
                             <Input id="margin-inr" value={marginINR} onChange={(e) => setMarginINR(e.target.value)} placeholder="₹" />
                           </div>
                         </div>
                       </div>
-
-                      {/* Auto-calculated summary removed per UI request */}
                     </CardContent>
                   </Card>
                 </div>
@@ -2214,19 +2174,27 @@ const ProcurementAnalysis = () => {
                   <CardHeader className="pb-3 bg-gradient-to-r from-emerald-50 to-green-50 border-b">
                     <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                       <TrendingUp className="w-5 h-5" />
-                      Procurement Economics
+                      Procurement Insights
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 space-y-6">
+                    {/* Infographic stat tiles */}
                     <div className="grid gap-3 sm:grid-cols-4">
                       {[
-                        { label: "Landed cost paddy per kg", value: procurementEconomics.landedCostPaddyPerKg, accent: "text-emerald-700", bg: "bg-emerald-50" },
-                        { label: "Rice yield", value: procurementEconomics.riceYieldPct, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
-                        { label: "Margin", value: procurementEconomics.marginAmount, accent: "text-blue-700", bg: "bg-blue-50" },
-                        { label: "Total payment to be done", value: procurementEconomics.paymentToBeDoneAfterAnalysis, accent: "text-emerald-700", bg: "bg-emerald-50" },
+                        { label: "Total quote", value: procurementEconomics.paymentAskedBeforeAnalysis, icon: IndianRupee, accent: "text-emerald-700", bg: "bg-emerald-50" },
+                        { label: "To be paid to miller", value: procurementEconomics.paymentToBeDoneAfterAnalysis, icon: Wallet, accent: "text-blue-700", bg: "bg-blue-50" },
+                        { label: "Landed cost / kg", value: procurementEconomics.landedCost, icon: Scale, accent: "text-indigo-700", bg: "bg-indigo-50" },
+                        { label: "Transportation cost", value: procurementEconomics.transportCost, icon: Truck, accent: "text-amber-700", bg: "bg-amber-50" },
+                        { label: "Delta moisture", value: procurementEconomics.deltaMoisturePct, icon: Droplets, accent: "text-cyan-700", bg: "bg-cyan-50", isPercent: true },
+                        { label: "Total impurities", value: parseNumericValue(impuritiesPct), icon: AlertTriangle, accent: "text-red-700", bg: "bg-red-50", isPercent: true },
+                        { label: "Total immature grain", value: parseNumericValue(immatureGrainPct), icon: Sprout, accent: "text-purple-700", bg: "bg-purple-50", isPercent: true },
+                        { label: "Rice yield", value: procurementEconomics.riceYieldPct, icon: Wheat, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
                       ].map((metric) => (
                         <div key={metric.label} className={`rounded-2xl border border-gray-200 ${metric.bg} p-4`}>
-                          <p className="text-[11px] font-medium text-gray-500">{metric.label}</p>
+                          <div className="flex items-center gap-2">
+                            <metric.icon className={`w-4 h-4 ${metric.accent}`} />
+                            <p className="text-[11px] font-medium text-gray-500">{metric.label}</p>
+                          </div>
                           <p className={`text-xl font-semibold ${metric.accent} mt-2`}>
                             {metric.isPercent ? formatPercent(metric.value) : formatCurrency(metric.value)}
                           </p>
@@ -2234,7 +2202,70 @@ const ProcurementAnalysis = () => {
                       ))}
                     </div>
 
-                    <div className="mt-6 overflow-x-auto">
+                    {/* Weight composition donut */}
+                    <div className="border-t pt-5">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Paddy Weight Composition (per 100gms)</h4>
+                      <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <div className="w-full sm:w-1/2 h-[240px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={procurementEconomics.breakdown.filter((d) => d.weightPer100 > 0).map((d) => ({ name: d.label, value: +d.weightPer100.toFixed(2), key: d.key }))}
+                                cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={2} dataKey="value" animationDuration={800}
+                              >
+                                {procurementEconomics.breakdown.filter((d) => d.weightPer100 > 0).map((d) => (
+                                  <Cell key={d.key} fill={BREAKDOWN_COLORS[d.key]} stroke="white" strokeWidth={2} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value: number) => [`${value} g`, ""]} contentStyle={{ borderRadius: "8px", fontSize: "12px", border: "1px solid #e5e7eb" }} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="w-full sm:w-1/2 space-y-2">
+                          {procurementEconomics.breakdown.map((d) => (
+                            <div key={d.key} className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: BREAKDOWN_COLORS[d.key] }} />
+                                <span className="text-gray-700">{d.label}</span>
+                              </div>
+                              <span className="font-semibold text-gray-900 tabular-nums">{d.weightPer100.toFixed(2)} g</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Yield & minimum sell value breakdown (proc.xlsx columns) */}
+                    <div className="border-t pt-5 overflow-x-auto">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Yield &amp; Minimum Sell Value Breakdown</h4>
+                      <table className="w-full text-sm text-left">
+                        <thead>
+                          <tr className="border-b bg-gray-50">
+                            <th className="py-3 px-3 font-semibold text-gray-600">Parameter</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Weight (gms) /100gms</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Out of 1kg paddy (₹) minimum you can sell</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {procurementEconomics.breakdown.map((d, idx) => (
+                            <tr key={d.key} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                              <td className="py-3 px-3 text-sm text-gray-700">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: BREAKDOWN_COLORS[d.key] }} />
+                                  {d.label}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 text-right text-sm text-gray-700 tabular-nums">{d.weightPer100.toFixed(2)}</td>
+                              <td className="py-3 px-3 text-right text-sm text-gray-700 tabular-nums">{formatCurrency(d.minSellPerKg)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Settlement detail */}
+                    <div className="border-t pt-5 overflow-x-auto">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Settlement Detail</h4>
                       <table className="w-full text-sm text-left">
                         <thead>
                           <tr className="border-b bg-gray-50">
@@ -2246,8 +2277,7 @@ const ProcurementAnalysis = () => {
                         <tbody>
                           {[
                             { label: "Initial weight", value: procurementEconomics.totalPaddyWeightKg, unit: "kg" },
-                            { label: "Dried weight", value: procurementEconomics.driedWeightKg, unit: "kg" },
-                            { label: "Final weight (after impurities and immature)", value: procurementEconomics.finalWeightKg, unit: "kg" },
+                            { label: "Final weight (head rice + broken combine)", value: procurementEconomics.finalWeightKg, unit: "kg" },
                             { label: "Husk", value: procurementEconomics.huskRevenueTotal, unit: "currency" },
                             { label: "Bran", value: procurementEconomics.branRevenueTotal, unit: "currency" },
                             { label: `Head rice (${procurementEconomics.headRiceYieldPct != null ? formatPercent(procurementEconomics.headRiceYieldPct) : "—"})`, value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
@@ -2257,9 +2287,8 @@ const ProcurementAnalysis = () => {
                             { label: "Margin", value: procurementEconomics.marginAmount, unit: "currency" },
                             { label: "Transportation cost", value: procurementEconomics.transportCost, unit: "currency" },
                             { label: "Loading cost", value: procurementEconomics.loadingCost, unit: "currency" },
-                            { label: "Unloading cost", value: procurementEconomics.unloadingCost, unit: "currency" },
-                            { label: "Payment asked before analysis", value: procurementEconomics.paymentAskedBeforeAnalysis, unit: "currency", emphasis: true },
-                            { label: "Payment to be done after analysis", value: procurementEconomics.paymentToBeDoneAfterAnalysis, unit: "currency", emphasis: true },
+                            { label: "Total quote", value: procurementEconomics.paymentAskedBeforeAnalysis, unit: "currency", emphasis: true },
+                            { label: "To be paid to miller", value: procurementEconomics.paymentToBeDoneAfterAnalysis, unit: "currency", emphasis: true },
                           ].map((item, idx) => (
                             <tr key={item.label} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                               <td className="py-3 px-3 text-sm text-gray-500">{idx + 1}</td>
