@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
@@ -503,6 +504,38 @@ const MilledRiceAnalysis = () => {
     }
   }, [operatorName, riceMill, location, toast]);
 
+  const persistRegionChange = useCallback(async (newRegion: "basmati" | "non-basmati") => {
+    try {
+      const getRes = await fetch("/api/raice_labz/settings/rice-mill");
+      const getData = await getRes.json();
+      const current = getRes.ok && getData.status === "success" && getData.settings ? getData.settings : {};
+      const response = await fetch("/api/raice_labz/settings/rice-mill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...current, region: newRegion }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "success") {
+        throw new Error(data.message || "Failed to save region");
+      }
+    } catch (err) {
+      console.error("Failed to persist region change:", err);
+      toast({
+        title: "Failed to update region",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  }, [toast]);
+
+  const handleCategoryToggle = useCallback((value: string) => {
+    if (value !== "basmati" && value !== "non-basmati") return;
+    setCategory(value);
+    localStorage.setItem("riceMill_region", value);
+    persistRegionChange(value);
+  }, [persistRegionChange]);
+
   // Date/time initialization
   useEffect(() => {
     const now = new Date();
@@ -989,6 +1022,24 @@ const MilledRiceAnalysis = () => {
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1 md:col-span-2">
+                      <Label>Region</Label>
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={category}
+                        onValueChange={handleCategoryToggle}
+                        className="justify-start gap-2"
+                      >
+                        <ToggleGroupItem value="non-basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
+                          Non-Basmati
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
+                          Basmati
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <p className="text-xs text-gray-500">Applies the {categoryLabel} settings configured on the Settings page to this analysis.</p>
+                    </div>
                     <div className="space-y-1">
                       <Label htmlFor="grain-variety">Variety <span className="text-rice-primary">*</span></Label>
                       <Select

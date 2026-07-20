@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Camera, Save, Trash2, Play, Pause, Square, BarChart3, Percent, CheckCircle, Circle, Settings, AlertCircle, Loader2, Clock, ZoomIn, ZoomOut, Maximize, Minimize, Factory, RotateCcw, SkipForward } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ios/theme-provider";
@@ -172,6 +173,57 @@ const SemiCircleGauge = (props: {
   return isIOS ? <RingGaugeIOS {...props} /> : <SemiCircleGaugeClassic {...props} />;
 };
 
+/** Machine sequence list for a milling-line series — shown in the machine-transition dialogs so the
+ * operator can see which machines are done, which one is next, and which are still pending. */
+const MachineSeriesProgress = ({
+  machines, completedMachines, nextIndex,
+}: {
+  machines: string[]; completedMachines: string[]; nextIndex?: number;
+}) => (
+  <div className="space-y-2 max-h-64 overflow-y-auto">
+    {machines.map((m, idx) => {
+      const done = completedMachines.includes(m);
+      const isNext = idx === nextIndex;
+      return (
+        <div
+          key={m}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+            done
+              ? "bg-green-50 border border-green-200"
+              : isNext
+                ? "bg-blue-50 border-2 border-blue-400 shadow-sm"
+                : "bg-gray-50 border border-gray-200"
+          }`}
+        >
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+            done
+              ? "bg-green-500 text-white"
+              : isNext
+                ? "bg-blue-500 text-white animate-pulse"
+                : "bg-gray-300 text-gray-600"
+          }`}>
+            {done ? "✓" : idx + 1}
+          </div>
+          <span className={`text-sm font-medium flex-1 ${
+            done ? "text-green-700" : isNext ? "text-blue-700" : "text-gray-500"
+          }`}>
+            {m}
+          </span>
+          <span className={`text-xs px-2 py-0.5 rounded-full ${
+            done
+              ? "bg-green-100 text-green-700"
+              : isNext
+                ? "bg-blue-100 text-blue-700 font-semibold"
+                : "bg-gray-100 text-gray-500"
+          }`}>
+            {done ? "Done" : isNext ? "Next" : "Pending"}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+);
+
 const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onComplete }: LiveAnalysisProps = {}) => {
   // Keep onComplete in a ref so setTimeout always calls the latest version
   const onCompleteRef = useRef(onComplete);
@@ -239,7 +291,12 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
   const [isSampleStopped, setIsSampleStopped] = useState(false);
   const [allAnalysisDone, setAllAnalysisDone] = useState(false);
   const transitionTriggeredRef = useRef(false);
-  
+  // Guides the user between machines in a milling-line series (TMA) — blocks
+  // auto-advance so the operator can physically load the next machine's sample.
+  const [showNextMachineDialog, setShowNextMachineDialog] = useState(false);
+  const [nextMachineInfo, setNextMachineInfo] = useState<{ index: number; name: string } | null>(null);
+  const [showSeriesCompleteDialog, setShowSeriesCompleteDialog] = useState(false);
+
   // Analysis state
   const [isLoading, setIsLoading] = useState(false);
   const [operationType, setOperationType] = useState<'starting' | 'stopping' | null>(null);
@@ -3040,29 +3097,38 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
         const isLastMachine = newCompletedMachines.length >= machines.length || currentMachineIndex >= machines.length - 1;
         console.log(`🔍 Machine completion check: completed=${newCompletedMachines.length}, total=${machines.length}, currentIdx=${currentMachineIndex}, isLast=${isLastMachine}`);
         if (isLastMachine) {
-          console.log("🎉 All machines completed! Auto-transitioning to reports...");
-          setAllAnalysisDone(true);
-          toast({
-            title: "All Machines Completed",
-            description: "Proceeding to Insights & Reports...",
-          });
+          console.log("🎉 All machines completed! Awaiting operator confirmation...");
+          setShowSeriesCompleteDialog(true);
         } else {
           const nextMachineIndex = currentMachineIndex + 1;
           const nextMachine = machines[nextMachineIndex];
-          console.log(`🔄 Moving to next machine: ${nextMachine}`);
+          console.log(`🔄 Ready for next machine: ${nextMachine}`);
 
-          setCurrentMachineIndex(nextMachineIndex);
-          setAccordionValue(nextMachine);
-          setCurrentSample(1);
-          setCompletedSamples([]);
-
-          toast({
-            title: "Machine Transition",
-            description: `Moving to ${nextMachine} - Sample 1`,
-          });
+          setNextMachineInfo({ index: nextMachineIndex, name: nextMachine });
+          setShowNextMachineDialog(true);
         }
       }
     }
+  };
+
+  /** Operator confirmed the next machine's sample is loaded — advance the series. */
+  const handleProceedToNextMachine = () => {
+    if (!nextMachineInfo) return;
+    const { index, name } = nextMachineInfo;
+    setCurrentMachineIndex(index);
+    setAccordionValue(name);
+    setCurrentSample(1);
+    setCompletedSamples([]);
+    setShowNextMachineDialog(false);
+    setNextMachineInfo(null);
+    toast({ title: "Machine Transition", description: `Moving to ${name} - Sample 1` });
+  };
+
+  /** Operator acknowledged the milling series is fully complete — proceed to reports. */
+  const handleConfirmSeriesComplete = () => {
+    setShowSeriesCompleteDialog(false);
+    setAllAnalysisDone(true);
+    toast({ title: "All Machines Completed", description: "Proceeding to Insights & Reports..." });
   };
 
 
@@ -3140,14 +3206,10 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
 
         if (currentMachineIndex < machines.length - 1) {
           const nextMachine = machines[currentMachineIndex + 1];
-          setCurrentMachineIndex(prev => prev + 1);
-          setAccordionValue(nextMachine);
-          setCurrentSample(1);
-          setCompletedSamples([]);
-          toast({ title: "Machine Skipped", description: `Moving to ${nextMachine} - Sample 1` });
+          setNextMachineInfo({ index: currentMachineIndex + 1, name: nextMachine });
+          setShowNextMachineDialog(true);
         } else {
-          setAllAnalysisDone(true);
-          toast({ title: "All Machines Done", description: "Proceeding to Insights & Reports..." });
+          setShowSeriesCompleteDialog(true);
         }
       }
     }
@@ -3530,16 +3592,17 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
         
         // 🔧 FIXED: When preserving counts, update metrics immediately (no debounce) to prevent flickering
         // This ensures preserved metrics are shown instantly, preventing 0% flicker
+        // Declared outside the branch below since the chart-update code further down also reads it.
+        let finalMetrics = newMetrics;
         if (preserveCounts) {
           // Clear any pending debounced update to prevent zero metrics from overwriting preserved metrics
           if (debouncedSetMetrics.current) {
             clearTimeout(debouncedSetMetrics.current);
             debouncedSetMetrics.current = null;
           }
-          
+
           // 🔧 FIXED: Check if preserved metrics are actually non-zero, otherwise use last non-zero metrics or current metrics
           const totals = calculateTotals(newMetrics);
-          let finalMetrics = newMetrics;
           
           // If preserved metrics are zero but we have non-zero metrics, use the non-zero ones
           if (totals.total === 0 && isCurrentlyRunning) {
@@ -4096,6 +4159,83 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
           {/* Detailed metrics */}
           <LiveDetailedAccordion metrics={getAllMetrics} showPercent={showPercentage} />
         </div>
+
+        {/* Next Machine Guidance Dialog (milling-line series) */}
+        <Dialog open={showNextMachineDialog} onOpenChange={() => {}}>
+          <DialogContent
+            className="sm:max-w-lg"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-green-700">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+                {machines[currentMachineIndex]} — Sample Analysis Done
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+              <p className="text-green-800 font-semibold text-center text-base">
+                {machines[currentMachineIndex]} sample analysis done ({totalSamplesCount} sample{totalSamplesCount === 1 ? "" : "s"})
+              </p>
+            </div>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <p className="text-blue-800 font-semibold text-center text-base">
+                Test your next sample for {nextMachineInfo?.name}
+              </p>
+              <p className="text-blue-600 text-center text-sm mt-1">
+                Machine {(nextMachineInfo?.index ?? 0) + 1} of {machines.length} — click continue once it's ready.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
+                Machine Series Line
+              </p>
+              <MachineSeriesProgress machines={machines} completedMachines={completedMachines} nextIndex={nextMachineInfo?.index} />
+            </div>
+            <Button
+              className="w-full bg-rice-primary hover:bg-rice-primary/90 text-white font-semibold py-6 text-base"
+              size="lg"
+              onClick={handleProceedToNextMachine}
+            >
+              <Factory className="w-5 h-5 mr-2" />
+              Continue to {nextMachineInfo?.name}
+            </Button>
+          </DialogContent>
+        </Dialog>
+
+        {/* Series Complete Dialog (milling-line series) */}
+        <Dialog open={showSeriesCompleteDialog} onOpenChange={() => {}}>
+          <DialogContent
+            className="sm:max-w-lg"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-green-700">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+                Complete Milling Analysis Done
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+              <p className="text-green-800 font-semibold text-center text-base">
+                All {machines.length} machine(s) in this series have been analyzed.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
+                Machine Series Line
+              </p>
+              <MachineSeriesProgress machines={machines} completedMachines={completedMachines} />
+            </div>
+            <Button
+              className="w-full bg-rice-primary hover:bg-rice-primary/90 text-white font-semibold py-6 text-base"
+              size="lg"
+              onClick={handleConfirmSeriesComplete}
+            >
+              View Insights & Reports
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -5507,6 +5647,83 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
           </div>
         </div>
       </div>
+
+      {/* Next Machine Guidance Dialog (milling-line series) */}
+      <Dialog open={showNextMachineDialog} onOpenChange={() => {}}>
+        <DialogContent
+          className="sm:max-w-lg"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              {machines[currentMachineIndex]} — Sample Analysis Done
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+            <p className="text-green-800 font-semibold text-center text-base">
+              {machines[currentMachineIndex]} sample analysis done ({totalSamplesCount} sample{totalSamplesCount === 1 ? "" : "s"})
+            </p>
+          </div>
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <p className="text-blue-800 font-semibold text-center text-base">
+              Test your next sample for {nextMachineInfo?.name}
+            </p>
+            <p className="text-blue-600 text-center text-sm mt-1">
+              Machine {(nextMachineInfo?.index ?? 0) + 1} of {machines.length} — click continue once it's ready.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
+              Machine Series Line
+            </p>
+            <MachineSeriesProgress machines={machines} completedMachines={completedMachines} nextIndex={nextMachineInfo?.index} />
+          </div>
+          <Button
+            className="w-full bg-rice-primary hover:bg-rice-primary/90 text-white font-semibold py-6 text-base"
+            size="lg"
+            onClick={handleProceedToNextMachine}
+          >
+            <Factory className="w-5 h-5 mr-2" />
+            Continue to {nextMachineInfo?.name}
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Series Complete Dialog (milling-line series) */}
+      <Dialog open={showSeriesCompleteDialog} onOpenChange={() => {}}>
+        <DialogContent
+          className="sm:max-w-lg"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              Complete Milling Analysis Done
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+            <p className="text-green-800 font-semibold text-center text-base">
+              All {machines.length} machine(s) in this series have been analyzed.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
+              Machine Series Line
+            </p>
+            <MachineSeriesProgress machines={machines} completedMachines={completedMachines} />
+          </div>
+          <Button
+            className="w-full bg-rice-primary hover:bg-rice-primary/90 text-white font-semibold py-6 text-base"
+            size="lg"
+            onClick={handleConfirmSeriesComplete}
+          >
+            View Insights & Reports
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

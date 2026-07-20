@@ -397,8 +397,14 @@ const ProcurementAnalysis = () => {
   });
   const [freeWeightInput, setFreeWeightInput] = useState("");
 
-  const [transportationCostPerMT, setTransportationCostPerMT] = useState(() => sessionStorage.getItem("procurement_transportation_cost_mt") || "");
-  const [loadingCostINR, setLoadingCostINR] = useState(() => sessionStorage.getItem("procurement_loading_cost_inr") || "");
+  const [transportMillerChecked, setTransportMillerChecked] = useState(() => sessionStorage.getItem("procurement_transport_miller_checked") === "true");
+  const [transportMillerCost, setTransportMillerCost] = useState(() => sessionStorage.getItem("procurement_transport_miller_cost") || "");
+  const [transportTraderChecked, setTransportTraderChecked] = useState(() => sessionStorage.getItem("procurement_transport_trader_checked") === "true");
+  const [transportTraderCost, setTransportTraderCost] = useState(() => sessionStorage.getItem("procurement_transport_trader_cost") || "");
+  const [loadingMillerChecked, setLoadingMillerChecked] = useState(() => sessionStorage.getItem("procurement_loading_miller_checked") === "true");
+  const [loadingMillerCost, setLoadingMillerCost] = useState(() => sessionStorage.getItem("procurement_loading_miller_cost") || "");
+  const [loadingTraderChecked, setLoadingTraderChecked] = useState(() => sessionStorage.getItem("procurement_loading_trader_checked") === "true");
+  const [loadingTraderCost, setLoadingTraderCost] = useState(() => sessionStorage.getItem("procurement_loading_trader_cost") || "");
   const [unloadingCostPerMT, setUnloadingCostPerMT] = useState(() => sessionStorage.getItem("procurement_unloading_cost_mt") || "");
 
   // Additional purchased data fields
@@ -427,7 +433,7 @@ const ProcurementAnalysis = () => {
   const [immatureGrainPricePerKg, setImmatureGrainPricePerKg] = useState(() => sessionStorage.getItem("procurement_immature_price_kg") || "");
   const [impuritiesPct, setImpuritiesPct] = useState(() => sessionStorage.getItem("procurement_impurities_pct") || "");
   const [impuritiesPricePerKg, setImpuritiesPricePerKg] = useState(() => sessionStorage.getItem("procurement_impurities_price_kg") || "");
-  const [commissionPct, setCommissionPct] = useState(() => sessionStorage.getItem("procurement_commission_pct") || "");
+  const [marginINR, setMarginINR] = useState(() => sessionStorage.getItem("procurement_margin_inr") || "");
 
   // Analysis Parameters
   const [enableChalky, setEnableChalky] = useState(true);
@@ -520,6 +526,38 @@ const ProcurementAnalysis = () => {
       setSaving(false);
     }
   }, [operatorName, riceMill, location, toast]);
+
+  const persistRegionChange = useCallback(async (newRegion: "basmati" | "non-basmati") => {
+    try {
+      const getRes = await fetch("/api/raice_labz/settings/rice-mill");
+      const getData = await getRes.json();
+      const current = getRes.ok && getData.status === "success" && getData.settings ? getData.settings : {};
+      const response = await fetch("/api/raice_labz/settings/rice-mill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...current, region: newRegion }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "success") {
+        throw new Error(data.message || "Failed to save region");
+      }
+    } catch (err) {
+      console.error("Failed to persist region change:", err);
+      toast({
+        title: "Failed to update region",
+        description: err instanceof Error ? err.message : "Unknown error",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  }, [toast]);
+
+  const handleCategoryToggle = useCallback((value: string) => {
+    if (value !== "basmati" && value !== "non-basmati") return;
+    setCategory(value);
+    localStorage.setItem("riceMill_region", value);
+    persistRegionChange(value);
+  }, [persistRegionChange]);
 
   useEffect(() => {
     const now = new Date();
@@ -823,8 +861,14 @@ const ProcurementAnalysis = () => {
               paddyPricePerKg,
               kgPerBag,
               totalBags,
-              transportationCostPerMT,
-              loadingCostINR,
+              transportMillerChecked,
+              transportMillerCost,
+              transportTraderChecked,
+              transportTraderCost,
+              loadingMillerChecked,
+              loadingMillerCost,
+              loadingTraderChecked,
+              loadingTraderCost,
               unloadingCostPerMT,
             },
             yieldEstimation: {
@@ -843,7 +887,7 @@ const ProcurementAnalysis = () => {
               immatureGrainPricePerKg,
               impuritiesPct,
               impuritiesPricePerKg,
-              commissionPct,
+              marginINR,
             },
           };
 
@@ -878,8 +922,14 @@ const ProcurementAnalysis = () => {
           sessionStorage.setItem('procurement_paddy_price_kg', paddyPricePerKg);
           sessionStorage.setItem('procurement_kg_per_bag', kgPerBag);
           sessionStorage.setItem('procurement_total_bags', totalBags);
-          sessionStorage.setItem('procurement_transportation_cost_mt', transportationCostPerMT);
-          sessionStorage.setItem('procurement_loading_cost_inr', loadingCostINR);
+          sessionStorage.setItem('procurement_transport_miller_checked', String(transportMillerChecked));
+          sessionStorage.setItem('procurement_transport_miller_cost', transportMillerCost);
+          sessionStorage.setItem('procurement_transport_trader_checked', String(transportTraderChecked));
+          sessionStorage.setItem('procurement_transport_trader_cost', transportTraderCost);
+          sessionStorage.setItem('procurement_loading_miller_checked', String(loadingMillerChecked));
+          sessionStorage.setItem('procurement_loading_miller_cost', loadingMillerCost);
+          sessionStorage.setItem('procurement_loading_trader_checked', String(loadingTraderChecked));
+          sessionStorage.setItem('procurement_loading_trader_cost', loadingTraderCost);
           sessionStorage.setItem('procurement_unloading_cost_mt', unloadingCostPerMT);
           // Yield estimation persisted percentages/prices
           sessionStorage.setItem('procurement_dry_paddy_moisture', dryPaddyMoisture);
@@ -896,7 +946,7 @@ const ProcurementAnalysis = () => {
           sessionStorage.setItem('procurement_broken_combine_price_kg', brokenCombinePricePerKg);
           sessionStorage.setItem('procurement_immature_price_kg', immatureGrainPricePerKg);
           sessionStorage.setItem('procurement_impurities_price_kg', impuritiesPricePerKg);
-          sessionStorage.setItem('procurement_commission_pct', commissionPct);
+          sessionStorage.setItem('procurement_margin_inr', marginINR);
           sessionStorage.setItem('chalky_threshold', chalkyThreshold);
           sessionStorage.setItem('analysis_params', JSON.stringify({ enableChalky, enableDiscolored, chalkyThreshold: enableChalky ? parseFloat(chalkyThreshold) || 20 : null }));
           sessionStorage.setItem('procurement_id_generation', idGeneration);
@@ -1050,8 +1100,8 @@ const ProcurementAnalysis = () => {
   const procurementEconomics = useMemo(() => {
     const totalPaddyWeightKg = parseNumericValue(kgPerBag) * parseNumericValue(totalBags);
     const purchaseCost = totalPaddyWeightKg * parseNumericValue(paddyPricePerKg);
-    const transportCost = parseNumericValue(transportationCostPerMT);
-    const loadingCost = parseNumericValue(loadingCostINR);
+    const transportCost = (transportMillerChecked ? parseNumericValue(transportMillerCost) : 0) + (transportTraderChecked ? parseNumericValue(transportTraderCost) : 0);
+    const loadingCost = (loadingMillerChecked ? parseNumericValue(loadingMillerCost) : 0) + (loadingTraderChecked ? parseNumericValue(loadingTraderCost) : 0);
     const unloadingCost = parseNumericValue(unloadingCostPerMT);
     // Exclude transport, loading and unloading from payment asked before analysis
     const paymentAskedBeforeAnalysis = purchaseCost;
@@ -1086,9 +1136,14 @@ const ProcurementAnalysis = () => {
     const immatureRevenueTotal = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100) * parseNumericValue(immatureGrainPricePerKg);
     const impuritiesRevenueTotal = driedWeightKg * (parseNumericValue(impuritiesPct) / 100) * parseNumericValue(impuritiesPricePerKg);
 
+    const headRiceWeightKg = driedWeightKg * (headRiceYieldPct / 100);
+    const brokenCombineWeightKg = driedWeightKg * (brokenRiceYieldPct / 100);
+    const immatureWeightKg = driedWeightKg * (parseNumericValue(immatureGrainPct) / 100);
+    const impuritiesWeightKg = driedWeightKg * (parseNumericValue(impuritiesPct) / 100);
+
     // Payment to be done after analysis = final weight (after impurities and immature) * initial paddy price per kg
     const paymentToBeDoneAfterAnalysis = finalWeightKg * parseNumericValue(paddyPricePerKg);
-    const commissionAmount = paymentToBeDoneAfterAnalysis * (parseNumericValue(commissionPct) / 100);
+    const marginAmount = parseNumericValue(marginINR);
 
     return {
       totalPaddyWeightKg,
@@ -1101,7 +1156,7 @@ const ProcurementAnalysis = () => {
       paymentAskedBeforeAnalysis,
       landedCostPaddyPerKg,
       riceYieldPct,
-      commissionAmount,
+      marginAmount,
       paymentToBeDoneAfterAnalysis,
       headRiceRevenueTotal,
       brokenCombineRevenueTotal,
@@ -1111,8 +1166,12 @@ const ProcurementAnalysis = () => {
       impuritiesRevenueTotal,
       headRiceYieldPct,
       brokenRiceYieldPct,
+      headRiceWeightKg,
+      brokenCombineWeightKg,
+      immatureWeightKg,
+      impuritiesWeightKg,
     };
-  }, [kgPerBag, totalBags, paddyPricePerKg, transportationCostPerMT, loadingCostINR, unloadingCostPerMT, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, commissionPct]);
+  }, [kgPerBag, totalBags, paddyPricePerKg, transportMillerChecked, transportMillerCost, transportTraderChecked, transportTraderCost, loadingMillerChecked, loadingMillerCost, loadingTraderChecked, loadingTraderCost, unloadingCostPerMT, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, marginINR]);
 
   const totalGrainsScanned = useMemo(() => {
     return reportTrials.reduce((sum, t) => sum + ((t.GrainMetrics?.totalGrains) || 0), 0);
@@ -1245,6 +1304,24 @@ const ProcurementAnalysis = () => {
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm text-gray-700">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1 md:col-span-2">
+                        <Label>Region</Label>
+                        <ToggleGroup
+                          type="single"
+                          variant="outline"
+                          value={category}
+                          onValueChange={handleCategoryToggle}
+                          className="justify-start gap-2"
+                        >
+                          <ToggleGroupItem value="non-basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
+                            Non-Basmati
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
+                            Basmati
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                        <p className="text-xs text-gray-500">Applies the {categoryLabel} settings configured on the Settings page to this analysis.</p>
+                      </div>
                       <div className="space-y-1">
                         <Label htmlFor="grain-variety">Variety <span className="text-rice-primary">*</span></Label>
                         <Select
@@ -1580,22 +1657,70 @@ const ProcurementAnalysis = () => {
                         </div>
 
                         <div className="space-y-1">
-                          <Label htmlFor="transportation-cost-mt">Transportation cost</Label>
-                          <Input
-                            id="transportation-cost-mt"
-                            value={transportationCostPerMT}
-                            onChange={(e) => setTransportationCostPerMT(e.target.value)}
-                            placeholder="₹"
-                          />
+                          <Label>Transportation cost</Label>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={transportMillerChecked}
+                                onChange={(e) => setTransportMillerChecked(e.target.checked)}
+                                className="accent-rice-primary w-4 h-4 shrink-0"
+                              />
+                              <span className="text-xs text-gray-500 w-12 shrink-0">Miller</span>
+                              <Input
+                                value={transportMillerCost}
+                                onChange={(e) => setTransportMillerCost(e.target.value)}
+                                placeholder="₹"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={transportTraderChecked}
+                                onChange={(e) => setTransportTraderChecked(e.target.checked)}
+                                className="accent-rice-primary w-4 h-4 shrink-0"
+                              />
+                              <span className="text-xs text-gray-500 w-12 shrink-0">Trader</span>
+                              <Input
+                                value={transportTraderCost}
+                                onChange={(e) => setTransportTraderCost(e.target.value)}
+                                placeholder="₹"
+                              />
+                            </div>
+                          </div>
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="loading-cost-inr">Loading cost (INR)</Label>
-                          <Input
-                            id="loading-cost-inr"
-                            value={loadingCostINR}
-                            onChange={(e) => setLoadingCostINR(e.target.value)}
-                            placeholder="₹"
-                          />
+                          <Label>Loading cost</Label>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={loadingMillerChecked}
+                                onChange={(e) => setLoadingMillerChecked(e.target.checked)}
+                                className="accent-rice-primary w-4 h-4 shrink-0"
+                              />
+                              <span className="text-xs text-gray-500 w-12 shrink-0">Miller</span>
+                              <Input
+                                value={loadingMillerCost}
+                                onChange={(e) => setLoadingMillerCost(e.target.value)}
+                                placeholder="₹"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={loadingTraderChecked}
+                                onChange={(e) => setLoadingTraderChecked(e.target.checked)}
+                                className="accent-rice-primary w-4 h-4 shrink-0"
+                              />
+                              <span className="text-xs text-gray-500 w-12 shrink-0">Trader</span>
+                              <Input
+                                value={loadingTraderCost}
+                                onChange={(e) => setLoadingTraderCost(e.target.value)}
+                                placeholder="₹"
+                              />
+                            </div>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
@@ -1652,6 +1777,7 @@ const ProcurementAnalysis = () => {
                             <div className="flex gap-2">
                               <Input value={""} disabled placeholder="Calculated after analysis" />
                               <Input value={headRicePricePerKg} onChange={(e) => setHeadRicePricePerKg(e.target.value)} placeholder="₹ / kg" />
+                              <Input value={procurementEconomics.headRiceWeightKg > 0 ? procurementEconomics.headRiceWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
                           <div className="space-y-1">
@@ -1659,6 +1785,7 @@ const ProcurementAnalysis = () => {
                             <div className="flex gap-2">
                               <Input value={""} disabled placeholder="Calculated after analysis" />
                               <Input value={brokenCombinePricePerKg} onChange={(e) => setBrokenCombinePricePerKg(e.target.value)} placeholder="₹ / kg" />
+                              <Input value={procurementEconomics.brokenCombineWeightKg > 0 ? procurementEconomics.brokenCombineWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
 
@@ -1667,6 +1794,7 @@ const ProcurementAnalysis = () => {
                             <div className="flex gap-2">
                               <Input value={immatureGrainPct} onChange={(e) => setImmatureGrainPct(e.target.value)} placeholder="%" />
                               <Input value={immatureGrainPricePerKg} onChange={(e) => setImmatureGrainPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                              <Input value={procurementEconomics.immatureWeightKg > 0 ? procurementEconomics.immatureWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
                           <div className="space-y-1">
@@ -1674,12 +1802,13 @@ const ProcurementAnalysis = () => {
                             <div className="flex gap-2">
                               <Input value={impuritiesPct} onChange={(e) => setImpuritiesPct(e.target.value)} placeholder="%" />
                               <Input value={impuritiesPricePerKg} onChange={(e) => setImpuritiesPricePerKg(e.target.value)} placeholder="₹ / kg" />
+                              <Input value={procurementEconomics.impuritiesWeightKg > 0 ? procurementEconomics.impuritiesWeightKg.toFixed(1) : ""} disabled placeholder="Weight (kg)" />
                             </div>
                           </div>
 
                           <div className="space-y-1">
-                            <Label htmlFor="commission-pct">Commission (%)</Label>
-                            <Input id="commission-pct" value={commissionPct} onChange={(e) => setCommissionPct(e.target.value)} placeholder="%" />
+                            <Label htmlFor="margin-inr">Margin (₹)</Label>
+                            <Input id="margin-inr" value={marginINR} onChange={(e) => setMarginINR(e.target.value)} placeholder="₹" />
                           </div>
                         </div>
                       </div>
@@ -2093,7 +2222,7 @@ const ProcurementAnalysis = () => {
                       {[
                         { label: "Landed cost paddy per kg", value: procurementEconomics.landedCostPaddyPerKg, accent: "text-emerald-700", bg: "bg-emerald-50" },
                         { label: "Rice yield", value: procurementEconomics.riceYieldPct, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
-                        { label: "Commission", value: procurementEconomics.commissionAmount, accent: "text-blue-700", bg: "bg-blue-50" },
+                        { label: "Margin", value: procurementEconomics.marginAmount, accent: "text-blue-700", bg: "bg-blue-50" },
                         { label: "Total payment to be done", value: procurementEconomics.paymentToBeDoneAfterAnalysis, accent: "text-emerald-700", bg: "bg-emerald-50" },
                       ].map((metric) => (
                         <div key={metric.label} className={`rounded-2xl border border-gray-200 ${metric.bg} p-4`}>
@@ -2125,7 +2254,7 @@ const ProcurementAnalysis = () => {
                             { label: `Broken combine (${procurementEconomics.brokenRiceYieldPct != null ? formatPercent(procurementEconomics.brokenRiceYieldPct) : "—"})`, value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
                             { label: "Immature grain", value: procurementEconomics.immatureRevenueTotal, unit: "currency" },
                             { label: `Impurities (${formatPercent(parseNumericValue(impuritiesPct))})`, value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
-                            { label: `Commission (${commissionPct || "0"}%)`, value: procurementEconomics.commissionAmount, unit: "currency" },
+                            { label: "Margin", value: procurementEconomics.marginAmount, unit: "currency" },
                             { label: "Transportation cost", value: procurementEconomics.transportCost, unit: "currency" },
                             { label: "Loading cost", value: procurementEconomics.loadingCost, unit: "currency" },
                             { label: "Unloading cost", value: procurementEconomics.unloadingCost, unit: "currency" },
