@@ -65,8 +65,10 @@ export function AppSidebar() {
     <Sidebar className="border-0 h-screen sticky top-0 self-start">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div className="flex flex-col items-center gap-1.5">
-          <div className="text-sidebar-foreground font-bold text-xl">TMA</div>
-          <img src="/tma-icon.png" alt="TMA" className="w-20 h-auto" />
+          <div className="text-sidebar-foreground font-bold text-sm tracking-widest uppercase text-center leading-tight">
+            Total Mill Analyzer
+          </div>
+          <img src="/tma-icon.png" alt="Total Mill Analyzer" className="w-40 h-11" />
         </div>
       </SidebarHeader>
 
