@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Camera, Save, Trash2, Play, Pause, Square, BarChart3, Percent, CheckCircle, Circle, Settings, AlertCircle, Loader2, Clock, ZoomIn, ZoomOut, Maximize, Minimize, Factory, RotateCcw, SkipForward } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ios/theme-provider";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useSpeakGuide } from "@/contexts/AudioGuideContext";
 import { LiveAnalysisHeroIOS } from "@/components/ios/LiveAnalysisHeroIOS";
 import { LiveCameraDock } from "@/components/ios/live/LiveCameraDock";
 import { LiveGiantRing, RingMetric } from "@/components/ios/live/LiveGiantRing";
@@ -235,6 +237,8 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
   const { setHasStartedAnalysis } = useAnalysis();
   const { toast } = useToast();
   const { isClassic: isClassicTheme } = useTheme();
+  const { t } = useLanguage();
+  const { speak } = useSpeakGuide();
   const [iosFeaturedRingIdx, setIosFeaturedRingIdx] = useState<number>(0);
 
   // Read analysis parameters from sessionStorage (set by setup pages)
@@ -296,6 +300,38 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
   const [showNextMachineDialog, setShowNextMachineDialog] = useState(false);
   const [nextMachineInfo, setNextMachineInfo] = useState<{ index: number; name: string } | null>(null);
   const [showSeriesCompleteDialog, setShowSeriesCompleteDialog] = useState(false);
+
+  // Speak the machine-transition / series-complete guidance exactly once, the moment
+  // each dialog opens — machine names and counts are per-mill configured, so this is
+  // generated live via speech synthesis rather than pre-recorded (unlike the fixed
+  // step clips). Deliberately depend on the boolean flag ALONE: `speak`, `t`,
+  // `nextMachineInfo` and `machines` are read from the closure but kept out of the
+  // dependency array on purpose, because several of them get new references on
+  // unrelated re-renders (e.g. `machines` is a fresh [] each render in non-series
+  // mode, and analysisDataOverride is a new object from the parent every render) —
+  // including them here previously caused the announcement to repeat on every
+  // incidental re-render instead of speaking once.
+  useEffect(() => {
+    if (!showNextMachineDialog || !nextMachineInfo) return;
+    speak(t('liveGuide.machineDoneAnnouncement', {
+      machine: machines[currentMachineIndex] ?? '',
+      next: nextMachineInfo.name,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showNextMachineDialog]);
+
+  useEffect(() => {
+    if (!showSeriesCompleteDialog) return;
+    speak(t('liveGuide.seriesCompleteAnnouncement'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSeriesCompleteDialog]);
+
+  useEffect(() => {
+    if (!isAnalysisRunning) return;
+    const machineName = isTmaAnalysis ? machines[currentMachineIndex] : (analysisData?.machineName || '');
+    speak(t('liveGuide.sampleRunningAnnouncement', { n: currentSample, machine: machineName }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAnalysisRunning]);
 
   // Analysis state
   const [isLoading, setIsLoading] = useState(false);

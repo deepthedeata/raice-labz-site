@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { PageHeader } from "@/components/PageHeader";
+import { AudioGuideButton } from "@/components/AudioGuideButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -966,6 +967,9 @@ const MilledRiceAnalysis = () => {
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div className="flex justify-end">
+          <AudioGuideButton clipId={activeStep === "category" ? undefined : `milled_${activeStep}`} />
+        </div>
         <Tabs value={activeStep} onValueChange={(v) => handleStepChange(v as StepId)} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger

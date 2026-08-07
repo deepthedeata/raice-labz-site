@@ -40,3 +40,6 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock
+
+# local tooling state (not project source)
+.claude/

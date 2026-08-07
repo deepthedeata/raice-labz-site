@@ -13,6 +13,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GrainProvider } from "@/contexts/GrainContext";
 import { AnalysisProvider } from "@/contexts/AnalysisContext";
 import { MachineProvider } from "@/contexts/MachineContext";
+import { AudioGuideProvider } from "@/contexts/AudioGuideContext";
 import { CommandPaletteProvider } from "@/components/ios/CommandPalette";
 import { IdleAmbient } from "@/components/ios/IdleAmbient";
 import Analytics from "./pages/Analytics";
@@ -124,21 +125,23 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <LanguageProvider>
-            <AnalysisProvider>
-              <MachineProvider>
-                <GrainProvider>
-                    <Toaster />
-                    <Sonner />
-                    <BrowserRouter>
-                      <CommandPaletteProvider>
-                        <SidebarProvider>
-                          <ThemedShell />
-                        </SidebarProvider>
-                      </CommandPaletteProvider>
-                    </BrowserRouter>
-                </GrainProvider>
-              </MachineProvider>
-            </AnalysisProvider>
+            <AudioGuideProvider>
+              <AnalysisProvider>
+                <MachineProvider>
+                  <GrainProvider>
+                      <Toaster />
+                      <Sonner />
+                      <BrowserRouter>
+                        <CommandPaletteProvider>
+                          <SidebarProvider>
+                            <ThemedShell />
+                          </SidebarProvider>
+                        </CommandPaletteProvider>
+                      </BrowserRouter>
+                  </GrainProvider>
+                </MachineProvider>
+              </AnalysisProvider>
+            </AudioGuideProvider>
           </LanguageProvider>
         </TooltipProvider>
       </QueryClientProvider>

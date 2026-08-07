@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAnalysis } from "@/contexts/AnalysisContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { PageHeader } from "@/components/PageHeader";
+import { AudioGuideButton } from "@/components/AudioGuideButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -360,6 +362,7 @@ const ProcurementAnalysis = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { hasStartedAnalysis } = useAnalysis();
+  const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState<StepId>("preparation");
   const [completedSteps, setCompletedSteps] = useState<StepState>({
     preparation: false,
@@ -369,7 +372,7 @@ const ProcurementAnalysis = () => {
 
   const [millRegion] = useState<string>(() => localStorage.getItem("riceMill_region") ?? "non-basmati");
   const [category, setCategory] = useState<"basmati" | "non-basmati">("non-basmati");
-  const categoryLabel = category === "basmati" ? "Basmati" : "Non-Basmati";
+  const categoryLabel = category === "basmati" ? t('procurement.basmati') : t('procurement.nonBasmati');
 
   const [operatorName, setOperatorName] = useState(() => localStorage.getItem(RICE_MILL_STORAGE_KEYS.operatorName) ?? "");
   const [riceMill, setRiceMill] = useState(() => localStorage.getItem(RICE_MILL_STORAGE_KEYS.millName) ?? "");
@@ -1269,11 +1272,14 @@ const ProcurementAnalysis = () => {
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div className="flex justify-end">
+          <AudioGuideButton clipId={`procurement_${activeStep}`} />
+        </div>
         <Tabs value={activeStep} onValueChange={(v) => handleStepChange(v as StepId)} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="preparation" disabled={activeStep === "reports"} className="flex items-center gap-2">
                 <ClipboardList className="w-4 h-4" />
-                <span>Test Preparation</span>
+                <span>{t('procurement.tabPreparation')}</span>
                 {completedSteps.preparation && (
                   <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />
                 )}
@@ -1284,7 +1290,7 @@ const ProcurementAnalysis = () => {
                 className="flex items-center gap-2"
               >
                 <Activity className="w-4 h-4" />
-                <span>Live Analysis</span>
+                <span>{t('procurement.tabLive')}</span>
                 {completedSteps.live && <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />}
               </TabsTrigger>
               <TabsTrigger
@@ -1293,7 +1299,7 @@ const ProcurementAnalysis = () => {
                 className="flex items-center gap-2"
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>Insights &amp; Reports</span>
+                <span>{t('procurement.tabReports')}</span>
                 {completedSteps.reports && <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />}
               </TabsTrigger>
             </TabsList>
@@ -1304,7 +1310,7 @@ const ProcurementAnalysis = () => {
                 <div className="flex items-center gap-2">
                   <Wheat className="w-5 h-5 text-rice-primary" />
                   <span className="font-semibold text-sm text-rice-primary">
-                    Category: {categoryLabel}
+                    {t('procurement.categoryPrefix', { category: categoryLabel })}
                   </span>
                 </div>
               </div>
@@ -1314,13 +1320,13 @@ const ProcurementAnalysis = () => {
                   <CardHeader>
                     <CardTitle className="text-rice-primary flex items-center gap-2">
                       <Wheat className="w-5 h-5 text-rice-primary" />
-                      Grain Information
+                      {t('procurement.grainInformation')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm text-gray-700">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1 md:col-span-2">
-                        <Label>Region</Label>
+                        <Label>{t('procurement.region')}</Label>
                         <ToggleGroup
                           type="single"
                           variant="outline"
@@ -1329,16 +1335,16 @@ const ProcurementAnalysis = () => {
                           className="justify-start gap-2"
                         >
                           <ToggleGroupItem value="non-basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
-                            Non-Basmati
+                            {t('procurement.nonBasmati')}
                           </ToggleGroupItem>
                           <ToggleGroupItem value="basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
-                            Basmati
+                            {t('procurement.basmati')}
                           </ToggleGroupItem>
                         </ToggleGroup>
-                        <p className="text-xs text-gray-500">Applies the {categoryLabel} settings configured on the Settings page to this analysis.</p>
+                        <p className="text-xs text-gray-500">{t('procurement.appliesSettingsNote', { category: categoryLabel })}</p>
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-variety">Variety <span className="text-rice-primary">*</span></Label>
+                        <Label htmlFor="grain-variety">{t('procurement.variety')} <span className="text-rice-primary">*</span></Label>
                         <Select
                           value={variety || ""}
                           onValueChange={(v) => {
@@ -1351,10 +1357,10 @@ const ProcurementAnalysis = () => {
                             <SelectValue
                               placeholder={
                                 varietiesLoading
-                                  ? "Loading varieties..."
+                                  ? t('procurement.loadingVarieties')
                                   : varietiesFromDb.length === 0
-                                    ? "No varieties in database"
-                                    : "Select variety"
+                                    ? t('procurement.noVarietiesInDb')
+                                    : t('procurement.selectVariety')
                               }
                             />
                           </SelectTrigger>
@@ -1368,12 +1374,12 @@ const ProcurementAnalysis = () => {
                         </Select>
                         {varietiesFromDb.length === 0 && !varietiesLoading && (
                           <p className="text-xs text-amber-600">
-                            Add varieties in Grain Database first; only DB varieties appear here.
+                            {t('procurement.addVarietiesHint')}
                           </p>
                         )}
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-process">Process <span className="text-rice-primary">*</span></Label>
+                        <Label htmlFor="grain-process">{t('procurement.process')} <span className="text-rice-primary">*</span></Label>
                         <Select
                           value={process || ""}
                           onValueChange={(v) => {
@@ -1386,12 +1392,12 @@ const ProcurementAnalysis = () => {
                             <SelectValue
                               placeholder={
                                 !variety
-                                  ? "Select variety first"
+                                  ? t('procurement.selectVarietyFirst')
                                   : processesLoading
-                                    ? "Loading processes..."
+                                    ? t('procurement.loadingProcesses')
                                     : processesForVariety.length === 0
-                                      ? "No processes for this variety"
-                                      : "Select process"
+                                      ? t('procurement.noProcessesForVariety')
+                                      : t('procurement.selectProcess')
                               }
                             />
                           </SelectTrigger>
@@ -1405,12 +1411,12 @@ const ProcurementAnalysis = () => {
                         </Select>
                         {variety && processesForVariety.length === 0 && !processesLoading && (
                           <p className="text-xs text-amber-600">
-                            No processes in database for this variety. Add in Grain Database.
+                            {t('procurement.addProcessesHint')}
                           </p>
                         )}
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-harvest-season">Harvest Season <span className="text-rice-primary">*</span></Label>
+                        <Label htmlFor="grain-harvest-season">{t('procurement.harvestSeason')} <span className="text-rice-primary">*</span></Label>
                         <Select
                           value={harvestSeason || ""}
                           onValueChange={(v) => {
@@ -1423,12 +1429,12 @@ const ProcurementAnalysis = () => {
                             <SelectValue
                               placeholder={
                                 !variety || !process
-                                  ? "Select variety and process first"
+                                  ? t('procurement.selectVarietyProcessFirst')
                                   : harvestSeasonsLoading
-                                    ? "Loading harvest seasons..."
+                                    ? t('procurement.loadingHarvestSeasons')
                                     : harvestSeasonsFromDb.length === 0
-                                      ? "No harvest seasons for this combination"
-                                      : "Select harvest season"
+                                      ? t('procurement.noHarvestSeasons')
+                                      : t('procurement.selectHarvestSeason')
                               }
                             />
                           </SelectTrigger>
@@ -1442,12 +1448,12 @@ const ProcurementAnalysis = () => {
                         </Select>
                         {variety && process && harvestSeasonsFromDb.length === 0 && !harvestSeasonsLoading && (
                           <p className="text-xs text-amber-600">
-                            No harvest seasons in database for this variety + process. Add in Grain Database.
+                            {t('procurement.addHarvestSeasonsHint')}
                           </p>
                         )}
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-month">Month (optional)</Label>
+                        <Label htmlFor="grain-month">{t('procurement.month')}</Label>
                         <Select
                           value={month || ""}
                           onValueChange={setMonth}
@@ -1462,12 +1468,12 @@ const ProcurementAnalysis = () => {
                             <SelectValue
                               placeholder={
                                 !variety || !process || !harvestSeason
-                                  ? "Select harvest season first"
+                                  ? t('procurement.selectHarvestSeasonFirst')
                                   : monthsLoading
-                                    ? "Loading months..."
+                                    ? t('procurement.loadingMonths')
                                     : monthsFromDb.length === 0
-                                      ? "No months for this combination"
-                                      : "Select month (optional)"
+                                      ? t('procurement.noMonths')
+                                      : t('procurement.selectMonth')
                               }
                             />
                           </SelectTrigger>
@@ -1485,12 +1491,12 @@ const ProcurementAnalysis = () => {
                           monthsFromDb.length === 0 &&
                           !monthsLoading && (
                             <p className="text-xs text-amber-600">
-                              No months in database for this combination. Add in Grain Database.
+                              {t('procurement.addMonthsHint')}
                             </p>
                           )}
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-no-samples">No. of Samples (1–3) <span className="text-rice-primary">*</span></Label>
+                        <Label htmlFor="grain-no-samples">{t('procurement.noOfSamples')} <span className="text-rice-primary">*</span></Label>
                         <Input
                           id="grain-no-samples"
                           type="number"
@@ -1508,28 +1514,28 @@ const ProcurementAnalysis = () => {
                               setNoOfSamples(String(Math.min(3, Math.max(1, n))));
                             }
                           }}
-                          placeholder="1–3"
+                          placeholder={t('procurement.samplesPlaceholder')}
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="grain-sampling-method">Sampling Method <span className="text-rice-primary">*</span></Label>
+                        <Label htmlFor="grain-sampling-method">{t('procurement.samplingMethod')} <span className="text-rice-primary">*</span></Label>
                         <Select
                           value={samplingMethod || ""}
                           onValueChange={setSamplingMethod}
                         >
                           <SelectTrigger id="grain-sampling-method">
-                            <SelectValue placeholder="Select sampling method" />
+                            <SelectValue placeholder={t('procurement.selectSamplingMethod')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="handmilled">Hand milled</SelectItem>
-                            <SelectItem value="machine milled">Machine milled</SelectItem>
+                            <SelectItem value="handmilled">{t('procurement.handMilled')}</SelectItem>
+                            <SelectItem value="machine milled">{t('procurement.machineMilled')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       {/* Sample Size + Parameters to Analyse — side by side */}
                       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <Label>Sample Size <span className="text-rice-primary">*</span></Label>
+                          <Label>{t('procurement.sampleSize')} <span className="text-rice-primary">*</span></Label>
                           <div className="flex items-center gap-2 flex-wrap">
                             <RadioGroup
                               value={sampleMode}
@@ -1538,23 +1544,23 @@ const ProcurementAnalysis = () => {
                             >
                               <div className="flex items-center gap-1.5">
                                 <RadioGroupItem value="weight" id="sample-mode-weight" />
-                                <Label htmlFor="sample-mode-weight" className="cursor-pointer font-normal text-sm">By Weight</Label>
+                                <Label htmlFor="sample-mode-weight" className="cursor-pointer font-normal text-sm">{t('procurement.byWeight')}</Label>
                                 {sampleMode === "weight" && (
                                   <>
                                     <Select value={sampleWeight} onValueChange={(v) => { setSampleWeight(v); if (v !== "free weight") setFreeWeightInput(""); }}>
                                       <SelectTrigger className="w-28 h-7 text-xs ml-1"><SelectValue /></SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="10 grams">10 grams</SelectItem>
-                                        <SelectItem value="20 grams">20 grams</SelectItem>
-                                        <SelectItem value="50 grams">50 grams</SelectItem>
-                                        <SelectItem value="100 grams">100 grams</SelectItem>
-                                        <SelectItem value="free weight">Free weight</SelectItem>
+                                        <SelectItem value="10 grams">10 {t('procurement.gramsUnit')}</SelectItem>
+                                        <SelectItem value="20 grams">20 {t('procurement.gramsUnit')}</SelectItem>
+                                        <SelectItem value="50 grams">50 {t('procurement.gramsUnit')}</SelectItem>
+                                        <SelectItem value="100 grams">100 {t('procurement.gramsUnit')}</SelectItem>
+                                        <SelectItem value="free weight">{t('procurement.freeWeight')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     {sampleWeight === "free weight" && (
                                       <div className="flex items-center gap-1">
-                                        <Input type="number" min={1} max={150} step={1} placeholder="Max 150" value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 150)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
-                                        <span className="text-xs text-muted-foreground">g</span>
+                                        <Input type="number" min={1} max={150} step={1} placeholder={t('procurement.maxPlaceholder', { max: 150 })} value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 150)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
+                                        <span className="text-xs text-muted-foreground">{t('procurement.gramsUnit')}</span>
                                       </div>
                                     )}
                                   </>
@@ -1562,23 +1568,23 @@ const ProcurementAnalysis = () => {
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <RadioGroupItem value="count" id="sample-mode-count" />
-                                <Label htmlFor="sample-mode-count" className="cursor-pointer font-normal text-sm">By Count</Label>
+                                <Label htmlFor="sample-mode-count" className="cursor-pointer font-normal text-sm">{t('procurement.byCount')}</Label>
                                 {sampleMode === "count" && (
                                   <>
                                     <Select value={sampleWeight} onValueChange={(v) => { setSampleWeight(v); if (v !== "free count") setFreeWeightInput(""); }}>
                                       <SelectTrigger className="w-28 h-7 text-xs ml-1"><SelectValue /></SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="1000 grains">1000 grains</SelectItem>
-                                        <SelectItem value="2000 grains">2000 grains</SelectItem>
-                                        <SelectItem value="2500 grains">2500 grains</SelectItem>
-                                        <SelectItem value="5000 grains">5000 grains</SelectItem>
-                                        <SelectItem value="free count">Free count</SelectItem>
+                                        <SelectItem value="1000 grains">1000 {t('procurement.grainsUnit')}</SelectItem>
+                                        <SelectItem value="2000 grains">2000 {t('procurement.grainsUnit')}</SelectItem>
+                                        <SelectItem value="2500 grains">2500 {t('procurement.grainsUnit')}</SelectItem>
+                                        <SelectItem value="5000 grains">5000 {t('procurement.grainsUnit')}</SelectItem>
+                                        <SelectItem value="free count">{t('procurement.freeCount')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     {sampleWeight === "free count" && (
                                       <div className="flex items-center gap-1">
-                                        <Input type="number" min={1} max={5000} step={1} placeholder="Max 5000" value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 5000)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
-                                        <span className="text-xs text-muted-foreground">grains</span>
+                                        <Input type="number" min={1} max={5000} step={1} placeholder={t('procurement.maxPlaceholder', { max: 5000 })} value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 5000)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
+                                        <span className="text-xs text-muted-foreground">{t('procurement.grainsUnit')}</span>
                                       </div>
                                     )}
                                   </>
@@ -1588,19 +1594,19 @@ const ProcurementAnalysis = () => {
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <Label className="font-medium">Parameters to Analyse</Label>
+                          <Label className="font-medium">{t('procurement.parametersToAnalyse')}</Label>
                           <div className="flex flex-wrap items-center gap-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={enableChalky} onChange={(e) => setEnableChalky(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                              <span className="text-sm">Chalky</span>
+                              <span className="text-sm">{t('procurement.chalky')}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={enableDiscolored} onChange={(e) => setEnableDiscolored(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                              <span className="text-sm">Discolored</span>
+                              <span className="text-sm">{t('procurement.discolored')}</span>
                             </label>
                             {enableChalky && (
                               <div className="flex items-center gap-2 ml-2">
-                                <Label className="text-sm text-gray-600 whitespace-nowrap">Chalky Threshold</Label>
+                                <Label className="text-sm text-gray-600 whitespace-nowrap">{t('procurement.chalkyThreshold')}</Label>
                                 <div className="relative w-20">
                                   <Input type="number" min={0} max={100} step={1} value={chalkyThreshold} onChange={(e) => setChalkyThreshold(e.target.value)} className="pr-7 h-8 text-sm" placeholder="20" />
                                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
@@ -1619,32 +1625,32 @@ const ProcurementAnalysis = () => {
                     <CardHeader>
                       <CardTitle className="text-rice-primary flex items-center gap-2">
                         <Wheat className="w-5 h-5 text-rice-primary" />
-                        Purchased Data
+                        {t('procurement.purchasedData')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-gray-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <Label htmlFor="mandi-name">Mandi</Label>
+                          <Label htmlFor="mandi-name">{t('procurement.mandi')}</Label>
                           <Input
                             id="mandi-name"
                             value={mandiName}
                             onChange={(e) => setMandiName(e.target.value)}
-                            placeholder="Mandi / Market"
+                            placeholder={t('procurement.mandiPlaceholder')}
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="vehicle-nos">Vehicle number</Label>
+                          <Label htmlFor="vehicle-nos">{t('procurement.vehicleNumber')}</Label>
                           <Input
                             id="vehicle-nos"
                             value={vehicleNos}
                             onChange={(e) => setVehicleNos(e.target.value)}
-                            placeholder="Comma-separated"
+                            placeholder={t('procurement.commaSeparatedPlaceholder')}
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <Label htmlFor="paddy-price-kg">Paddy price per kg (₹)</Label>
+                          <Label htmlFor="paddy-price-kg">{t('procurement.paddyPricePerKg')}</Label>
                           <Input
                             id="paddy-price-kg"
                             value={paddyPricePerKg}
@@ -1653,26 +1659,26 @@ const ProcurementAnalysis = () => {
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="kg-per-bag">kg / bag</Label>
+                          <Label htmlFor="kg-per-bag">{t('procurement.kgPerBag')}</Label>
                           <Input
                             id="kg-per-bag"
                             value={kgPerBag}
                             onChange={(e) => setKgPerBag(e.target.value)}
-                            placeholder="kg per bag"
+                            placeholder={t('procurement.kgPerBagPlaceholder')}
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <Label htmlFor="total-bags">Nos of bags</Label>
+                          <Label htmlFor="total-bags">{t('procurement.noOfBags')}</Label>
                           <Input
                             id="total-bags"
                             value={totalBags}
                             onChange={(e) => setTotalBags(e.target.value)}
-                            placeholder="Nos of bags"
+                            placeholder={t('procurement.noOfBags')}
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="transportation-cost">Transportation cost (₹)</Label>
+                          <Label htmlFor="transportation-cost">{t('procurement.transportationCost')}</Label>
                           <Input
                             id="transportation-cost"
                             value={transportationCost}
@@ -1682,7 +1688,7 @@ const ProcurementAnalysis = () => {
                         </div>
 
                         <div className="space-y-1">
-                          <Label htmlFor="loading-cost">Loading cost (₹)</Label>
+                          <Label htmlFor="loading-cost">{t('procurement.loadingCost')}</Label>
                           <Input
                             id="loading-cost"
                             value={loadingCost}
@@ -1691,7 +1697,7 @@ const ProcurementAnalysis = () => {
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="moisture-sent-by-trader">Moisture of paddy sent by trader (%)</Label>
+                          <Label htmlFor="moisture-sent-by-trader">{t('procurement.moistureSentByTrader')}</Label>
                           <Input
                             id="moisture-sent-by-trader"
                             value={moistureSentByTrader}
@@ -1707,27 +1713,27 @@ const ProcurementAnalysis = () => {
                     <CardHeader>
                       <CardTitle className="text-rice-primary flex items-center gap-2">
                         <Wheat className="w-5 h-5 text-rice-primary" />
-                        Yield Estimation
+                        {t('procurement.yieldEstimation')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-gray-700">
                       <div className="pt-2 border-t border-gray-200">
-                        <div className="text-sm font-semibold text-gray-900">Yield estimation inputs</div>
+                        <div className="text-sm font-semibold text-gray-900">{t('procurement.yieldEstimationInputs')}</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                           <div className="space-y-1 md:col-span-2">
-                            <Label htmlFor="paddy-moisture">Actual input moisture (%)</Label>
+                            <Label htmlFor="paddy-moisture">{t('procurement.actualInputMoisture')}</Label>
                             <Input id="paddy-moisture" value={paddyMoisture} onChange={(e) => setPaddyMoisture(e.target.value)} placeholder="%" />
                           </div>
 
                           <div className="space-y-1">
-                            <Label>Impurities (%)</Label>
+                            <Label>{t('procurement.impurities')}</Label>
                             <div className="flex gap-2">
                               <Input value={impuritiesPct} onChange={(e) => setImpuritiesPct(e.target.value)} placeholder="%" />
                               <Input value={impuritiesPricePerKg} onChange={(e) => setImpuritiesPricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <Label>Immature grains (%)</Label>
+                            <Label>{t('procurement.immatureGrains')}</Label>
                             <div className="flex gap-2">
                               <Input value={immatureGrainPct} onChange={(e) => setImmatureGrainPct(e.target.value)} placeholder="%" />
                               <Input value={immatureGrainPricePerKg} onChange={(e) => setImmatureGrainPricePerKg(e.target.value)} placeholder="₹ / kg" />
@@ -1735,14 +1741,14 @@ const ProcurementAnalysis = () => {
                           </div>
 
                           <div className="space-y-1">
-                            <Label>Husk (%)</Label>
+                            <Label>{t('procurement.husk')}</Label>
                             <div className="flex gap-2">
                               <Input value={huskPct} onChange={(e) => setHuskPct(e.target.value)} placeholder="%" />
                               <Input value={huskPricePerKg} onChange={(e) => setHuskPricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <Label>Bran (%)</Label>
+                            <Label>{t('procurement.bran')}</Label>
                             <div className="flex gap-2">
                               <Input value={branPct} onChange={(e) => setBranPct(e.target.value)} placeholder="%" />
                               <Input value={branPricePerKg} onChange={(e) => setBranPricePerKg(e.target.value)} placeholder="₹ / kg" />
@@ -1751,25 +1757,25 @@ const ProcurementAnalysis = () => {
 
                           <div className="space-y-1">
                             <Label>
-                              Head rice (%) <span className="text-[10px] text-blue-600 font-normal">auto-calculated</span>
+                              {t('procurement.headRicePct')} <span className="text-[10px] text-blue-600 font-normal">{t('procurement.autoCalculated')}</span>
                             </Label>
                             <div className="flex gap-2">
-                              <Input value={headRicePctInput ? `${headRicePctInput}%` : ""} disabled placeholder="Calculated after analysis" className="bg-blue-50 font-medium text-blue-900" />
+                              <Input value={headRicePctInput ? `${headRicePctInput}%` : ""} disabled placeholder={t('procurement.calculatedAfterAnalysis')} className="bg-blue-50 font-medium text-blue-900" />
                               <Input value={headRicePricePerKg} onChange={(e) => setHeadRicePricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
                           <div className="space-y-1">
                             <Label>
-                              Combined brokens (%) <span className="text-[10px] text-blue-600 font-normal">auto-calculated</span>
+                              {t('procurement.combinedBrokens')} <span className="text-[10px] text-blue-600 font-normal">{t('procurement.autoCalculated')}</span>
                             </Label>
                             <div className="flex gap-2">
-                              <Input value={brokenCombinePct ? `${brokenCombinePct}%` : ""} disabled placeholder="Calculated after analysis" className="bg-blue-50 font-medium text-blue-900" />
+                              <Input value={brokenCombinePct ? `${brokenCombinePct}%` : ""} disabled placeholder={t('procurement.calculatedAfterAnalysis')} className="bg-blue-50 font-medium text-blue-900" />
                               <Input value={brokenCombinePricePerKg} onChange={(e) => setBrokenCombinePricePerKg(e.target.value)} placeholder="₹ / kg" />
                             </div>
                           </div>
 
                           <div className="space-y-1 md:col-span-2">
-                            <Label htmlFor="margin-inr">Margin / market fee (₹)</Label>
+                            <Label htmlFor="margin-inr">{t('procurement.marginMarketFee')}</Label>
                             <Input id="margin-inr" value={marginINR} onChange={(e) => setMarginINR(e.target.value)} placeholder="₹" />
                           </div>
                         </div>
@@ -1786,7 +1792,7 @@ const ProcurementAnalysis = () => {
                     onClick={() => markStepComplete("preparation")}
                     disabled={idGeneration === 'custom' && (!customId || customId.length !== 4)}
                   >
-                    Continue to Live Analysis
+                    {t('procurement.continueToLiveAnalysis')}
                   </Button>
                 </div>
               )}

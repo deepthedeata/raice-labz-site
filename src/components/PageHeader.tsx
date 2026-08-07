@@ -3,6 +3,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { User } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ios/ThemeSwitcher";
 import { AppBranding } from "@/components/AppBranding";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLanguage, AVAILABLE_LANGUAGES } from "@/contexts/LanguageContext";
 
 interface PageHeaderProps {
   title: string;
@@ -10,6 +12,8 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
+  const { language, setLanguage } = useLanguage();
+
   return (
     <header className="bg-card border-b border-border px-6 py-4 flex items-center justify-between gap-4">
       <div className="flex items-center gap-4 min-w-0">
@@ -22,6 +26,18 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
         </div>
       </div>
       <div className="flex items-center gap-4">
+        <Select value={language} onValueChange={(v) => setLanguage(v as typeof language)}>
+          <SelectTrigger className="h-9 w-[110px] text-sm" aria-label="Select language">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {AVAILABLE_LANGUAGES.map((l) => (
+              <SelectItem key={l.code} value={l.code}>
+                {l.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <ThemeSwitcher />
         <AppBranding className="max-w-[240px]" />
         <div

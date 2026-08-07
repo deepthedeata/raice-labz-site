@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
+import { AudioGuideButton } from "@/components/AudioGuideButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1356,6 +1357,9 @@ const ProductionAnalysis = () => {
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div className="flex justify-end">
+          <AudioGuideButton clipId={`production_${activeStep}`} />
+        </div>
         <Tabs
           value={activeStep}
           onValueChange={(v) => handleStepChange(v as StepId)}
