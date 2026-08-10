@@ -43,3 +43,5 @@ Thumbs.db
 
 # local tooling state (not project source)
 .claude/
+docs/audio-guide/.langcheck/
+docs/audio-guide/.whisper-model/

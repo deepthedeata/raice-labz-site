@@ -1180,16 +1180,16 @@ const ProcurementAnalysis = () => {
       headRiceYieldPct: headRicePctNum,
       brokenRiceYieldPct: brokenCombinePctNum,
       breakdown: [
-        { key: "impurities", label: "Impurities", pct: impuritiesPctNum, weightPer100: impuritiesWeightPer100, minSellPerKg: impuritiesMinSellPerKg },
-        { key: "immature", label: "Immature grains", pct: immatureGrainPctNum, weightPer100: immatureWeightPer100, minSellPerKg: immatureMinSellPerKg },
-        { key: "husk", label: "Husk", pct: huskPctNum, weightPer100: huskWeightPer100, minSellPerKg: huskMinSellPerKg },
-        { key: "bran", label: "Bran", pct: branPctNum, weightPer100: branWeightPer100, minSellPerKg: branMinSellPerKg },
-        { key: "headRice", label: "Head rice", pct: headRicePctNum, weightPer100: headRiceWeightPer100, minSellPerKg: headRiceMinSellPerKg },
-        { key: "brokenCombine", label: "Combined brokens", pct: brokenCombinePctNum, weightPer100: brokenCombineWeightPer100, minSellPerKg: brokenCombineMinSellPerKg },
-        { key: "deltaMoisture", label: "Delta moisture", pct: deltaMoisturePct, weightPer100: deltaMoisturePct, minSellPerKg: 0 },
+        { key: "impurities", label: t('procurementReports.impuritiesLabel'), pct: impuritiesPctNum, weightPer100: impuritiesWeightPer100, minSellPerKg: impuritiesMinSellPerKg },
+        { key: "immature", label: t('procurementReports.immatureGrains'), pct: immatureGrainPctNum, weightPer100: immatureWeightPer100, minSellPerKg: immatureMinSellPerKg },
+        { key: "husk", label: t('procurementReports.husk'), pct: huskPctNum, weightPer100: huskWeightPer100, minSellPerKg: huskMinSellPerKg },
+        { key: "bran", label: t('procurementReports.bran'), pct: branPctNum, weightPer100: branWeightPer100, minSellPerKg: branMinSellPerKg },
+        { key: "headRice", label: t('procurementReports.headRice'), pct: headRicePctNum, weightPer100: headRiceWeightPer100, minSellPerKg: headRiceMinSellPerKg },
+        { key: "brokenCombine", label: t('procurementReports.combinedBrokens'), pct: brokenCombinePctNum, weightPer100: brokenCombineWeightPer100, minSellPerKg: brokenCombineMinSellPerKg },
+        { key: "deltaMoisture", label: t('procurementReports.deltaMoisture'), pct: deltaMoisturePct, weightPer100: deltaMoisturePct, minSellPerKg: 0 },
       ],
     };
-  }, [kgPerBag, totalBags, paddyPricePerKg, transportationCost, loadingCost, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, marginINR, paddyMoisture, moistureSentByTrader]);
+  }, [kgPerBag, totalBags, paddyPricePerKg, transportationCost, loadingCost, currentOutputParams?.headRicePct, headRicePctInput, currentOutputParams?.brokenRicePct, brokenCombinePct, headRicePricePerKg, brokenCombinePricePerKg, branPct, branPricePerKg, huskPct, huskPricePerKg, immatureGrainPct, immatureGrainPricePerKg, impuritiesPct, impuritiesPricePerKg, marginINR, paddyMoisture, moistureSentByTrader, t]);
 
   const totalGrainsScanned = useMemo(() => {
     return reportTrials.reduce((sum, t) => sum + ((t.GrainMetrics?.totalGrains) || 0), 0);
@@ -1821,14 +1821,14 @@ const ProcurementAnalysis = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                         <Play className="w-5 h-5" />
-                        Session Replay
+                        {t('procurementReports.sessionReplay')}
                       </CardTitle>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => setShowReplay(!showReplay)}
                       >
-                        {showReplay ? "Hide" : "Show"} Replay
+                        {showReplay ? t('procurementReports.hide') : t('procurementReports.show')} {t('procurementReports.replayWord')}
                       </Button>
                     </div>
                   </CardHeader>
@@ -1847,7 +1847,7 @@ const ProcurementAnalysis = () => {
                                   : "border-gray-200 text-gray-500 hover:border-gray-400"
                               }`}
                             >
-                              Trial {tNum}
+                              {t('procurementReports.trial', { n: tNum })}
                             </button>
                           ))}
                         </div>
@@ -1859,10 +1859,10 @@ const ProcurementAnalysis = () => {
                         className="w-full rounded-lg max-h-[400px] bg-black"
                         src={`${window.location.protocol}//${window.location.hostname}:5000/api/raice_labz/sessions/video/${sessionStorage.getItem("mode_id")}?trial=${currentVideoTrial || "1"}`}
                       >
-                        Your browser does not support video playback.
+                        {t('procurementReports.videoNotSupported')}
                       </video>
                       <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                        First playback may take a few seconds while the video is prepared.
+                        {t('procurementReports.videoPrepNote')}
                       </p>
                     </CardContent>
                   )}
@@ -1881,7 +1881,7 @@ const ProcurementAnalysis = () => {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
-                    Sample {num}
+                    {t('procurementReports.sampleN', { n: num })}
                   </button>
                 ))}
                 {sampleCount > 1 && (
@@ -1893,16 +1893,16 @@ const ProcurementAnalysis = () => {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
-                    Average
+                    {t('procurementReports.average')}
                   </button>
                 )}
                 <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Vision Scan Complete
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {t('procurementReports.visionScanComplete')}
                 </span>
               </div>
 
               {reportLoading ? (
-                <div className="flex items-center justify-center py-20 text-gray-500 text-sm">Loading report data...</div>
+                <div className="flex items-center justify-center py-20 text-gray-500 text-sm">{t('procurementReports.loadingReportData')}</div>
               ) : (
                 <>
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 items-stretch">
@@ -1913,7 +1913,7 @@ const ProcurementAnalysis = () => {
                       <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
                         <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                           <BarChart3 className="w-5 h-5" />
-                          Quality Metrics Overview
+                          {t('procurementReports.qualityMetricsOverview')}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pt-5">
@@ -1921,14 +1921,14 @@ const ProcurementAnalysis = () => {
                         <>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {[
-                              { label: "Headrice", value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500" },
-                              { label: "Brokens", value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500" },
-                              { label: "Chalky", value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400" },
-                              { label: "Discolored", value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500" },
-                              { label: "Rejections", value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), unit: "%", border: "border-purple-200", bg: "bg-gradient-to-br from-purple-50 to-indigo-50", textColor: "text-purple-700", barColor: "bg-purple-500" },
-                              { label: "Froeignmatter", value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500" },
-                              { label: "Immature", value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500" },
-                              { label: "Total Grains", value: currentOutputParams.totalGrains, unit: "", border: "border-gray-200", bg: "bg-gradient-to-br from-gray-50 to-slate-50", textColor: "text-gray-800", barColor: "bg-gray-500", isCount: true },
+                              { label: t('procurementReports.headrice'), value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500" },
+                              { label: t('procurementReports.brokens'), value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500" },
+                              { label: t('procurementReports.chalky'), value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400" },
+                              { label: t('procurementReports.discolored'), value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500" },
+                              { label: t('procurementReports.rejections'), value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), unit: "%", border: "border-purple-200", bg: "bg-gradient-to-br from-purple-50 to-indigo-50", textColor: "text-purple-700", barColor: "bg-purple-500" },
+                              { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500" },
+                              { label: t('procurementReports.immature'), value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500" },
+                              { label: t('procurementReports.totalGrains'), value: currentOutputParams.totalGrains, unit: "", border: "border-gray-200", bg: "bg-gradient-to-br from-gray-50 to-slate-50", textColor: "text-gray-800", barColor: "bg-gray-500", isCount: true },
                             ].map((metric) => (
                               <div
                                 key={metric.label}
@@ -1952,14 +1952,14 @@ const ProcurementAnalysis = () => {
                               <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <p className="text-[11px] font-medium text-gray-500">Whiteness Index</p>
+                                    <p className="text-[11px] font-medium text-gray-500">{t('procurementReports.whitenessIndex')}</p>
                                     <p className="text-2xl font-bold text-blue-700 mt-1">
                                       {currentOutputParams.whitenessIndex.toFixed(1)}
                                       <span className="text-sm font-normal ml-1 text-gray-400">WI</span>
                                     </p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-[11px] font-medium text-gray-500">Color Grade</p>
+                                    <p className="text-[11px] font-medium text-gray-500">{t('procurementReports.colorGrade')}</p>
                                     <p className="text-lg font-semibold mt-1" style={{ color: getWiGradeColor(currentOutputParams.whitenessIndex) }}>
                                       {getWiGradeLabel(currentOutputParams.whitenessIndex)}
                                     </p>
@@ -1994,7 +1994,7 @@ const ProcurementAnalysis = () => {
 
                           {/* Donut Chart: Rice vs Rejections vs Foreign Matter */}
                           <div className="mt-6 border-t pt-5">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Quality Breakdown</h4>
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('procurementReports.qualityBreakdown')}</h4>
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="w-full sm:w-1/2 h-[220px]">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -2023,10 +2023,10 @@ const ProcurementAnalysis = () => {
                               </div>
                               <div className="w-full sm:w-1/2 space-y-2">
                                 {[
-                                  { label: "Head Rice", value: currentOutputParams.headRicePct, color: "#0B4CAD", desc: "Full & 3/4 head grains, secondOne, tibar" },
-                                  { label: "Broken Rice", value: currentOutputParams.brokenRicePct, color: "#eab308", desc: "Half, quarter, fine brokens, tips, dubar, mongra, nakku" },
-                                  { label: "Rejections", value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), color: "#6366f1", desc: "Chalky, discolored, immature" },
-                                  { label: "Foreign Matter", value: currentOutputParams.foreignMatterPct, color: "#f59e0b", desc: "Non-rice material" },
+                                  { label: t('procurementReports.headRice'), value: currentOutputParams.headRicePct, color: "#0B4CAD", desc: t('procurementReports.descHeadRice') },
+                                  { label: t('procurementReports.brokenRice'), value: currentOutputParams.brokenRicePct, color: "#eab308", desc: t('procurementReports.descBrokenRice') },
+                                  { label: t('procurementReports.rejections'), value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), color: "#6366f1", desc: t('procurementReports.descRejections') },
+                                  { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, color: "#f59e0b", desc: t('procurementReports.descForeignMatter') },
                                 ].map((item) => (
                                   <div key={item.label} className="flex items-center gap-3 group hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors duration-200">
                                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
@@ -2044,7 +2044,7 @@ const ProcurementAnalysis = () => {
                           </div>
                         </>
                       ) : (
-                        <p className="text-sm text-gray-400 py-4 text-center">No metrics available for this sample</p>
+                        <p className="text-sm text-gray-400 py-4 text-center">{t('procurementReports.noMetricsAvailable')}</p>
                       )}
                       </CardContent>
                     </Card>
@@ -2056,18 +2056,18 @@ const ProcurementAnalysis = () => {
                     {/* Test Information Panel */}
                     <Card className="shadow-sm">
                       <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
-                        <CardTitle className="text-sm font-semibold text-gray-700">Test Information</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-gray-700">{t('procurementReports.testInformation')}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3.5 text-sm pt-4">
                         {[
-                          { label: "Test Id", value: sessionStorage.getItem("mode_id") || "—" },
-                          { label: "Operator", value: operatorName ? toTitleCaseDisplay(operatorName) : "—" },
-                          { label: "Date", value: currentDate ? formatTestInfoDate(currentDate) : "—" },
-                          { label: "Variety", value: variety ? toTitleCaseDisplay(variety) : "—" },
-                          { label: "Process", value: process ? toTitleCaseDisplay(process) : "—" },
-                          { label: "Grains Scanned", value: totalGrainsScanned.toLocaleString() },
-                          { label: sampleMode === "count" ? "Sample Count" : "Sample Weight", value: resolvedSampleWeight ? (sampleMode === "count" ? resolvedSampleWeight : `${resolvedSampleWeight}g`) : "—" },
-                          { label: "Sampling Method", value: samplingMethod ? toTitleCaseDisplay(samplingMethod) : "—" },
+                          { label: t('procurementReports.testId'), value: sessionStorage.getItem("mode_id") || "—" },
+                          { label: t('procurementReports.operator'), value: operatorName ? toTitleCaseDisplay(operatorName) : "—" },
+                          { label: t('procurementReports.date'), value: currentDate ? formatTestInfoDate(currentDate) : "—" },
+                          { label: t('procurementReports.variety'), value: variety ? toTitleCaseDisplay(variety) : "—" },
+                          { label: t('procurementReports.process'), value: process ? toTitleCaseDisplay(process) : "—" },
+                          { label: t('procurementReports.grainsScanned'), value: totalGrainsScanned.toLocaleString() },
+                          { label: sampleMode === "count" ? t('procurementReports.sampleCount') : t('procurementReports.sampleWeight'), value: resolvedSampleWeight ? (sampleMode === "count" ? resolvedSampleWeight : `${resolvedSampleWeight}g`) : "—" },
+                          { label: t('procurementReports.samplingMethod'), value: samplingMethod ? toTitleCaseDisplay(samplingMethod) : "—" },
                         ].map((item) => (
                           <div key={item.label} className="flex justify-between items-baseline py-0.5">
                             <span className="text-gray-500 text-xs font-medium">{item.label}</span>
@@ -2080,13 +2080,13 @@ const ProcurementAnalysis = () => {
                     {/* Actions Panel */}
                     <Card className="flex-1 flex flex-col min-h-0">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-semibold text-gray-700">Actions</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-gray-700">{t('procurementReports.actions')}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-2.5 flex-1">
                         {enableChalky && (
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={includeDetailedChalky} onChange={(e) => setIncludeDetailedChalky(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                            <span className="text-sm text-gray-700">Download Detailed Chalky Classification</span>
+                            <span className="text-sm text-gray-700">{t('procurementReports.downloadDetailedChalky')}</span>
                           </label>
                         )}
                         <Button
@@ -2095,7 +2095,7 @@ const ProcurementAnalysis = () => {
                           disabled={reportGenerating}
                         >
                           <Download className="w-4 h-4" />
-                          {reportGenerating ? "Generating..." : "Generate Report"}
+                          {reportGenerating ? t('procurementReports.generating') : t('procurementReports.generateReport')}
                         </Button>
 <Button
                           variant="outline"
@@ -2103,7 +2103,7 @@ const ProcurementAnalysis = () => {
                           onClick={() => videoExists ? setShowReplay(true) : setActiveStep("live")}
                         >
                           <Play className="w-4 h-4 rotate-180" />
-                          Replay Vision
+                          {t('procurementReports.replayVision')}
                         </Button>
                         <Button
                           variant="outline"
@@ -2111,13 +2111,13 @@ const ProcurementAnalysis = () => {
                           onClick={() => navigate("/")}
                         >
                           <LayoutDashboard className="w-4 h-4" />
-                          Dashboard
+                          {t('procurementReports.dashboard')}
                         </Button>
 
                         {allCompleted && (
                           <p className="flex items-center gap-2 text-xs text-rice-primary pt-1">
                             <CheckCircle2 className="w-4 h-4" />
-                            All stages completed.
+                            {t('procurementReports.allStagesCompleted')}
                           </p>
                         )}
                       </CardContent>
@@ -2131,7 +2131,7 @@ const ProcurementAnalysis = () => {
                   <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
                     <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                       <Wheat className="w-5 h-5" />
-                      Dimension Analysis (Rice)
+                      {t('procurementReports.dimensionAnalysis')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="overflow-x-auto pt-0">
@@ -2141,21 +2141,21 @@ const ProcurementAnalysis = () => {
                       const hrDims = dimSource.headRiceDimensions;
                       const fmt = (v: number | null | undefined) => v != null ? v.toFixed(2) : "—";
                       const rows: { label: string; length: string; width: string; ratio: string; highlight?: boolean }[] = [
-                        { label: "Mean", length: fmt(dims.length_mm.mean), width: fmt(dims.width_mm.mean), ratio: fmt(dims.aspect_ratio.mean) },
-                        { label: "Mode", length: fmt(dims.length_mm.mode), width: fmt(dims.width_mm.mode), ratio: fmt(dims.aspect_ratio.mode) },
-                        { label: "Median", length: fmt(dims.length_mm.median), width: fmt(dims.width_mm.median), ratio: fmt(dims.aspect_ratio.median) },
-                        { label: "Min", length: fmt(dims.length_mm.min), width: fmt(dims.width_mm.min), ratio: fmt(dims.aspect_ratio.min) },
-                        { label: "Max", length: fmt(dims.length_mm.max), width: fmt(dims.width_mm.max), ratio: fmt(dims.aspect_ratio.max) },
-                        { label: "Head Rice (Mean)", length: fmt(hrDims?.length_mm?.mean), width: fmt(hrDims?.width_mm?.mean), ratio: fmt(hrDims?.aspect_ratio?.mean), highlight: true },
+                        { label: t('procurementReports.mean'), length: fmt(dims.length_mm.mean), width: fmt(dims.width_mm.mean), ratio: fmt(dims.aspect_ratio.mean) },
+                        { label: t('procurementReports.mode'), length: fmt(dims.length_mm.mode), width: fmt(dims.width_mm.mode), ratio: fmt(dims.aspect_ratio.mode) },
+                        { label: t('procurementReports.median'), length: fmt(dims.length_mm.median), width: fmt(dims.width_mm.median), ratio: fmt(dims.aspect_ratio.median) },
+                        { label: t('procurementReports.min'), length: fmt(dims.length_mm.min), width: fmt(dims.width_mm.min), ratio: fmt(dims.aspect_ratio.min) },
+                        { label: t('procurementReports.max'), length: fmt(dims.length_mm.max), width: fmt(dims.width_mm.max), ratio: fmt(dims.aspect_ratio.max) },
+                        { label: t('procurementReports.headRiceMean'), length: fmt(hrDims?.length_mm?.mean), width: fmt(hrDims?.width_mm?.mean), ratio: fmt(hrDims?.aspect_ratio?.mean), highlight: true },
                       ];
                       return (
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-50 to-white border-b">
-                              <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Metric</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Length (mm)</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Width (mm)</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Aspect Ratio</th>
+                              <th className="text-left py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.metric')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.lengthMm')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.widthMm')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.aspectRatio')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -2171,7 +2171,7 @@ const ProcurementAnalysis = () => {
                         </table>
                       );
                     })() : (
-                      <p className="text-sm text-gray-400 py-4 text-center">No dimension statistics available</p>
+                      <p className="text-sm text-gray-400 py-4 text-center">{t('procurementReports.noDimensionStats')}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -2180,21 +2180,21 @@ const ProcurementAnalysis = () => {
                   <CardHeader className="pb-3 bg-gradient-to-r from-emerald-50 to-green-50 border-b">
                     <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                       <TrendingUp className="w-5 h-5" />
-                      Procurement Insights
+                      {t('procurementReports.procurementInsights')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4 space-y-6">
                     {/* Infographic stat tiles */}
                     <div className="grid gap-3 sm:grid-cols-4">
                       {[
-                        { label: "Total quote", value: procurementEconomics.paymentAskedBeforeAnalysis, icon: IndianRupee, accent: "text-emerald-700", bg: "bg-emerald-50" },
-                        { label: "To be paid to miller", value: procurementEconomics.paymentToBeDoneAfterAnalysis, icon: Wallet, accent: "text-blue-700", bg: "bg-blue-50" },
-                        { label: "Landed cost / kg", value: procurementEconomics.landedCost, icon: Scale, accent: "text-indigo-700", bg: "bg-indigo-50" },
-                        { label: "Transportation cost", value: procurementEconomics.transportCost, icon: Truck, accent: "text-amber-700", bg: "bg-amber-50" },
-                        { label: "Delta moisture", value: procurementEconomics.deltaMoisturePct, icon: Droplets, accent: "text-cyan-700", bg: "bg-cyan-50", isPercent: true },
-                        { label: "Total impurities", value: parseNumericValue(impuritiesPct), icon: AlertTriangle, accent: "text-red-700", bg: "bg-red-50", isPercent: true },
-                        { label: "Total immature grain", value: parseNumericValue(immatureGrainPct), icon: Sprout, accent: "text-purple-700", bg: "bg-purple-50", isPercent: true },
-                        { label: "Rice yield", value: procurementEconomics.riceYieldPct, icon: Wheat, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
+                        { label: t('procurementReports.totalQuote'), value: procurementEconomics.paymentAskedBeforeAnalysis, icon: IndianRupee, accent: "text-emerald-700", bg: "bg-emerald-50" },
+                        { label: t('procurementReports.toBePaidToMiller'), value: procurementEconomics.paymentToBeDoneAfterAnalysis, icon: Wallet, accent: "text-blue-700", bg: "bg-blue-50" },
+                        { label: t('procurementReports.landedCostPerKg'), value: procurementEconomics.landedCost, icon: Scale, accent: "text-indigo-700", bg: "bg-indigo-50" },
+                        { label: t('procurementReports.transportationCost'), value: procurementEconomics.transportCost, icon: Truck, accent: "text-amber-700", bg: "bg-amber-50" },
+                        { label: t('procurementReports.deltaMoisture'), value: procurementEconomics.deltaMoisturePct, icon: Droplets, accent: "text-cyan-700", bg: "bg-cyan-50", isPercent: true },
+                        { label: t('procurementReports.totalImpurities'), value: parseNumericValue(impuritiesPct), icon: AlertTriangle, accent: "text-red-700", bg: "bg-red-50", isPercent: true },
+                        { label: t('procurementReports.totalImmatureGrain'), value: parseNumericValue(immatureGrainPct), icon: Sprout, accent: "text-purple-700", bg: "bg-purple-50", isPercent: true },
+                        { label: t('procurementReports.riceYield'), value: procurementEconomics.riceYieldPct, icon: Wheat, accent: "text-slate-700", bg: "bg-slate-50", isPercent: true },
                       ].map((metric) => (
                         <div key={metric.label} className={`rounded-2xl border border-gray-200 ${metric.bg} p-4`}>
                           <div className="flex items-center gap-2">
@@ -2210,7 +2210,7 @@ const ProcurementAnalysis = () => {
 
                     {/* Weight composition donut */}
                     <div className="border-t pt-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Paddy Weight Composition (per 100gms)</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('procurementReports.paddyWeightComposition')}</h4>
                       <div className="flex flex-col sm:flex-row items-center gap-4">
                         <div className="w-full sm:w-1/2 h-[240px]">
                           <ResponsiveContainer width="100%" height="100%">
@@ -2243,13 +2243,13 @@ const ProcurementAnalysis = () => {
 
                     {/* Yield & minimum sell value breakdown (proc.xlsx columns) */}
                     <div className="border-t pt-5 overflow-x-auto">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Yield &amp; Minimum Sell Value Breakdown</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('procurementReports.yieldMinSellBreakdown')}</h4>
                       <table className="w-full text-sm text-left">
                         <thead>
                           <tr className="border-b bg-gray-50">
-                            <th className="py-3 px-3 font-semibold text-gray-600">Parameter</th>
-                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Weight (gms) /100gms</th>
-                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Out of 1kg paddy (₹) minimum you can sell</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600">{t('procurementReports.parameter')}</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">{t('procurementReports.weightGms100')}</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">{t('procurementReports.minSellPerKg')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2271,30 +2271,30 @@ const ProcurementAnalysis = () => {
 
                     {/* Settlement detail */}
                     <div className="border-t pt-5 overflow-x-auto">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Settlement Detail</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('procurementReports.settlementDetail')}</h4>
                       <table className="w-full text-sm text-left">
                         <thead>
                           <tr className="border-b bg-gray-50">
                             <th className="py-3 px-3 font-semibold text-gray-600">#</th>
-                            <th className="py-3 px-3 font-semibold text-gray-600">Item</th>
-                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">Value</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600">{t('procurementReports.item')}</th>
+                            <th className="py-3 px-3 font-semibold text-gray-600 text-right">{t('procurementReports.value')}</th>
                           </tr>
                         </thead>
                         <tbody>
                           {[
-                            { label: "Initial weight", value: procurementEconomics.totalPaddyWeightKg, unit: "kg" },
-                            { label: "Final weight (head rice + broken combine)", value: procurementEconomics.finalWeightKg, unit: "kg" },
-                            { label: "Husk", value: procurementEconomics.huskRevenueTotal, unit: "currency" },
-                            { label: "Bran", value: procurementEconomics.branRevenueTotal, unit: "currency" },
-                            { label: `Head rice (${procurementEconomics.headRiceYieldPct != null ? formatPercent(procurementEconomics.headRiceYieldPct) : "—"})`, value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
-                            { label: `Broken combine (${procurementEconomics.brokenRiceYieldPct != null ? formatPercent(procurementEconomics.brokenRiceYieldPct) : "—"})`, value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
-                            { label: "Immature grain", value: procurementEconomics.immatureRevenueTotal, unit: "currency" },
-                            { label: `Impurities (${formatPercent(parseNumericValue(impuritiesPct))})`, value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
-                            { label: "Margin", value: procurementEconomics.marginAmount, unit: "currency" },
-                            { label: "Transportation cost", value: procurementEconomics.transportCost, unit: "currency" },
-                            { label: "Loading cost", value: procurementEconomics.loadingCost, unit: "currency" },
-                            { label: "Total quote", value: procurementEconomics.paymentAskedBeforeAnalysis, unit: "currency", emphasis: true },
-                            { label: "To be paid to miller", value: procurementEconomics.paymentToBeDoneAfterAnalysis, unit: "currency", emphasis: true },
+                            { label: t('procurementReports.initialWeight'), value: procurementEconomics.totalPaddyWeightKg, unit: "kg" },
+                            { label: t('procurementReports.finalWeight'), value: procurementEconomics.finalWeightKg, unit: "kg" },
+                            { label: t('procurementReports.husk'), value: procurementEconomics.huskRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.bran'), value: procurementEconomics.branRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.headRiceWithPct', { pct: procurementEconomics.headRiceYieldPct != null ? formatPercent(procurementEconomics.headRiceYieldPct) : "—" }), value: procurementEconomics.headRiceRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.brokenCombineWithPct', { pct: procurementEconomics.brokenRiceYieldPct != null ? formatPercent(procurementEconomics.brokenRiceYieldPct) : "—" }), value: procurementEconomics.brokenCombineRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.immatureGrains'), value: procurementEconomics.immatureRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.impuritiesWithPct', { pct: formatPercent(parseNumericValue(impuritiesPct)) }), value: procurementEconomics.impuritiesRevenueTotal, unit: "currency" },
+                            { label: t('procurementReports.marginLabel'), value: procurementEconomics.marginAmount, unit: "currency" },
+                            { label: t('procurementReports.transportationCost'), value: procurementEconomics.transportCost, unit: "currency" },
+                            { label: t('procurementReports.loadingCost'), value: procurementEconomics.loadingCost, unit: "currency" },
+                            { label: t('procurementReports.totalQuote'), value: procurementEconomics.paymentAskedBeforeAnalysis, unit: "currency", emphasis: true },
+                            { label: t('procurementReports.toBePaidToMiller'), value: procurementEconomics.paymentToBeDoneAfterAnalysis, unit: "currency", emphasis: true },
                           ].map((item, idx) => (
                             <tr key={item.label} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                               <td className="py-3 px-3 text-sm text-gray-500">{idx + 1}</td>

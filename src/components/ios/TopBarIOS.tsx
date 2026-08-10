@@ -4,6 +4,8 @@ import { StatusDot } from "./StatusDot";
 import { useCommandPalette } from "./CommandPalette";
 import { AppBranding } from "@/components/AppBranding";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLanguage, AVAILABLE_LANGUAGES } from "@/contexts/LanguageContext";
 
 interface TopBarIOSProps {
   /** Optional page title. Omit to render a bare topbar with only the right-side controls. */
@@ -14,6 +16,7 @@ interface TopBarIOSProps {
 
 export function TopBarIOS({ title, subtitle, className }: TopBarIOSProps) {
   const { setOpen } = useCommandPalette();
+  const { language, setLanguage, t } = useLanguage();
   const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/i.test(navigator.platform);
   return (
     <header
@@ -38,6 +41,18 @@ export function TopBarIOS({ title, subtitle, className }: TopBarIOSProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        <Select value={language} onValueChange={(v) => setLanguage(v as typeof language)}>
+          <SelectTrigger className="h-8 w-[110px] text-sm" aria-label="Select language">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {AVAILABLE_LANGUAGES.map((l) => (
+              <SelectItem key={l.code} value={l.code}>
+                {l.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <ThemeSwitcher />
         <button
           type="button"
@@ -52,7 +67,7 @@ export function TopBarIOS({ title, subtitle, className }: TopBarIOSProps) {
           )}
         >
           <Search className="w-3.5 h-3.5" />
-          <span className="text-[12px]">Search</span>
+          <span className="text-[12px]">{t('topbar.search')}</span>
           <kbd className="text-[10px] ios-text-tertiary border ios-hairline rounded px-1 py-0.5 ml-1">
             {isMac ? "⌘K" : "Ctrl K"}
           </kbd>
@@ -60,7 +75,7 @@ export function TopBarIOS({ title, subtitle, className }: TopBarIOSProps) {
 
         <div className="flex items-center gap-1.5 px-3 h-8 rounded-[10px] border ios-hairline ios-raised">
           <StatusDot variant="online" pulse size={7} />
-          <span className="text-[12px] font-medium ios-text">Online</span>
+          <span className="text-[12px] font-medium ios-text">{t('topbar.online')}</span>
         </div>
         <AppBranding className="max-w-[220px] hidden sm:flex" />
         <div

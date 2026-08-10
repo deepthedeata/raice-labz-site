@@ -45,6 +45,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis
 import ProcurementLiveAnalysis from "./ProcurementLiveAnalysis";
 import { buildReportFilename } from "@/lib/reportFilename";
 import { useAnalysis } from "@/contexts/AnalysisContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
 
@@ -321,8 +322,9 @@ const ProductionAnalysis = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { setSeriesExecutionLocked, hasStartedAnalysis } = useAnalysis();
+  const { t } = useLanguage();
   const [category, setCategory] = useState<"basmati" | "non-basmati">("non-basmati");
-  const categoryLabel = category === "basmati" ? "Basmati" : "Non-Basmati";
+  const categoryLabel = category === "basmati" ? t('procurement.basmati') : t('procurement.nonBasmati');
   const [activeStep, setActiveStep] = useState<StepId>("preparation");
   const [completedSteps, setCompletedSteps] = useState<StepState>({
     preparation: false,
@@ -1368,7 +1370,7 @@ const ProductionAnalysis = () => {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="preparation" disabled={activeStep === "reports"} className="flex items-center gap-2">
               <ClipboardList className="w-4 h-4" />
-              <span>Test Preparation</span>
+              <span>{t('procurement.tabPreparation')}</span>
               {completedSteps.preparation && (
                 <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />
               )}
@@ -1379,7 +1381,7 @@ const ProductionAnalysis = () => {
               className="flex items-center gap-2"
             >
               <Activity className="w-4 h-4" />
-              <span>Live Analysis</span>
+              <span>{t('procurement.tabLive')}</span>
               {completedSteps.live && (
                 <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />
               )}
@@ -1390,7 +1392,7 @@ const ProductionAnalysis = () => {
               className="flex items-center gap-2"
             >
               <BarChart3 className="w-4 h-4" />
-              <span>Insights &amp; Reports</span>
+              <span>{t('procurement.tabReports')}</span>
               {completedSteps.reports && (
                 <CheckCircle2 className="w-3 h-3 text-rice-primary ml-1" />
               )}
@@ -1404,7 +1406,7 @@ const ProductionAnalysis = () => {
               <div className="flex items-center gap-2">
                 <Wheat className="w-5 h-5 text-rice-primary" />
                 <span className="font-semibold text-sm text-rice-primary">
-                  Category: {categoryLabel}
+                  {t('procurement.categoryPrefix', { category: categoryLabel })}
                 </span>
               </div>
             </div>
@@ -1414,38 +1416,38 @@ const ProductionAnalysis = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-rice-primary flex items-center gap-2">
                   <Layers className="w-5 h-5 text-rice-primary" />
-                  Select Series & Machine
+                  {t('production.selectSeriesMachine')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Series Selection */}
                   <div className="lg:w-1/3 space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Series (Line) <span className="text-rice-primary">*</span></Label>
+                    <Label className="text-sm font-medium text-gray-700">{t('production.seriesLine')} <span className="text-rice-primary">*</span></Label>
                     <Select
                       value={selectedSeries || "__no_series__"}
                       onValueChange={handleSeriesChange}
                       disabled={isSeriesExecutionActive}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a series or choose No Series" />
+                        <SelectValue placeholder={t('production.selectSeriesPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__no_series__">No Series (single machine)</SelectItem>
+                        <SelectItem value="__no_series__">{t('production.noSeriesSingleMachine')}</SelectItem>
                         {lines.map((line) => (
                           <SelectItem
                             key={line.id || line.name}
                             value={line.name}
                           >
                             {line.name}
-                            {line.machines.length > 0 && ` (${line.machines.length} machines)`}
+                            {line.machines.length > 0 && ` ${t('production.machinesCountSuffix', { n: line.machines.length })}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {lines.length === 0 && !machinesLoading && (
                       <p className="text-xs text-amber-600">
-                        No lines/series configured. Add them in Settings &gt; Line Info.
+                        {t('production.noLinesConfigured')}
                       </p>
                     )}
                   </div>
@@ -1453,7 +1455,7 @@ const ProductionAnalysis = () => {
                   {/* Machine Selection / Sequence */}
                   <div className="flex-1 space-y-3">
                     <Label className="text-sm font-medium text-gray-700">
-                      {isSeriesMode ? "Machine Sequence" : "Select Machine"}
+                      {isSeriesMode ? t('production.machineSequence') : t('production.selectMachineLabel')}
                     </Label>
                     {isSeriesMode ? (
                       <div className="space-y-3">
@@ -1503,9 +1505,9 @@ const ProductionAnalysis = () => {
                     ) : (
                       <>
                         {machinesLoading ? (
-                          <p className="text-sm text-muted-foreground">Loading machines...</p>
+                          <p className="text-sm text-muted-foreground">{t('production.loadingMachines')}</p>
                         ) : displayedMachines.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">No machines available.</p>
+                          <p className="text-sm text-muted-foreground">{t('production.noMachinesAvailable')}</p>
                         ) : (
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                             {displayedMachines.map((machine, idx) => {
@@ -1572,7 +1574,7 @@ const ProductionAnalysis = () => {
                           <div className="p-2.5 bg-rice-primary/5 border border-rice-primary/20 rounded-lg flex items-center gap-2">
                             <Factory className="w-4 h-4 text-rice-primary" />
                             <span className="text-sm font-medium text-rice-primary">
-                              Selected: {selectedMachine}
+                              {t('production.selectedMachine', { machine: selectedMachine })}
                             </span>
                           </div>
                         )}
@@ -1590,13 +1592,13 @@ const ProductionAnalysis = () => {
                 <CardHeader>
                   <CardTitle className="text-rice-primary flex items-center gap-2">
                     <Wheat className="w-5 h-5 text-rice-primary" />
-                    Grain Information
+                    {t('procurement.grainInformation')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1 md:col-span-2">
-                      <Label>Region</Label>
+                      <Label>{t('procurement.region')}</Label>
                       <ToggleGroup
                         type="single"
                         variant="outline"
@@ -1605,17 +1607,17 @@ const ProductionAnalysis = () => {
                         className="justify-start gap-2"
                       >
                         <ToggleGroupItem value="non-basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
-                          Non-Basmati
+                          {t('procurement.nonBasmati')}
                         </ToggleGroupItem>
                         <ToggleGroupItem value="basmati" className="px-4 data-[state=on]:bg-rice-primary data-[state=on]:text-white data-[state=on]:border-rice-primary">
-                          Basmati
+                          {t('procurement.basmati')}
                         </ToggleGroupItem>
                       </ToggleGroup>
-                      <p className="text-xs text-gray-500">Applies the {categoryLabel} settings configured on the Settings page to this analysis.</p>
+                      <p className="text-xs text-gray-500">{t('procurement.appliesSettingsNote', { category: categoryLabel })}</p>
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="prod-variety">
-                        Variety <span className="text-rice-primary">*</span>
+                        {t('procurement.variety')} <span className="text-rice-primary">*</span>
                       </Label>
                       <Select
                         value={variety || ""}
@@ -1629,10 +1631,10 @@ const ProductionAnalysis = () => {
                           <SelectValue
                             placeholder={
                               varietiesLoading
-                                ? "Loading varieties..."
+                                ? t('procurement.loadingVarieties')
                                 : varietiesFromDb.length === 0
-                                  ? "No varieties in database"
-                                  : "Select variety"
+                                  ? t('procurement.noVarietiesInDb')
+                                  : t('procurement.selectVariety')
                             }
                           />
                         </SelectTrigger>
@@ -1646,14 +1648,13 @@ const ProductionAnalysis = () => {
                       </Select>
                       {varietiesFromDb.length === 0 && !varietiesLoading && (
                         <p className="text-xs text-amber-600">
-                          Add varieties in Grain Database first; only DB
-                          varieties appear here.
+                          {t('procurement.addVarietiesHint')}
                         </p>
                       )}
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="prod-process">
-                        Process <span className="text-rice-primary">*</span>
+                        {t('procurement.process')} <span className="text-rice-primary">*</span>
                       </Label>
                       <Select
                         value={process || ""}
@@ -1667,12 +1668,12 @@ const ProductionAnalysis = () => {
                           <SelectValue
                             placeholder={
                               !variety
-                                ? "Select variety first"
+                                ? t('procurement.selectVarietyFirst')
                                 : processesLoading
-                                  ? "Loading processes..."
+                                  ? t('procurement.loadingProcesses')
                                   : processesForVariety.length === 0
-                                    ? "No processes for this variety"
-                                    : "Select process"
+                                    ? t('procurement.noProcessesForVariety')
+                                    : t('procurement.selectProcess')
                             }
                           />
                         </SelectTrigger>
@@ -1688,14 +1689,13 @@ const ProductionAnalysis = () => {
                         processesForVariety.length === 0 &&
                         !processesLoading && (
                           <p className="text-xs text-amber-600">
-                            No processes in database for this variety. Add in
-                            Grain Database.
+                            {t('procurement.addProcessesHint')}
                           </p>
                         )}
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="prod-harvest-season">
-                        Harvest Season{" "}
+                        {t('procurement.harvestSeason')}{" "}
                         <span className="text-rice-primary">*</span>
                       </Label>
                       <Select
@@ -1712,12 +1712,12 @@ const ProductionAnalysis = () => {
                           <SelectValue
                             placeholder={
                               !variety || !process
-                                ? "Select variety and process first"
+                                ? t('procurement.selectVarietyProcessFirst')
                                 : harvestSeasonsLoading
-                                  ? "Loading harvest seasons..."
+                                  ? t('procurement.loadingHarvestSeasons')
                                   : harvestSeasonsFromDb.length === 0
-                                    ? "No harvest seasons for this combination"
-                                    : "Select harvest season"
+                                    ? t('procurement.noHarvestSeasons')
+                                    : t('procurement.selectHarvestSeason')
                             }
                           />
                         </SelectTrigger>
@@ -1734,13 +1734,12 @@ const ProductionAnalysis = () => {
                         harvestSeasonsFromDb.length === 0 &&
                         !harvestSeasonsLoading && (
                           <p className="text-xs text-amber-600">
-                            No harvest seasons in database for this variety +
-                            process. Add in Grain Database.
+                            {t('procurement.addHarvestSeasonsHint')}
                           </p>
                         )}
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="prod-month">Month (optional)</Label>
+                      <Label htmlFor="prod-month">{t('procurement.month')}</Label>
                       <Select
                         value={month || ""}
                         onValueChange={setMonth}
@@ -1755,12 +1754,12 @@ const ProductionAnalysis = () => {
                           <SelectValue
                             placeholder={
                               !variety || !process || !harvestSeason
-                                ? "Select harvest season first"
+                                ? t('procurement.selectHarvestSeasonFirst')
                                 : monthsLoading
-                                  ? "Loading months..."
+                                  ? t('procurement.loadingMonths')
                                   : monthsFromDb.length === 0
-                                    ? "No months for this combination"
-                                    : "Select month (optional)"
+                                    ? t('procurement.noMonths')
+                                    : t('procurement.selectMonth')
                             }
                           />
                         </SelectTrigger>
@@ -1778,14 +1777,13 @@ const ProductionAnalysis = () => {
                         monthsFromDb.length === 0 &&
                         !monthsLoading && (
                           <p className="text-xs text-amber-600">
-                            No months in database for this combination. Add in
-                            Grain Database.
+                            {t('procurement.addMonthsHint')}
                           </p>
                         )}
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="prod-no-samples">
-                        No. of Samples (1-3){" "}
+                        {t('procurement.noOfSamples')}{" "}
                         <span className="text-rice-primary">*</span>
                       </Label>
                       <Input
@@ -1807,13 +1805,13 @@ const ProductionAnalysis = () => {
                             );
                           }
                         }}
-                        placeholder="1-3"
+                        placeholder={t('procurement.samplesPlaceholder')}
                       />
                     </div>
                     {/* Sample Size + Parameters to Analyse — side by side */}
                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <Label>Sample Size <span className="text-rice-primary">*</span></Label>
+                        <Label>{t('procurement.sampleSize')} <span className="text-rice-primary">*</span></Label>
                         <div className="flex items-center gap-2 flex-wrap">
                           <RadioGroup
                             value={sampleMode}
@@ -1822,23 +1820,23 @@ const ProductionAnalysis = () => {
                           >
                             <div className="flex items-center gap-1.5">
                               <RadioGroupItem value="weight" id="prod-sample-mode-weight" />
-                              <Label htmlFor="prod-sample-mode-weight" className="cursor-pointer font-normal text-sm">By Weight</Label>
+                              <Label htmlFor="prod-sample-mode-weight" className="cursor-pointer font-normal text-sm">{t('procurement.byWeight')}</Label>
                               {sampleMode === "weight" && (
                                 <>
                                   <Select value={sampleWeight} onValueChange={(v) => { setSampleWeight(v); if (v !== "free weight") setFreeWeightInput(""); }}>
                                     <SelectTrigger className="w-28 h-7 text-xs ml-1"><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="10 grams">10 grams</SelectItem>
-                                      <SelectItem value="20 grams">20 grams</SelectItem>
-                                      <SelectItem value="50 grams">50 grams</SelectItem>
-                                      <SelectItem value="100 grams">100 grams</SelectItem>
-                                      <SelectItem value="free weight">Free weight</SelectItem>
+                                      <SelectItem value="10 grams">10 {t('procurement.gramsUnit')}</SelectItem>
+                                      <SelectItem value="20 grams">20 {t('procurement.gramsUnit')}</SelectItem>
+                                      <SelectItem value="50 grams">50 {t('procurement.gramsUnit')}</SelectItem>
+                                      <SelectItem value="100 grams">100 {t('procurement.gramsUnit')}</SelectItem>
+                                      <SelectItem value="free weight">{t('procurement.freeWeight')}</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   {sampleWeight === "free weight" && (
                                     <div className="flex items-center gap-1">
-                                      <Input type="number" min={1} max={150} step={1} placeholder="Max 150" value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 150)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
-                                      <span className="text-xs text-muted-foreground">g</span>
+                                      <Input type="number" min={1} max={150} step={1} placeholder={t('procurement.maxPlaceholder', { max: 150 })} value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 150)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
+                                      <span className="text-xs text-muted-foreground">{t('procurement.gramsUnit')}</span>
                                     </div>
                                   )}
                                 </>
@@ -1846,23 +1844,23 @@ const ProductionAnalysis = () => {
                             </div>
                             <div className="flex items-center gap-1.5">
                               <RadioGroupItem value="count" id="prod-sample-mode-count" />
-                              <Label htmlFor="prod-sample-mode-count" className="cursor-pointer font-normal text-sm">By Count</Label>
+                              <Label htmlFor="prod-sample-mode-count" className="cursor-pointer font-normal text-sm">{t('procurement.byCount')}</Label>
                               {sampleMode === "count" && (
                                 <>
                                   <Select value={sampleWeight} onValueChange={(v) => { setSampleWeight(v); if (v !== "free count") setFreeWeightInput(""); }}>
                                     <SelectTrigger className="w-28 h-7 text-xs ml-1"><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="1000 grains">1000 grains</SelectItem>
-                                      <SelectItem value="2000 grains">2000 grains</SelectItem>
-                                      <SelectItem value="2500 grains">2500 grains</SelectItem>
-                                      <SelectItem value="5000 grains">5000 grains</SelectItem>
-                                      <SelectItem value="free count">Free count</SelectItem>
+                                      <SelectItem value="1000 grains">1000 {t('procurement.grainsUnit')}</SelectItem>
+                                      <SelectItem value="2000 grains">2000 {t('procurement.grainsUnit')}</SelectItem>
+                                      <SelectItem value="2500 grains">2500 {t('procurement.grainsUnit')}</SelectItem>
+                                      <SelectItem value="5000 grains">5000 {t('procurement.grainsUnit')}</SelectItem>
+                                      <SelectItem value="free count">{t('procurement.freeCount')}</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   {sampleWeight === "free count" && (
                                     <div className="flex items-center gap-1">
-                                      <Input type="number" min={1} max={5000} step={1} placeholder="Max 5000" value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 5000)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
-                                      <span className="text-xs text-muted-foreground">grains</span>
+                                      <Input type="number" min={1} max={5000} step={1} placeholder={t('procurement.maxPlaceholder', { max: 5000 })} value={freeWeightInput} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 5000)) setFreeWeightInput(v); }} className="w-24 h-7 text-xs" />
+                                      <span className="text-xs text-muted-foreground">{t('procurement.grainsUnit')}</span>
                                     </div>
                                   )}
                                 </>
@@ -1872,19 +1870,19 @@ const ProductionAnalysis = () => {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <Label className="font-medium">Parameters to Analyse</Label>
+                        <Label className="font-medium">{t('procurement.parametersToAnalyse')}</Label>
                         <div className="flex flex-wrap items-center gap-4">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={enableChalky} onChange={(e) => setEnableChalky(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                            <span className="text-sm">Chalky</span>
+                            <span className="text-sm">{t('procurement.chalky')}</span>
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={enableDiscolored} onChange={(e) => setEnableDiscolored(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                            <span className="text-sm">Discolored</span>
+                            <span className="text-sm">{t('procurement.discolored')}</span>
                           </label>
                           {enableChalky && (
                             <div className="flex items-center gap-2 ml-2">
-                              <Label className="text-sm text-gray-600 whitespace-nowrap">Chalky Threshold</Label>
+                              <Label className="text-sm text-gray-600 whitespace-nowrap">{t('procurement.chalkyThreshold')}</Label>
                               <div className="relative w-20">
                                 <Input type="number" min={0} max={100} step={1} value={chalkyThreshold} onChange={(e) => setChalkyThreshold(e.target.value)} className="pr-7 h-8 text-sm" placeholder="20" />
                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
@@ -1912,9 +1910,9 @@ const ProductionAnalysis = () => {
                   <Zap className="w-4 h-4 mr-2" />
                   {isSeriesMode
                     ? completedSeriesMachines.length > 0
-                      ? `Continue — Analyze ${currentSeriesMachine}`
-                      : `Start Series — ${displayedMachines.length} machines`
-                    : "Launch Vision System"}
+                      ? t('production.continueAnalyze', { machine: currentSeriesMachine })
+                      : t('production.startSeries', { n: displayedMachines.length })
+                    : t('production.launchVisionSystem')}
                 </Button>
               </div>
             )}
@@ -2013,16 +2011,16 @@ const ProductionAnalysis = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                         <Play className="w-5 h-5" />
-                        Session Replay
+                        {t('procurementReports.sessionReplay')}
                         {isSeriesMode && currentMachineData && (
                           <span className="text-xs font-normal text-gray-500 ml-1">
                             — {currentMachineData.machineName}
-                            {activeTrialTab !== "average" && `, Trial ${activeTrialTab}`}
+                            {activeTrialTab !== "average" && `, ${t('procurementReports.trial', { n: activeTrialTab })}`}
                           </span>
                         )}
                       </CardTitle>
                       <Button size="sm" variant="outline" onClick={() => setShowReplay(!showReplay)}>
-                        {showReplay ? "Hide" : "Show"} Replay
+                        {showReplay ? t('procurementReports.hide') : t('procurementReports.show')} {t('procurementReports.replayWord')}
                       </Button>
                     </div>
                   </CardHeader>
@@ -2041,7 +2039,7 @@ const ProductionAnalysis = () => {
                                   : "border-gray-200 text-gray-500 hover:border-gray-400"
                               }`}
                             >
-                              Sample {tNum}
+                              {t('procurementReports.sampleN', { n: tNum })}
                             </button>
                           ))}
                         </div>
@@ -2053,10 +2051,10 @@ const ProductionAnalysis = () => {
                         className="w-full rounded-lg max-h-[400px] bg-black"
                         src={videoUrl}
                       >
-                        Your browser does not support video playback.
+                        {t('procurementReports.videoNotSupported')}
                       </video>
                       <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                        First playback may take a few seconds while the video is prepared.
+                        {t('procurementReports.videoPrepNote')}
                       </p>
                     </CardContent>
                   )}
@@ -2092,10 +2090,10 @@ const ProductionAnalysis = () => {
                     }`}
                   >
                     <Layers className="w-3.5 h-3.5 inline mr-1.5" />
-                    All Machines
+                    {t('production.allMachines')}
                   </button>
                   <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Vision Scan Complete
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {t('procurementReports.visionScanComplete')}
                   </span>
                 </div>
 
@@ -2112,7 +2110,7 @@ const ProductionAnalysis = () => {
                             : "border-gray-200 text-gray-500 hover:border-gray-400"
                         }`}
                       >
-                        Sample {trial.trialNumber}
+                        {t('procurementReports.sampleN', { n: trial.trialNumber })}
                       </button>
                     ))}
                     {currentMachineData.trials.length > 1 && (
@@ -2124,7 +2122,7 @@ const ProductionAnalysis = () => {
                             : "border-gray-200 text-gray-500 hover:border-gray-400"
                         }`}
                       >
-                        Average
+                        {t('procurementReports.average')}
                       </button>
                     )}
                   </div>
@@ -2143,7 +2141,7 @@ const ProductionAnalysis = () => {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
-                    Sample {num}
+                    {t('procurementReports.sampleN', { n: num })}
                   </button>
                 ))}
                 {sampleCount > 1 && (
@@ -2155,11 +2153,11 @@ const ProductionAnalysis = () => {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
-                    Average
+                    {t('procurementReports.average')}
                   </button>
                 )}
                 <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Vision Scan Complete
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {t('procurementReports.visionScanComplete')}
                 </span>
               </div>
             ) : null}
@@ -2167,7 +2165,7 @@ const ProductionAnalysis = () => {
             {reportLoading ? (
               <div className="flex items-center justify-center py-20 text-gray-500 text-sm">
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                Loading report data...
+                {t('procurementReports.loadingReportData')}
               </div>
             ) : (
               <>
@@ -2179,12 +2177,12 @@ const ProductionAnalysis = () => {
                     <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
                       <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                         <BarChart3 className="w-5 h-5" />
-                        Production Metrics Overview
+                        {t('production.productionMetricsOverview')}
                         {isSeriesMode && activeMachineTab !== "all" && currentMachineData && (
                           <span className="text-xs font-normal text-gray-500 ml-2">— {currentMachineData.machineName}</span>
                         )}
                         {isSeriesMode && activeMachineTab === "all" && (
-                          <span className="text-xs font-normal text-gray-500 ml-2">— All Machines (Aggregated)</span>
+                          <span className="text-xs font-normal text-gray-500 ml-2">— {t('production.allMachinesAggregated')}</span>
                         )}
                       </CardTitle>
                     </CardHeader>
@@ -2193,14 +2191,14 @@ const ProductionAnalysis = () => {
                         <>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {[
-                              { label: "Headrice", value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500" },
-                              { label: "Brokens", value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500" },
-                              { label: "Chalky", value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400" },
-                              { label: "Discolored", value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500" },
-                              { label: "Rejections", value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), unit: "%", border: "border-purple-200", bg: "bg-gradient-to-br from-purple-50 to-indigo-50", textColor: "text-purple-700", barColor: "bg-purple-500" },
-                              { label: "Foreignmatter", value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500" },
-                              { label: "Immature", value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500" },
-                              { label: "Total grains", value: currentOutputParams.totalGrains, unit: "", border: "border-gray-200", bg: "bg-gradient-to-br from-gray-50 to-slate-50", textColor: "text-gray-800", barColor: "bg-gray-500", isCount: true },
+                              { label: t('procurementReports.headrice'), value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500" },
+                              { label: t('procurementReports.brokens'), value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500" },
+                              { label: t('procurementReports.chalky'), value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400" },
+                              { label: t('procurementReports.discolored'), value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500" },
+                              { label: t('procurementReports.rejections'), value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), unit: "%", border: "border-purple-200", bg: "bg-gradient-to-br from-purple-50 to-indigo-50", textColor: "text-purple-700", barColor: "bg-purple-500" },
+                              { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500" },
+                              { label: t('procurementReports.immature'), value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500" },
+                              { label: t('procurementReports.totalGrains'), value: currentOutputParams.totalGrains, unit: "", border: "border-gray-200", bg: "bg-gradient-to-br from-gray-50 to-slate-50", textColor: "text-gray-800", barColor: "bg-gray-500", isCount: true },
                             ].map((metric: { label: string; value: number; unit: string; border: string; bg: string; textColor: string; barColor: string; isCount?: boolean }) => (
                               <div
                                 key={metric.label}
@@ -2224,14 +2222,14 @@ const ProductionAnalysis = () => {
                               <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <p className="text-[11px] font-medium text-gray-500">Whiteness Index</p>
+                                    <p className="text-[11px] font-medium text-gray-500">{t('procurementReports.whitenessIndex')}</p>
                                     <p className="text-2xl font-bold text-blue-700 mt-1">
                                       {currentOutputParams.whitenessIndex.toFixed(1)}
                                       <span className="text-sm font-normal ml-1 text-gray-400">WI</span>
                                     </p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-[11px] font-medium text-gray-500">Color Grade</p>
+                                    <p className="text-[11px] font-medium text-gray-500">{t('procurementReports.colorGrade')}</p>
                                     <p className="text-lg font-semibold mt-1" style={{ color: getWiGradeColor(currentOutputParams.whitenessIndex) }}>
                                       {getWiGradeLabel(currentOutputParams.whitenessIndex)}
                                     </p>
@@ -2266,7 +2264,7 @@ const ProductionAnalysis = () => {
 
                           {/* Donut Chart: Rice vs Rejections vs Foreign Matter */}
                           <div className="mt-6 border-t pt-5">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Quality Breakdown</h4>
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('procurementReports.qualityBreakdown')}</h4>
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="w-full sm:w-1/2 h-[220px]">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -2295,10 +2293,10 @@ const ProductionAnalysis = () => {
                               </div>
                               <div className="w-full sm:w-1/2 space-y-2">
                                 {[
-                                  { label: "Head Rice", value: currentOutputParams.headRicePct, color: "#0B4CAD", desc: "Full & 3/4 head grains, secondOne, tibar" },
-                                  { label: "Broken Rice", value: currentOutputParams.brokenRicePct, color: "#eab308", desc: "Half, quarter, fine brokens, tips, dubar, mongra, nakku" },
-                                  { label: "Rejections", value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), color: "#6366f1", desc: "Chalky, discolored, immature" },
-                                  { label: "Foreign Matter", value: currentOutputParams.foreignMatterPct, color: "#f59e0b", desc: "Non-rice material" },
+                                  { label: t('procurementReports.headRice'), value: currentOutputParams.headRicePct, color: "#0B4CAD", desc: t('procurementReports.descHeadRice') },
+                                  { label: t('procurementReports.brokenRice'), value: currentOutputParams.brokenRicePct, color: "#eab308", desc: t('procurementReports.descBrokenRice') },
+                                  { label: t('procurementReports.rejections'), value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), color: "#6366f1", desc: t('procurementReports.descRejections') },
+                                  { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, color: "#f59e0b", desc: t('procurementReports.descForeignMatter') },
                                 ].map((item) => (
                                   <div key={item.label} className="flex items-center gap-3 group hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors duration-200">
                                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
@@ -2316,7 +2314,7 @@ const ProductionAnalysis = () => {
                           </div>
                         </>
                       ) : (
-                        <p className="text-sm text-gray-400 py-4 text-center">No metrics available for this selection</p>
+                        <p className="text-sm text-gray-400 py-4 text-center">{t('production.noMetricsForSelection')}</p>
                       )}
                     </CardContent>
                   </Card>
@@ -2327,19 +2325,19 @@ const ProductionAnalysis = () => {
                       <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
                         <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                           <Layers className="w-5 h-5" />
-                          Machine Comparison — {selectedSeries}
+                          {t('production.machineComparison', { series: selectedSeries })}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="overflow-x-auto pt-0">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-gradient-to-r from-gray-50 to-white border-b">
-                              <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Machine</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Total</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-blue-600">Head Rice %</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-yellow-600">Broken %</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-blue-500">Chalky %</th>
-                              <th className="text-right py-2.5 px-3 font-semibold text-amber-600">FM %</th>
+                              <th className="text-left py-2.5 px-3 font-semibold text-gray-600">{t('production.machine')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('production.totalCol')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-blue-600">{t('production.headRicePctCol')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-yellow-600">{t('production.brokenPctCol')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-blue-500">{t('production.chalkyPctCol')}</th>
+                              <th className="text-right py-2.5 px-3 font-semibold text-amber-600">{t('production.fmPctCol')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -2375,21 +2373,21 @@ const ProductionAnalysis = () => {
                   {/* Test Information Panel */}
                   <Card className="shadow-sm">
                     <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
-                      <CardTitle className="text-sm font-semibold text-gray-700">Test Information</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-gray-700">{t('procurementReports.testInformation')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3.5 text-sm pt-4">
                       {[
-                        { label: "Test Id", value: seriesModeId || sessionStorage.getItem("production_series_mode_id") || sessionStorage.getItem("mode_id") || "—" },
-                        { label: "Operator", value: operatorName || "—" },
-                        { label: "Date", value: currentDate || "—" },
-                        { label: "Series", value: selectedSeries || "No Series" },
+                        { label: t('procurementReports.testId'), value: seriesModeId || sessionStorage.getItem("production_series_mode_id") || sessionStorage.getItem("mode_id") || "—" },
+                        { label: t('procurementReports.operator'), value: operatorName || "—" },
+                        { label: t('procurementReports.date'), value: currentDate || "—" },
+                        { label: t('production.series'), value: selectedSeries || t('production.noSeries') },
                         ...(isSeriesMode && activeMachineTab !== "all" && currentMachineData
-                          ? [{ label: "Machine", value: currentMachineData.machineName }]
-                          : !isSeriesMode ? [{ label: "Machine", value: selectedMachine || "—" }] : []),
-                        { label: "Variety", value: variety || "—" },
-                        { label: "Process", value: process || "—" },
-                        { label: "Grains Scanned", value: totalGrainsScanned.toLocaleString() },
-                        { label: sampleMode === "count" ? "Sample Count" : "Sample Weight", value: resolvedSampleWeight ? (sampleMode === "count" ? resolvedSampleWeight : `${resolvedSampleWeight}g`) : "—" },
+                          ? [{ label: t('production.machine'), value: currentMachineData.machineName }]
+                          : !isSeriesMode ? [{ label: t('production.machine'), value: selectedMachine || "—" }] : []),
+                        { label: t('procurementReports.variety'), value: variety || "—" },
+                        { label: t('procurementReports.process'), value: process || "—" },
+                        { label: t('procurementReports.grainsScanned'), value: totalGrainsScanned.toLocaleString() },
+                        { label: sampleMode === "count" ? t('procurementReports.sampleCount') : t('procurementReports.sampleWeight'), value: resolvedSampleWeight ? (sampleMode === "count" ? resolvedSampleWeight : `${resolvedSampleWeight}g`) : "—" },
                       ].map((item) => (
                         <div key={item.label} className="flex justify-between items-baseline py-0.5">
                           <span className="text-gray-500 text-xs font-medium">{item.label}</span>
@@ -2402,13 +2400,13 @@ const ProductionAnalysis = () => {
                   {/* Actions Panel */}
                   <Card className="flex-1 flex flex-col min-h-0">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold text-gray-700">Actions</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-gray-700">{t('procurementReports.actions')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2.5 flex-1">
                       {enableChalky && (
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input type="checkbox" checked={includeDetailedChalky} onChange={(e) => setIncludeDetailedChalky(e.target.checked)} className="accent-rice-primary w-4 h-4" />
-                          <span className="text-sm text-gray-700">Download Detailed Chalky Classification</span>
+                          <span className="text-sm text-gray-700">{t('procurementReports.downloadDetailedChalky')}</span>
                         </label>
                       )}
                       <Button
@@ -2417,7 +2415,7 @@ const ProductionAnalysis = () => {
                         disabled={reportGenerating}
                       >
                         <Download className="w-4 h-4" />
-                        {reportGenerating ? "Generating..." : "Generate Report"}
+                        {reportGenerating ? t('procurementReports.generating') : t('procurementReports.generateReport')}
                       </Button>
                       <Button
                         variant="outline"
@@ -2425,11 +2423,11 @@ const ProductionAnalysis = () => {
                         onClick={() => setShowReplay(true)}
                       >
                         <Play className="w-4 h-4 rotate-180" />
-                        Replay Vision
+                        {t('procurementReports.replayVision')}
                       </Button>
                       <Button variant="outline" className="w-full gap-2" onClick={() => navigate("/")}>
                         <LayoutDashboard className="w-4 h-4" />
-                        Dashboard
+                        {t('procurementReports.dashboard')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -2442,7 +2440,7 @@ const ProductionAnalysis = () => {
                 <CardHeader className="pb-3 bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
                   <CardTitle className="text-rice-primary text-base flex items-center gap-2">
                     <Wheat className="w-5 h-5" />
-                    Dimension Analysis (Rice)
+                    {t('procurementReports.dimensionAnalysis')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="overflow-x-auto pt-0">
@@ -2451,21 +2449,21 @@ const ProductionAnalysis = () => {
                     const hrDims = currentDimStats.headRiceDimensions;
                     const fmt = (v: number | null | undefined) => v != null ? v.toFixed(2) : "—";
                     const rows: { label: string; length: string; width: string; ratio: string; highlight?: boolean }[] = [
-                      { label: "Mean", length: fmt(dims.length_mm.mean), width: fmt(dims.width_mm.mean), ratio: fmt(dims.aspect_ratio.mean) },
-                      { label: "Mode", length: fmt(dims.length_mm.mode), width: fmt(dims.width_mm.mode), ratio: fmt(dims.aspect_ratio.mode) },
-                      { label: "Median", length: fmt(dims.length_mm.median), width: fmt(dims.width_mm.median), ratio: fmt(dims.aspect_ratio.median) },
-                      { label: "Min", length: fmt(dims.length_mm.min), width: fmt(dims.width_mm.min), ratio: fmt(dims.aspect_ratio.min) },
-                      { label: "Max", length: fmt(dims.length_mm.max), width: fmt(dims.width_mm.max), ratio: fmt(dims.aspect_ratio.max) },
-                      { label: "Head Rice (Mean)", length: fmt(hrDims?.length_mm?.mean), width: fmt(hrDims?.width_mm?.mean), ratio: fmt(hrDims?.aspect_ratio?.mean), highlight: true },
+                      { label: t('procurementReports.mean'), length: fmt(dims.length_mm.mean), width: fmt(dims.width_mm.mean), ratio: fmt(dims.aspect_ratio.mean) },
+                      { label: t('procurementReports.mode'), length: fmt(dims.length_mm.mode), width: fmt(dims.width_mm.mode), ratio: fmt(dims.aspect_ratio.mode) },
+                      { label: t('procurementReports.median'), length: fmt(dims.length_mm.median), width: fmt(dims.width_mm.median), ratio: fmt(dims.aspect_ratio.median) },
+                      { label: t('procurementReports.min'), length: fmt(dims.length_mm.min), width: fmt(dims.width_mm.min), ratio: fmt(dims.aspect_ratio.min) },
+                      { label: t('procurementReports.max'), length: fmt(dims.length_mm.max), width: fmt(dims.width_mm.max), ratio: fmt(dims.aspect_ratio.max) },
+                      { label: t('procurementReports.headRiceMean'), length: fmt(hrDims?.length_mm?.mean), width: fmt(hrDims?.width_mm?.mean), ratio: fmt(hrDims?.aspect_ratio?.mean), highlight: true },
                     ];
                     return (
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-gradient-to-r from-gray-50 to-white border-b">
-                            <th className="text-left py-2.5 px-3 font-semibold text-gray-600">Metric</th>
-                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Length (mm)</th>
-                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Width (mm)</th>
-                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">Aspect Ratio</th>
+                            <th className="text-left py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.metric')}</th>
+                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.lengthMm')}</th>
+                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.widthMm')}</th>
+                            <th className="text-right py-2.5 px-3 font-semibold text-gray-600">{t('procurementReports.aspectRatio')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2481,7 +2479,7 @@ const ProductionAnalysis = () => {
                       </table>
                     );
                   })() : (
-                    <p className="text-sm text-gray-400 py-4 text-center">No dimension statistics available</p>
+                    <p className="text-sm text-gray-400 py-4 text-center">{t('procurementReports.noDimensionStats')}</p>
                   )}
                 </CardContent>
               </Card>

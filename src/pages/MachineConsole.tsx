@@ -21,6 +21,7 @@ import { HardwareHealthStrip } from "@/components/ios/HardwareHealthStrip";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
 
@@ -58,6 +59,7 @@ interface AnalyticsData {
 const MachineConsole = () => {
   const navigate = useNavigate();
   const sounds = useSoundEffects();
+  const { t } = useLanguage();
 
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [recent, setRecent] = useState<any[]>([]);
@@ -115,21 +117,21 @@ const MachineConsole = () => {
         {/* Three classic-style hero KPI cards (Total Grains / Samples / Grains per Second) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ClassicKpiCard
-            label="Total Grains Analyzed"
+            label={t('dashboard.totalGrainsAnalyzed')}
             value={loading ? "…" : formatLargeNumber(totalGrains)}
             icon={<Wheat className="w-7 h-7 text-white" />}
             iconGradient="from-amber-500 to-orange-600"
             valueColor="text-orange-700"
           />
           <ClassicKpiCard
-            label="Samples Analyzed Today"
+            label={t('dashboard.samplesAnalyzedToday')}
             value={loading ? "…" : Math.round(samplesAnimated).toString()}
             icon={<FlaskConical className="w-7 h-7 text-white" />}
             iconGradient="from-blue-500 to-indigo-600"
             valueColor="text-blue-700"
           />
           <ClassicKpiCard
-            label="Grains per Second"
+            label={t('dashboard.grainsPerSecond')}
             value={loading ? "…" : Math.round(speedAnimated).toLocaleString()}
             icon={<Zap className="w-7 h-7 text-white" />}
             iconGradient="from-green-500 to-emerald-600"
@@ -148,10 +150,10 @@ const MachineConsole = () => {
           <div className="px-5 py-4 flex items-center justify-between gap-4">
             <div>
               <div className="text-[13px] font-semibold ios-text-secondary tracking-wide uppercase">
-                Hardware
+                {t('dashboard.hardware')}
               </div>
               <div className="text-[12px] ios-text-tertiary mt-0.5">
-                Auto-checked every 10 seconds
+                {t('dashboard.autoChecked')}
               </div>
             </div>
             <HardwareHealthStrip />
@@ -162,31 +164,31 @@ const MachineConsole = () => {
         {/* Today */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4">
           <Tile>
-            <TileHeader title="Quality today" subtitle="Averaged across runs" />
+            <TileHeader title={t('dashboard.qualityToday')} subtitle={t('dashboard.averagedAcrossRuns')} />
             <div className="grid grid-cols-2 gap-3">
               <MetricBlock
-                label="Head rice"
+                label={t('dashboard.headRice')}
                 value={analytics?.avg_head_rice}
                 unit="%"
                 color="hsl(var(--grain-head))"
                 max={100}
               />
               <MetricBlock
-                label="Broken"
+                label={t('dashboard.broken')}
                 value={analytics?.avg_broken}
                 unit="%"
                 color="hsl(var(--grain-broken))"
                 max={100}
               />
               <MetricBlock
-                label="Whiteness"
+                label={t('dashboard.whiteness')}
                 value={analytics?.avg_whiteness_index}
                 unit="WI"
                 color="hsl(var(--accent))"
                 max={50}
               />
               <MetricBlock
-                label="Grain length"
+                label={t('dashboard.grainLength')}
                 value={analytics?.avg_grain_length}
                 unit="mm"
                 color="hsl(var(--ios-orange))"
@@ -200,10 +202,10 @@ const MachineConsole = () => {
             <div className="px-5 pt-5 pb-2 flex items-center justify-between">
               <div>
                 <div className="text-[13px] font-semibold ios-text-secondary tracking-wide uppercase">
-                  Today's runs
+                  {t('dashboard.todaysRuns')}
                 </div>
                 <div className="text-[12px] ios-text-tertiary mt-0.5">
-                  {samplesToday} sample{samplesToday === 1 ? "" : "s"} analysed
+                  {t('dashboard.samplesAnalysed', { count: samplesToday, unit: t(samplesToday === 1 ? 'dashboard.sample' : 'dashboard.samples') })}
                 </div>
               </div>
               <Link
@@ -211,15 +213,15 @@ const MachineConsole = () => {
                 className="text-[12px] font-semibold flex items-center gap-1"
                 style={{ color: "hsl(var(--accent))" }}
               >
-                All reports <ArrowUpRight className="w-3 h-3" />
+                {t('dashboard.allReports')} <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
             <ul className="divide-y ios-hairline max-h-[320px] overflow-y-auto">
               {recentLoading ? (
-                <li className="px-5 py-8 text-center text-[13px] ios-text-tertiary">Loading…</li>
+                <li className="px-5 py-8 text-center text-[13px] ios-text-tertiary">{t('dashboard.loading')}</li>
               ) : recent.length === 0 ? (
                 <li className="px-5 py-8 text-center text-[13px] ios-text-tertiary">
-                  No runs yet today
+                  {t('dashboard.noRunsToday')}
                 </li>
               ) : (
                 recent.map((a, i) => (
@@ -270,12 +272,12 @@ const wiGrade = (wi: number | undefined) => {
   return { letter: "D", color: "hsl(var(--ios-red))" };
 };
 
-const modeMetaForReplay = (modeId?: string, modeType?: string) => {
+const modeMetaForReplay = (modeId: string | undefined, modeType: string | undefined, t: (key: string) => string) => {
   const id = (modeId ?? "").toUpperCase();
-  if (id.startsWith("PROC") || id.startsWith("PRT") || id.startsWith("IND")) return { label: "Procurement", color: "hsl(var(--ios-green))" };
-  if (id.startsWith("PROD")) return { label: "Production", color: "hsl(var(--accent))" };
-  if (id.startsWith("MILL") || id.startsWith("MR")) return { label: "Milled rice", color: "hsl(var(--ios-orange))" };
-  return { label: modeType ?? "Run", color: "hsl(var(--ios-text-tertiary))" };
+  if (id.startsWith("PROC") || id.startsWith("PRT") || id.startsWith("IND")) return { label: t('dashboard.procurement'), color: "hsl(var(--ios-green))" };
+  if (id.startsWith("PROD")) return { label: t('dashboard.production'), color: "hsl(var(--accent))" };
+  if (id.startsWith("MILL") || id.startsWith("MR")) return { label: t('dashboard.milledRice'), color: "hsl(var(--ios-orange))" };
+  return { label: modeType ?? t('dashboard.run'), color: "hsl(var(--ios-text-tertiary))" };
 };
 
 const analysisRouteForModeId = (modeId?: string, modeType?: string) => {
@@ -303,18 +305,19 @@ const replayIconForMode = (modeId?: string, modeType?: string) => {
   return <Play className="w-8 h-8 text-white" />;
 };
 
-const relativeTime = (iso: string | undefined): string => {
+const relativeTime = (iso: string | undefined, t: (key: string, vars?: Record<string, string | number>) => string): string => {
   if (!iso) return "—";
   const ts = new Date(iso).getTime();
   if (isNaN(ts)) return "—";
   const diffSec = Math.floor((Date.now() - ts) / 1000);
-  if (diffSec < 60) return "just now";
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} min ago`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} hr ago`;
-  return `${Math.floor(diffSec / 86400)} d ago`;
+  if (diffSec < 60) return t('dashboard.justNow');
+  if (diffSec < 3600) return t('dashboard.minAgo', { n: Math.floor(diffSec / 60) });
+  if (diffSec < 86400) return t('dashboard.hrAgo', { n: Math.floor(diffSec / 3600) });
+  return t('dashboard.daysAgo', { n: Math.floor(diffSec / 86400) });
 };
 
 function ReplayHero({ runs, loading }: ReplayHeroProps) {
+  const { t } = useLanguage();
   const visible = runs.slice(0, 4);
   const hasRuns = visible.length > 0;
 
@@ -323,10 +326,10 @@ function ReplayHero({ runs, loading }: ReplayHeroProps) {
       <div className="px-4 pt-3 pb-2 flex items-end justify-between">
         <div>
           <div className="text-[12px] font-semibold ios-text-secondary tracking-wide uppercase">
-            Replay
+            {t('dashboard.replay')}
           </div>
           <div className="text-[11px] ios-text-tertiary mt-0.5">
-            Review runs
+            {t('dashboard.reviewRuns')}
           </div>
         </div>
         <Link
@@ -334,7 +337,7 @@ function ReplayHero({ runs, loading }: ReplayHeroProps) {
           className="text-[11px] font-semibold flex items-center gap-0.5"
           style={{ color: "hsl(var(--accent))" }}
         >
-          All <ArrowUpRight className="w-2.5 h-2.5" />
+          {t('dashboard.all')} <ArrowUpRight className="w-2.5 h-2.5" />
         </Link>
       </div>
 
@@ -354,9 +357,9 @@ function ReplayHero({ runs, loading }: ReplayHeroProps) {
             style={{ background: "hsl(var(--ios-raised))" }}
           >
             <Camera className="w-5 h-5 mx-auto ios-text-tertiary mb-1.5" />
-            <div className="text-[12px] font-semibold ios-text">No runs yet</div>
+            <div className="text-[12px] font-semibold ios-text">{t('dashboard.noRunsYet')}</div>
             <div className="text-[10px] ios-text-tertiary mt-0.5">
-              Start a sample to populate
+              {t('dashboard.startSampleToPopulate')}
             </div>
           </div>
         ) : (
@@ -372,7 +375,8 @@ function ReplayHero({ runs, loading }: ReplayHeroProps) {
 }
 
 function ReplayCard({ run }: { run: any }) {
-  const meta = modeMetaForReplay(run.mode_id, run.mode_type);
+  const { t } = useLanguage();
+  const meta = modeMetaForReplay(run.mode_id, run.mode_type, t);
   const icon = replayIconForMode(run.mode_id, run.mode_type);
   const grade = wiGrade(typeof run.whiteness_index === "number" ? run.whiteness_index : undefined);
   const variety = run.variety ?? "—";
@@ -430,7 +434,7 @@ function ReplayCard({ run }: { run: any }) {
         </div>
         <div className="text-[9px] ios-text-tertiary flex items-center justify-between mt-0.5">
           <span className="truncate">{run.mode_id ?? "—"}</span>
-          <span className="shrink-0">{relativeTime(run.timestamp ?? run.date)}</span>
+          <span className="shrink-0">{relativeTime(run.timestamp ?? run.date, t)}</span>
         </div>
       </div>
     </Link>
@@ -442,25 +446,26 @@ interface ActionZoneProps {
 }
 
 function ActionZone({ onLaunch }: ActionZoneProps) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col gap-4 h-full">
       <Tile padded={false} className="overflow-hidden h-full">
         <div className="p-5">
           <div className="text-[13px] font-semibold ios-text-secondary tracking-wide uppercase mb-1">
-            Start a sample
+            {t('dashboard.startASample')}
           </div>
           <div className="text-[12px] ios-text-tertiary mb-4">
-            Walk-up workflow — pick a mode below
+            {t('dashboard.walkupWorkflow')}
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <PrimaryAction onLaunch={onLaunch} to="/procurement-analysis" label="Procurement" sub="Raw paddy" icon={<ShoppingCart className="w-4 h-4" />} color="hsl(var(--ios-green))" />
-            <PrimaryAction onLaunch={onLaunch} to="/production-analysis" label="Production" sub="Machine-wise" icon={<Factory className="w-4 h-4" />} color="hsl(var(--accent))" />
-            <PrimaryAction onLaunch={onLaunch} to="/milled-rice-analysis" label="Milled rice" sub="Final stage" icon={<Wheat className="w-4 h-4" />} color="hsl(var(--ios-orange))" />
+            <PrimaryAction onLaunch={onLaunch} to="/procurement-analysis" label={t('dashboard.procurement')} sub={t('dashboard.rawPaddy')} icon={<ShoppingCart className="w-4 h-4" />} color="hsl(var(--ios-green))" />
+            <PrimaryAction onLaunch={onLaunch} to="/production-analysis" label={t('dashboard.production')} sub={t('dashboard.machineWise')} icon={<Factory className="w-4 h-4" />} color="hsl(var(--accent))" />
+            <PrimaryAction onLaunch={onLaunch} to="/milled-rice-analysis" label={t('dashboard.milledRice')} sub={t('dashboard.finalStage')} icon={<Wheat className="w-4 h-4" />} color="hsl(var(--ios-orange))" />
           </div>
           <div className="mt-6 pt-6 border-t border-gray-200/30">
             <div className="grid grid-cols-2 gap-2">
-              <DisabledAnalysisCard title="Cooked Rice Quality" sub="Cooking Properties" icon={<CookingPot className="w-5 h-5" />} color="hsl(var(--ios-text-tertiary))" />
-              <DisabledAnalysisCard title="Predictive Analysis" sub="Yield Forecasting" icon={<TrendingUp className="w-5 h-5" />} color="hsl(var(--ios-text-tertiary))" />
+              <DisabledAnalysisCard title={t('dashboard.cookedRiceQuality')} sub={t('dashboard.cookingProperties')} icon={<CookingPot className="w-5 h-5" />} color="hsl(var(--ios-text-tertiary))" />
+              <DisabledAnalysisCard title={t('dashboard.predictiveAnalysis')} sub={t('dashboard.yieldForecasting')} icon={<TrendingUp className="w-5 h-5" />} color="hsl(var(--ios-text-tertiary))" />
             </div>
           </div>
         </div>
@@ -564,6 +569,7 @@ function DisabledAnalysisCard({
   icon: React.ReactNode;
   color: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       className={cn(
@@ -580,7 +586,7 @@ function DisabledAnalysisCard({
       <div>
         <div className="text-[13px] font-semibold ios-text leading-tight">{title}</div>
         <div className="text-[11px] ios-text-tertiary mt-0.5">{sub}</div>
-        <div className="text-[10px] ios-text-tertiary mt-1 italic">Coming soon</div>
+        <div className="text-[10px] ios-text-tertiary mt-1 italic">{t('dashboard.comingSoon')}</div>
       </div>
     </div>
   );

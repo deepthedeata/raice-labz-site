@@ -1,58 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-
-export type AudioGuideLanguage = 'en' | 'hi' | 'kn' | 'ta' | 'te';
-
-export const AUDIO_GUIDE_LANGUAGES: { code: AudioGuideLanguage; label: string }[] = [
-  { code: 'en', label: 'English' },
-  { code: 'hi', label: 'हिन्दी' },
-  { code: 'kn', label: 'ಕನ್ನಡ' },
-  { code: 'ta', label: 'தமிழ்' },
-  { code: 'te', label: 'తెలుగు' },
-];
-
-const STORAGE_KEY = 'audioGuide_language';
-
-interface AudioGuideContextType {
-  audioLang: AudioGuideLanguage;
-  setAudioLang: (lang: AudioGuideLanguage) => void;
-}
-
-const AudioGuideContext = createContext<AudioGuideContextType | undefined>(undefined);
-
-interface AudioGuideProviderProps {
-  children: ReactNode;
-}
-
-export const AudioGuideProvider: React.FC<AudioGuideProviderProps> = ({ children }) => {
-  const [audioLang, setAudioLangState] = useState<AudioGuideLanguage>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as AudioGuideLanguage | null;
-    return stored && AUDIO_GUIDE_LANGUAGES.some((l) => l.code === stored) ? stored : 'en';
-  });
-
-  const setAudioLang = (lang: AudioGuideLanguage) => {
-    setAudioLangState(lang);
-    localStorage.setItem(STORAGE_KEY, lang);
-  };
-
-  return (
-    <AudioGuideContext.Provider value={{ audioLang, setAudioLang }}>
-      {children}
-    </AudioGuideContext.Provider>
-  );
-};
-
-export const useAudioGuide = (): AudioGuideContextType => {
-  const context = useContext(AudioGuideContext);
-  if (!context) {
-    throw new Error('useAudioGuide must be used within an AudioGuideProvider');
-  }
-  return context;
-};
+import { useCallback } from 'react';
+import { useLanguage, type Language } from '@/contexts/LanguageContext';
 
 // ── Live text-to-speech for dynamic in-flow guidance ──────────────────────
 // Used for announcements whose content can't be pre-recorded (machine names,
-// counts, etc. are configured per mill), unlike the fixed step clips above.
-const SPEECH_LANG_TAGS: Record<AudioGuideLanguage, string> = {
+// counts, etc. are configured per mill), unlike the fixed step clips.
+// Speaks in whichever language is currently selected app-wide (LanguageContext) —
+// there is a single language selector for the whole app, not a separate one here.
+const SPEECH_LANG_TAGS: Record<Language, string> = {
   en: 'en-IN',
   hi: 'hi-IN',
   kn: 'kn-IN',
@@ -70,7 +24,7 @@ export function registerGuideAudioElement(el: HTMLAudioElement | null) {
   registeredRecordedAudioEl = el;
 }
 
-export function speakText(text: string, lang: AudioGuideLanguage) {
+export function speakText(text: string, lang: Language) {
   if (typeof window === 'undefined' || !window.speechSynthesis || !text) return;
   registeredRecordedAudioEl?.pause(); // stop the pre-recorded clip before speaking
   window.speechSynthesis.cancel(); // don't let announcements queue/overlap each other
@@ -86,10 +40,10 @@ export function stopSpeaking() {
   }
 }
 
-/** Speaks in whichever language is currently selected for the audio guide. Stable
- *  reference (only changes when audioLang does) — safe to use in effect deps. */
+/** Speaks in whichever language is currently selected app-wide. Stable
+ *  reference (only changes when the language does) — safe to use in effect deps. */
 export const useSpeakGuide = () => {
-  const { audioLang } = useAudioGuide();
-  const speak = useCallback((text: string) => speakText(text, audioLang), [audioLang]);
+  const { language } = useLanguage();
+  const speak = useCallback((text: string) => speakText(text, language), [language]);
   return { speak, stop: stopSpeaking };
 };

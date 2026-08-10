@@ -1,25 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Volume2, Loader2, Square } from "lucide-react";
-import { useAudioGuide, AUDIO_GUIDE_LANGUAGES, registerGuideAudioElement, stopSpeaking } from "@/contexts/AudioGuideContext";
+import { Volume2, Loader2, Pause } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { registerGuideAudioElement, stopSpeaking } from "@/contexts/AudioGuideContext";
 
 interface AudioGuideButtonProps {
   /** Clip id without language suffix, e.g. "procurement_preparation". Omit/empty hides the button. */
   clipId?: string;
 }
 
+/** Voice guide playback control. Language comes from the single app-wide selector
+ *  in PageHeader — there is no separate language picker here. */
 export const AudioGuideButton = ({ clipId }: AudioGuideButtonProps) => {
-  const { audioLang, setAudioLang } = useAudioGuide();
+  const { language } = useLanguage();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "playing">("idle");
-  // If the user explicitly hits Stop, don't immediately auto-replay the same clip on the next render.
+  // If the user explicitly hits Pause, don't immediately auto-replay the same clip on the next render.
   const stoppedClipRef = useRef<string | null>(null);
   // Guards against a stale earlier play() promise resolving/rejecting after a newer
   // clip has already started loading (the root cause of one language's clip bleeding
@@ -41,15 +37,15 @@ export const AudioGuideButton = ({ clipId }: AudioGuideButtonProps) => {
     });
   };
 
-  // Auto-speak whenever the segment (clipId) changes, or the guide language is switched.
+  // Auto-speak whenever the segment (clipId) changes, or the app language is switched.
   // Tab clicks / "Continue" actions that change activeStep flow into a clipId change here.
   useEffect(() => {
     if (!clipId) return;
-    const key = `${clipId}_${audioLang}`;
-    if (stoppedClipRef.current === key) return; // user just stopped this exact clip — don't restart it
-    playClip(clipId, audioLang);
+    const key = `${clipId}_${language}`;
+    if (stoppedClipRef.current === key) return; // user just paused this exact clip — don't restart it
+    playClip(clipId, language);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clipId, audioLang]);
+  }, [clipId, language]);
 
   useEffect(() => {
     registerGuideAudioElement(audioRef.current);
@@ -66,12 +62,12 @@ export const AudioGuideButton = ({ clipId }: AudioGuideButtonProps) => {
     if (status === "playing" || status === "loading") {
       requestIdRef.current++; // invalidate any in-flight play() so it can't flip status back
       audioRef.current.pause();
-      stoppedClipRef.current = `${clipId}_${audioLang}`;
+      stoppedClipRef.current = `${clipId}_${language}`;
       setStatus("idle");
       return;
     }
     stoppedClipRef.current = null;
-    playClip(clipId, audioLang);
+    playClip(clipId, language);
   };
 
   return (
@@ -86,25 +82,12 @@ export const AudioGuideButton = ({ clipId }: AudioGuideButtonProps) => {
         {status === "loading" ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : status === "playing" ? (
-          <Square className="w-4 h-4" />
+          <Pause className="w-4 h-4" />
         ) : (
           <Volume2 className="w-4 h-4" />
         )}
-        {status === "playing" ? "Stop Guide" : "Replay Guide"}
+        {status === "playing" ? "Pause" : "Replay"}
       </Button>
-
-      <Select value={audioLang} onValueChange={(v) => setAudioLang(v as typeof audioLang)}>
-        <SelectTrigger className="h-8 w-[110px] text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {AUDIO_GUIDE_LANGUAGES.map((l) => (
-            <SelectItem key={l.code} value={l.code}>
-              {l.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
 
       <audio
         ref={audioRef}

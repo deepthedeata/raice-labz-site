@@ -181,7 +181,9 @@ const MachineSeriesProgress = ({
   machines, completedMachines, nextIndex,
 }: {
   machines: string[]; completedMachines: string[]; nextIndex?: number;
-}) => (
+}) => {
+  const { t } = useLanguage();
+  return (
   <div className="space-y-2 max-h-64 overflow-y-auto">
     {machines.map((m, idx) => {
       const done = completedMachines.includes(m);
@@ -218,13 +220,14 @@ const MachineSeriesProgress = ({
                 ? "bg-blue-100 text-blue-700 font-semibold"
                 : "bg-gray-100 text-gray-500"
           }`}>
-            {done ? "Done" : isNext ? "Next" : "Pending"}
+            {done ? t('liveSeries.done') : isNext ? t('liveSeries.next') : t('liveSeries.pending')}
           </span>
         </div>
       );
     })}
   </div>
-);
+  );
+};
 
 const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onComplete }: LiveAnalysisProps = {}) => {
   // Keep onComplete in a ref so setTimeout always calls the latest version
@@ -4206,25 +4209,25 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-700">
                 <CheckCircle className="w-6 h-6 text-green-600" />
-                {machines[currentMachineIndex]} — Sample Analysis Done
+                {t('liveSeries.sampleAnalysisDoneTitle', { machine: machines[currentMachineIndex] })}
               </DialogTitle>
             </DialogHeader>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
               <p className="text-green-800 font-semibold text-center text-base">
-                {machines[currentMachineIndex]} sample analysis done ({totalSamplesCount} sample{totalSamplesCount === 1 ? "" : "s"})
+                {t('liveSeries.machineSampleDone', { machine: machines[currentMachineIndex], count: totalSamplesCount, unit: t(totalSamplesCount === 1 ? 'liveSeries.sample' : 'liveSeries.samples') })}
               </p>
             </div>
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
               <p className="text-blue-800 font-semibold text-center text-base">
-                Test your next sample for {nextMachineInfo?.name}
+                {t('liveSeries.testNextSampleFor', { next: nextMachineInfo?.name ?? '' })}
               </p>
               <p className="text-blue-600 text-center text-sm mt-1">
-                Machine {(nextMachineInfo?.index ?? 0) + 1} of {machines.length} — click continue once it's ready.
+                {t('liveSeries.machineOfTotal', { index: (nextMachineInfo?.index ?? 0) + 1, total: machines.length })}
               </p>
             </div>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
-                Machine Series Line
+                {t('liveSeries.machineSeriesLine')}
               </p>
               <MachineSeriesProgress machines={machines} completedMachines={completedMachines} nextIndex={nextMachineInfo?.index} />
             </div>
@@ -4234,7 +4237,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
               onClick={handleProceedToNextMachine}
             >
               <Factory className="w-5 h-5 mr-2" />
-              Continue to {nextMachineInfo?.name}
+              {t('liveSeries.continueTo', { next: nextMachineInfo?.name ?? '' })}
             </Button>
           </DialogContent>
         </Dialog>
@@ -4249,17 +4252,17 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-700">
                 <CheckCircle className="w-6 h-6 text-green-600" />
-                Complete Milling Analysis Done
+                {t('liveSeries.millingAnalysisDone')}
               </DialogTitle>
             </DialogHeader>
             <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
               <p className="text-green-800 font-semibold text-center text-base">
-                All {machines.length} machine(s) in this series have been analyzed.
+                {t('liveSeries.allMachinesAnalyzed', { count: machines.length })}
               </p>
             </div>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
-                Machine Series Line
+                {t('liveSeries.machineSeriesLine')}
               </p>
               <MachineSeriesProgress machines={machines} completedMachines={completedMachines} />
             </div>
@@ -4268,7 +4271,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
               size="lg"
               onClick={handleConfirmSeriesComplete}
             >
-              View Insights & Reports
+              {t('liveSeries.viewInsightsReports')}
             </Button>
           </DialogContent>
         </Dialog>
@@ -5694,25 +5697,25 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-green-700">
               <CheckCircle className="w-6 h-6 text-green-600" />
-              {machines[currentMachineIndex]} — Sample Analysis Done
+              {t('liveSeries.sampleAnalysisDoneTitle', { machine: machines[currentMachineIndex] })}
             </DialogTitle>
           </DialogHeader>
           <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
             <p className="text-green-800 font-semibold text-center text-base">
-              {machines[currentMachineIndex]} sample analysis done ({totalSamplesCount} sample{totalSamplesCount === 1 ? "" : "s"})
+              {t('liveSeries.machineSampleDone', { machine: machines[currentMachineIndex], count: totalSamplesCount, unit: t(totalSamplesCount === 1 ? 'liveSeries.sample' : 'liveSeries.samples') })}
             </p>
           </div>
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
             <p className="text-blue-800 font-semibold text-center text-base">
-              Test your next sample for {nextMachineInfo?.name}
+              {t('liveSeries.testNextSampleFor', { next: nextMachineInfo?.name ?? '' })}
             </p>
             <p className="text-blue-600 text-center text-sm mt-1">
-              Machine {(nextMachineInfo?.index ?? 0) + 1} of {machines.length} — click continue once it's ready.
+              {t('liveSeries.machineOfTotal', { index: (nextMachineInfo?.index ?? 0) + 1, total: machines.length })}
             </p>
           </div>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
-              Machine Series Line
+              {t('liveSeries.machineSeriesLine')}
             </p>
             <MachineSeriesProgress machines={machines} completedMachines={completedMachines} nextIndex={nextMachineInfo?.index} />
           </div>
@@ -5722,7 +5725,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             onClick={handleProceedToNextMachine}
           >
             <Factory className="w-5 h-5 mr-2" />
-            Continue to {nextMachineInfo?.name}
+            {t('liveSeries.continueTo', { next: nextMachineInfo?.name ?? '' })}
           </Button>
         </DialogContent>
       </Dialog>
@@ -5737,17 +5740,17 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-green-700">
               <CheckCircle className="w-6 h-6 text-green-600" />
-              Complete Milling Analysis Done
+              {t('liveSeries.millingAnalysisDone')}
             </DialogTitle>
           </DialogHeader>
           <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
             <p className="text-green-800 font-semibold text-center text-base">
-              All {machines.length} machine(s) in this series have been analyzed.
+              {t('liveSeries.allMachinesAnalyzed', { count: machines.length })}
             </p>
           </div>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground text-center font-medium uppercase tracking-wide">
-              Machine Series Line
+              {t('liveSeries.machineSeriesLine')}
             </p>
             <MachineSeriesProgress machines={machines} completedMachines={completedMachines} />
           </div>
@@ -5756,7 +5759,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             size="lg"
             onClick={handleConfirmSeriesComplete}
           >
-            View Insights & Reports
+            {t('liveSeries.viewInsightsReports')}
           </Button>
         </DialogContent>
       </Dialog>

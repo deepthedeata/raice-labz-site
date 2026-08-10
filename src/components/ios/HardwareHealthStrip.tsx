@@ -2,6 +2,7 @@ import { Database, Cpu, Camera, Cable, Wheat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHardwareHealth, HealthStatus } from "@/hooks/useHardwareHealth";
 import { StatusDot } from "./StatusDot";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   database: Database,
@@ -9,6 +10,16 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   models: Cpu,
   camera: Camera,
   modbus: Cable,
+};
+
+// useHardwareHealth() returns English labels (used as stable ids elsewhere); map to
+// translation keys here rather than translating inside the hook.
+const LABEL_KEYS: Record<string, string> = {
+  database: 'hardware.database',
+  "grain-db": 'hardware.grainDb',
+  models: 'hardware.mlModels',
+  camera: 'hardware.camera',
+  modbus: 'hardware.modbus',
 };
 
 const dotVariant = (s: HealthStatus): "online" | "warning" | "offline" | "neutral" => {
@@ -25,6 +36,7 @@ interface HardwareHealthStripProps {
 
 export function HardwareHealthStrip({ className, compact }: HardwareHealthStripProps) {
   const { checks } = useHardwareHealth();
+  const { t } = useLanguage();
 
   return (
     <div
@@ -36,6 +48,7 @@ export function HardwareHealthStrip({ className, compact }: HardwareHealthStripP
       {checks.map((c) => {
         const Icon = ICONS[c.id] ?? Cpu;
         const isFault = c.status === "offline";
+        const label = LABEL_KEYS[c.id] ? t(LABEL_KEYS[c.id]) : c.label;
         return (
           <div
             key={c.id}
@@ -50,7 +63,7 @@ export function HardwareHealthStrip({ className, compact }: HardwareHealthStripP
                 ? "hsl(var(--ios-red) / 0.1)"
                 : "hsl(var(--ios-raised))",
             }}
-            title={`${c.label}: ${c.status}`}
+            title={`${label}: ${c.status}`}
           >
             <Icon
               className={cn(
@@ -65,7 +78,7 @@ export function HardwareHealthStrip({ className, compact }: HardwareHealthStripP
                 compact && "text-[10px]",
               )}
             >
-              {c.label}
+              {label}
             </span>
             <StatusDot variant={dotVariant(c.status)} size={compact ? 5 : 6} pulse={isFault} />
           </div>
