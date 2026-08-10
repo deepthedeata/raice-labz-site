@@ -465,6 +465,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Download, Factory, Package, User, Settings, Microscope, Eye, X, ShoppingCart, Wheat, FileText, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { buildReportFilename } from "@/lib/reportFilename";
 import { 
   Dialog,
@@ -552,6 +553,7 @@ const DataReports = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // API Functions
 
@@ -1439,26 +1441,26 @@ const DataReports = () => {
   const getReportTypeConfig = (type: string) => {
     switch (type) {
       case "procurement":
-        return { icon: ShoppingCart, label: "Procurement Reports", description: "Procurement analysis reports", color: "text-emerald-600" };
+        return { icon: ShoppingCart, label: t('dataReports.procurementReportsTitle'), description: t('dataReports.procurementDesc'), color: "text-emerald-600" };
       case "production":
-        return { icon: Factory, label: "Production Reports", description: "Production analysis reports", color: "text-blue-600" };
+        return { icon: Factory, label: t('dataReports.productionReportsTitle'), description: t('dataReports.productionDesc'), color: "text-blue-600" };
       case "milled-rice":
-        return { icon: Wheat, label: "Milled Rice Reports", description: "Milled rice quality reports", color: "text-amber-600" };
+        return { icon: Wheat, label: t('dataReports.milledRiceReportsTitle'), description: t('dataReports.milledRiceDesc'), color: "text-amber-600" };
       case "all":
-        return { icon: FileText, label: "All Reports", description: "All analysis reports", color: "text-gray-600" };
+        return { icon: FileText, label: t('dataReports.allReportsTitle'), description: t('dataReports.allReportsDesc'), color: "text-gray-600" };
       default:
-        return { icon: FileText, label: "All Reports", description: "All analysis reports", color: "text-gray-600" };
+        return { icon: FileText, label: t('dataReports.allReportsTitle'), description: t('dataReports.allReportsDesc'), color: "text-gray-600" };
     }
   };
 
   const getSelectedReportSummary = () => {
     if (selectedAnalysisTypes.length === 0) {
-      return { icon: FileText, label: "No Reports Selected", description: "Select at least one report type to view sessions.", color: "text-gray-600" };
+      return { icon: FileText, label: t('dataReports.noReportsSelected'), description: t('dataReports.selectAtLeastOne'), color: "text-gray-600" };
     }
     if (selectedAnalysisTypes.length === 1) {
       return getReportTypeConfig(selectedAnalysisType);
     }
-    return { icon: FileText, label: "Selected Reports", description: "Reports matching the selected categories.", color: "text-gray-600" };
+    return { icon: FileText, label: t('dataReports.selectedReports'), description: t('dataReports.reportsMatchingCategories'), color: "text-gray-600" };
   };
 
   // Determine analysis type from modeId prefix
@@ -1477,13 +1479,13 @@ const DataReports = () => {
     const resolvedType = modeType === 'tma' ? 'production' : (modeType || getAnalysisTypeFromModeId(modeId));
     switch (resolvedType) {
       case 'procurement':
-        return { label: 'Procurement', bgColor: 'bg-emerald-50', textColor: 'text-emerald-700', borderColor: 'border-emerald-200' };
+        return { label: t('dataReports.procurement'), bgColor: 'bg-emerald-50', textColor: 'text-emerald-700', borderColor: 'border-emerald-200' };
       case 'production':
-        return { label: 'Production', bgColor: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-200' };
+        return { label: t('dataReports.production'), bgColor: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-200' };
       case 'milled-rice':
-        return { label: 'Milled Rice', bgColor: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-200' };
+        return { label: t('dataReports.milledRiceBadge'), bgColor: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-200' };
       default:
-        return { label: 'Analysis', bgColor: 'bg-gray-50', textColor: 'text-gray-700', borderColor: 'border-gray-200' };
+        return { label: t('dataReports.analysisBadge'), bgColor: 'bg-gray-50', textColor: 'text-gray-700', borderColor: 'border-gray-200' };
     }
   };
 
@@ -1658,11 +1660,11 @@ const DataReports = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <PageHeader 
-        title="Data Reports" 
-        subtitle="Generate and download process-specific quality reports"
+      <PageHeader
+        title={t('nav.dataReports')}
+        subtitle={t('dataReports.subtitle')}
       />
-      
+
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Filters Section */}
@@ -1670,7 +1672,7 @@ const DataReports = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-rice-primary">
                 <Filter className="w-5 h-5" />
-                <span>Report Filters</span>
+                <span>{t('dataReports.reportFilters')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1678,7 +1680,7 @@ const DataReports = () => {
                 {/* Date Range */}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="font-medium">From Date</Label>
+                    <Label className="font-medium">{t('dataReports.fromDate')}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -1689,7 +1691,7 @@ const DataReports = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {fromDate ? format(fromDate, "PPP") : <span>Pick a date</span>}
+                          {fromDate ? format(fromDate, "PPP") : <span>{t('dataReports.pickDate')}</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -1710,7 +1712,7 @@ const DataReports = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="font-medium">To Date</Label>
+                    <Label className="font-medium">{t('dataReports.toDate')}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -1721,7 +1723,7 @@ const DataReports = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {toDate ? format(toDate, "PPP") : <span>Pick a date</span>}
+                          {toDate ? format(toDate, "PPP") : <span>{t('dataReports.pickDate')}</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -1740,12 +1742,12 @@ const DataReports = () => {
 
                 {/* Report Type — multi-select cards */}
                 <div className="lg:col-span-2">
-                  <Label className="font-medium mb-4 block">Report Type</Label>
+                  <Label className="font-medium mb-4 block">{t('dataReports.reportType')}</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
-                      { value: 'procurement', label: 'Procurement', description: 'Procurement analysis reports', icon: ShoppingCart, color: 'text-emerald-600' },
-                      { value: 'production', label: 'Production', description: 'Production analysis reports', icon: Factory, color: 'text-blue-600' },
-                      { value: 'milled-rice', label: 'Milled Rice Quality', description: 'Milled rice quality reports', icon: Wheat, color: 'text-amber-600' },
+                      { value: 'procurement', label: t('dataReports.procurement'), description: t('dataReports.procurementDesc'), icon: ShoppingCart, color: 'text-emerald-600' },
+                      { value: 'production', label: t('dataReports.production'), description: t('dataReports.productionDesc'), icon: Factory, color: 'text-blue-600' },
+                      { value: 'milled-rice', label: t('dataReports.milledRiceQuality'), description: t('dataReports.milledRiceDesc'), icon: Wheat, color: 'text-amber-600' },
                     ].map((item) => (
                       <label
                         key={item.value}
@@ -1781,8 +1783,8 @@ const DataReports = () => {
                     <div className="flex items-center space-x-3 p-4 border rounded-lg border-dashed opacity-50 pointer-events-none">
                       <div className="w-5 h-5 rounded-full border border-gray-300 bg-gray-100" />
                       <div>
-                        <div className="font-semibold text-gray-400">Cooked Rice Quality</div>
-                        <div className="text-sm text-gray-400">Coming Soon</div>
+                        <div className="font-semibold text-gray-400">{t('dataReports.cookedRiceQuality')}</div>
+                        <div className="text-sm text-gray-400">{t('dataReports.comingSoon')}</div>
                       </div>
                     </div>
                   </div>
@@ -1792,7 +1794,7 @@ const DataReports = () => {
               {/* Additional Filters: Variety + Season + Production Type/Machine (production only) + Clear */}
               <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedAnalysisTypes.includes('production') ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 mt-6 pt-4 border-t`}>
                 <div className="space-y-2">
-                  <Label className="font-medium text-sm">Variety</Label>
+                  <Label className="font-medium text-sm">{t('procurementReports.variety')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -1804,15 +1806,15 @@ const DataReports = () => {
                       >
                         <span>
                           {selectedVarieties.length === 0
-                            ? "All Varieties"
-                            : `${selectedVarieties.length} selected`}
+                            ? t('dataReports.allVarieties')
+                            : t('dataReports.nSelected', { n: selectedVarieties.length })}
                         </span>
                         <span className="text-xs text-gray-400">▼</span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full max-w-sm p-3">
                       <div className="space-y-2">
-                        <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">Select varieties</div>
+                        <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">{t('dataReports.selectVarieties')}</div>
                         {filterOptions.varieties.map((v) => (
                           <label key={v} className="flex items-center gap-2 cursor-pointer text-sm">
                             <Checkbox
@@ -1834,9 +1836,9 @@ const DataReports = () => {
                             size="sm"
                             onClick={() => setSelectedVarieties([])}
                           >
-                            Clear
+                            {t('dataReports.clear')}
                           </Button>
-                          <span className="text-xs text-gray-500">Tap to select multiple</span>
+                          <span className="text-xs text-gray-500">{t('dataReports.tapToSelectMultiple')}</span>
                         </div>
                       </div>
                     </PopoverContent>
@@ -1844,7 +1846,7 @@ const DataReports = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="font-medium text-sm">Season</Label>
+                  <Label className="font-medium text-sm">{t('dataReports.season')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -1856,15 +1858,15 @@ const DataReports = () => {
                       >
                         <span>
                           {selectedSeasons.length === 0
-                            ? "All Seasons"
-                            : `${selectedSeasons.length} selected`}
+                            ? t('dataReports.allSeasons')
+                            : t('dataReports.nSelected', { n: selectedSeasons.length })}
                         </span>
                         <span className="text-xs text-gray-400">▼</span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full max-w-sm p-3">
                       <div className="space-y-2">
-                        <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">Select seasons</div>
+                        <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">{t('dataReports.selectSeasons')}</div>
                         {filterOptions.seasons.map((s) => (
                           <label key={s} className="flex items-center gap-2 cursor-pointer text-sm">
                             <Checkbox
@@ -1886,9 +1888,9 @@ const DataReports = () => {
                             size="sm"
                             onClick={() => setSelectedSeasons([])}
                           >
-                            Clear
+                            {t('dataReports.clear')}
                           </Button>
-                          <span className="text-xs text-gray-500">Tap to select multiple</span>
+                          <span className="text-xs text-gray-500">{t('dataReports.tapToSelectMultiple')}</span>
                         </div>
                       </div>
                     </PopoverContent>
@@ -1897,7 +1899,7 @@ const DataReports = () => {
 
                 {selectedAnalysisTypes.includes('production') && (
                 <div className="space-y-2">
-                  <Label className="font-medium text-sm">Machine / Series</Label>
+                  <Label className="font-medium text-sm">{t('dataReports.machineSeries')}</Label>
                   <Select
                     value={machineFilter}
                     onValueChange={(val) => {
@@ -1908,13 +1910,13 @@ const DataReports = () => {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('dataReports.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="all">{t('dataReports.all')}</SelectItem>
                       {lineNames.length > 0 && (
                         <>
-                          <SelectItem value="__series_header" disabled className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Series</SelectItem>
+                          <SelectItem value="__series_header" disabled className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('production.series')}</SelectItem>
                           {lineNames.map((name) => (
                             <SelectItem key={`series:${name}`} value={`series:${name}`}>{name}</SelectItem>
                           ))}
@@ -1922,7 +1924,7 @@ const DataReports = () => {
                       )}
                       {lineMachines.length > 0 && (
                         <>
-                          <SelectItem value="__machine_header" disabled className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Machines</SelectItem>
+                          <SelectItem value="__machine_header" disabled className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dataReports.machines')}</SelectItem>
                           {lineMachines.map((m) => (
                             <SelectItem key={`machine:${m}`} value={`machine:${m}`}>{m}</SelectItem>
                           ))}
@@ -1949,7 +1951,7 @@ const DataReports = () => {
                     }}
                   >
                     <X className="w-3.5 h-3.5 mr-1" />
-                    Clear
+                    {t('dataReports.clear')}
                   </Button>
                 </div>
               </div>
@@ -1976,21 +1978,21 @@ const DataReports = () => {
               <div className="space-y-6">
                 {!fromDate || !toDate ? (
                   <div className="text-center py-8 text-gray-500">
-                    <p>Please select both From and To dates to view available data</p>
+                    <p>{t('dataReports.selectDatesPrompt')}</p>
                   </div>
                 ) : isLoadingData ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rice-primary mx-auto"></div>
-                    <p className="mt-2 text-gray-500">Loading process data...</p>
+                    <p className="mt-2 text-gray-500">{t('dataReports.loadingProcessData')}</p>
                   </div>
                 ) : filteredProcesses.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     {selectedAnalysisTypes.length === 0 ? (
-                      <p>No report types selected. Please choose at least one report type to view sessions.</p>
+                      <p>{t('dataReports.noReportTypesSelected')}</p>
                     ) : fromDate && toDate ? (
-                      <p>No reports found for the selected filters and date range ({format(fromDate, "MMM dd, yyyy")} - {format(toDate, "MMM dd, yyyy")}).</p>
+                      <p>{t('dataReports.noReportsFoundRange', { from: format(fromDate, "MMM dd, yyyy"), to: format(toDate, "MMM dd, yyyy") })}</p>
                     ) : (
-                      <p>No reports available. Select a date range to view sessions.</p>
+                      <p>{t('dataReports.noReportsAvailable')}</p>
                     )}
                   </div>
                 ) : (
@@ -2015,32 +2017,32 @@ const DataReports = () => {
                               })()}
                               {process.modeType === 'tma' && (
                                 <span className="px-3 py-1 rounded-full text-xs font-semibold border text-purple-700 bg-purple-50 border-purple-200">
-                                  Series
+                                  {t('production.series')}
                                 </span>
                               )}
                               {process.id.split('_')[0].startsWith('PROD-') && process.modeType !== 'tma' && (
                                 <span className="px-3 py-1 rounded-full text-xs font-semibold border text-indigo-700 bg-indigo-50 border-indigo-200">
-                                  Single Machine
+                                  {t('dataReports.singleMachine')}
                                 </span>
                               )}
                             </div>
                             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                              <span>Date: {format(new Date(process.date), "PPP")}</span>
+                              <span>{t('procurementReports.date')}: {format(new Date(process.date), "PPP")}</span>
                               {process.analysisTime && (
-                                <span>Time: <span className="font-semibold">{process.analysisTime}</span></span>
+                                <span>{t('dataReports.timeLabel')}: <span className="font-semibold">{process.analysisTime}</span></span>
                               )}
                               {process.operatorName && (
-                                <span>Operator: <span className="font-semibold">{process.operatorName}</span></span>
+                                <span>{t('procurementReports.operator')}: <span className="font-semibold">{process.operatorName}</span></span>
                               )}
                               {process.machineName && (
-                                <span>Machine: <span className="font-semibold">{process.machineName}</span></span>
+                                <span>{t('dataReports.machineLabel')}: <span className="font-semibold">{process.machineName}</span></span>
                               )}
                               {process.binDryerNumber && (
-                                <span>Bin/Dryer Number: <span className="font-semibold">{process.binDryerNumber}</span></span>
+                                <span>{t('dataReports.binDryerLabel')}: <span className="font-semibold">{process.binDryerNumber}</span></span>
                               )}
-                              <span>Variety: {process.variety}</span>
-                              <span>Process: {process.process}</span>
-                              <span>Total Weight: {process.totalQuantity}g</span>
+                              <span>{t('procurementReports.variety')}: {process.variety}</span>
+                              <span>{t('procurementReports.process')}: {process.process}</span>
+                              <span>{t('dataReports.totalWeightLabel')}: {process.totalQuantity}g</span>
                             </div>
                           </div>
                           
@@ -2060,7 +2062,7 @@ const DataReports = () => {
                                   }}
                                   className="accent-rice-primary w-4 h-4"
                                 />
-                                <span className="text-sm text-gray-700">Detailed Chalky Classification</span>
+                                <span className="text-sm text-gray-700">{t('dataReports.detailedChalkyClassification')}</span>
                               </label>
                             )}
                             <div className="flex flex-row gap-2">
@@ -2070,7 +2072,7 @@ const DataReports = () => {
                               className="bg-rice-primary hover:bg-rice-primary/90 text-white px-6 py-2 disabled:opacity-50"
                             >
                               <Download className="w-4 h-4 mr-2" />
-                              {isGenerating ? 'Generating...' : 'Download Report'}
+                              {isGenerating ? t('procurementReports.generating') : t('milled.downloadReport')}
                             </Button>
                             <Button
                               variant="outline"
@@ -2078,7 +2080,7 @@ const DataReports = () => {
                               onClick={() => handleViewDetailedGrains(process)}
                             >
                               <Eye className="w-4 h-4 mr-2" />
-                              Detailed Grain Data
+                              {t('dataReports.detailedGrainData')}
                             </Button>
                             </div>
                           </div>
@@ -2087,15 +2089,15 @@ const DataReports = () => {
                         {/* Overall Metrics */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="bg-green-50 p-4 rounded-lg">
-                            <div className="text-green-600 font-semibold">Overall Rice</div>
+                            <div className="text-green-600 font-semibold">{t('dataReports.overallRice')}</div>
                             <div className="text-2xl font-bold text-green-700">{process.overallGoodRice.toFixed(1)}%</div>
                           </div>
                           <div className="bg-red-50 p-4 rounded-lg">
-                            <div className="text-red-600 font-semibold">Overall Rejection</div>
+                            <div className="text-red-600 font-semibold">{t('dataReports.overallRejection')}</div>
                             <div className="text-2xl font-bold text-red-700">{process.overallRejection.toFixed(1)}%</div>
                           </div>
                           <div className="bg-yellow-50 p-4 rounded-lg">
-                            <div className="text-yellow-600 font-semibold">Overall Foreign Matter</div>
+                            <div className="text-yellow-600 font-semibold">{t('dataReports.overallForeignMatter')}</div>
                             <div className="text-2xl font-bold text-yellow-700">{process.overallForeignMatter.toFixed(1)}%</div>
                           </div>
                         </div>

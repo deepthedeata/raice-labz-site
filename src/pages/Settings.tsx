@@ -1068,21 +1068,21 @@ const Settings = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <PageHeader 
-        title={t('nav.settings')} 
-        subtitle="Configure application settings and preferences"
+      <PageHeader
+        title={t('nav.settings')}
+        subtitle={t('settings.subtitle')}
       />
-      
+
       <div className="flex-1 overflow-hidden px-6 pt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col h-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="line-info" className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
-              Mill Region & Configuration
+              {t('settings.millRegionConfigTab')}
             </TabsTrigger>
             <TabsTrigger value="hardware" className="flex items-center gap-2">
               <Monitor className="w-4 h-4" />
-              Hardware
+              {t('settings.hardware')}
             </TabsTrigger>
           </TabsList>
 
@@ -1137,16 +1137,16 @@ const Settings = () => {
                 <CardHeader>
                   <CardTitle className="text-rice-primary flex items-center space-x-2">
                     <Building2 className="w-5 h-5" />
-                    <span>Mill Region & Information</span>
+                    <span>{t('settings.millRegionInfo')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="settings-mill-name">Rice Mill</Label>
+                      <Label htmlFor="settings-mill-name">{t('settings.riceMill')}</Label>
                       <Input
                         id="settings-mill-name"
-                        placeholder="Enter rice mill name"
+                        placeholder={t('settings.enterRiceMillName')}
                         value={millName}
                         onChange={(e) => {
                           setMillName(e.target.value);
@@ -1156,10 +1156,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-operator">Machine/Lab Incharge</Label>
+                      <Label htmlFor="settings-operator">{t('settings.machineLabIncharge')}</Label>
                       <Input
                         id="settings-operator"
-                        placeholder="Enter incharge name"
+                        placeholder={t('settings.enterInchargeName')}
                         value={operatorName}
                         onChange={(e) => {
                           setOperatorName(e.target.value);
@@ -1169,10 +1169,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-owner-contact">Contact number (Owner)</Label>
+                      <Label htmlFor="settings-owner-contact">{t('settings.ownerContactLabel')}</Label>
                       <Input
                         id="settings-owner-contact"
-                        placeholder="Owner contact number"
+                        placeholder={t('settings.ownerContactPlaceholder')}
                         value={ownerContact}
                         onChange={(e) => {
                           setOwnerContact(e.target.value);
@@ -1182,11 +1182,11 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-personal-email">Personal Email ID</Label>
+                      <Label htmlFor="settings-personal-email">{t('settings.personalEmailId')}</Label>
                       <Input
                         id="settings-personal-email"
                         type="email"
-                        placeholder="Owner personal email"
+                        placeholder={t('settings.ownerPersonalEmailPlaceholder')}
                         value={personalEmail}
                         onChange={(e) => {
                           setPersonalEmail(e.target.value);
@@ -1196,11 +1196,11 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-support-email">Support Email ID</Label>
+                      <Label htmlFor="settings-support-email">{t('settings.supportEmailId')}</Label>
                       <Input
                         id="settings-support-email"
                         type="email"
-                        placeholder="Support email"
+                        placeholder={t('settings.supportEmailPlaceholder')}
                         value={supportEmail}
                         onChange={(e) => {
                           setSupportEmail(e.target.value);
@@ -1210,10 +1210,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-support-contact">Contact number (support)</Label>
+                      <Label htmlFor="settings-support-contact">{t('settings.supportContactLabel')}</Label>
                       <Input
                         id="settings-support-contact"
-                        placeholder="Support contact number"
+                        placeholder={t('settings.supportContactPlaceholder')}
                         value={supportContact}
                         onChange={(e) => {
                           setSupportContact(e.target.value);
@@ -1223,10 +1223,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-gst-number">GST</Label>
+                      <Label htmlFor="settings-gst-number">{t('settings.gst')}</Label>
                       <Input
                         id="settings-gst-number"
-                        placeholder="GST number"
+                        placeholder={t('settings.gstPlaceholder')}
                         value={gstNumber}
                         onChange={(e) => {
                           setGstNumber(e.target.value);
@@ -1236,10 +1236,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="settings-location">Location</Label>
+                      <Label htmlFor="settings-location">{t('settings.location')}</Label>
                       <Input
                         id="settings-location"
-                        placeholder="Enter location"
+                        placeholder={t('settings.enterLocation')}
                         value={location}
                         onChange={(e) => {
                           setLocation(e.target.value);
@@ -1249,7 +1249,7 @@ const Settings = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Mill Region</Label>
+                      <Label>{t('settings.millRegion')}</Label>
                       <RadioGroup
                         value={region}
                         onValueChange={(val) => {
@@ -1261,11 +1261,11 @@ const Settings = () => {
                       >
                         <div className="flex items-center gap-1.5">
                           <RadioGroupItem value="basmati" id="region-basmati" />
-                          <Label htmlFor="region-basmati" className="text-sm font-medium cursor-pointer">Basmati</Label>
+                          <Label htmlFor="region-basmati" className="text-sm font-medium cursor-pointer">{t('procurement.basmati')}</Label>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <RadioGroupItem value="non-basmati" id="region-non-basmati" />
-                          <Label htmlFor="region-non-basmati" className="text-sm font-medium cursor-pointer">Non-Basmati</Label>
+                          <Label htmlFor="region-non-basmati" className="text-sm font-medium cursor-pointer">{t('procurement.nonBasmati')}</Label>
                         </div>
                       </RadioGroup>
                     </div>
@@ -1276,7 +1276,7 @@ const Settings = () => {
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" type="button" onClick={addOtherRiceMill}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add another rice mill
+                  {t('settings.addAnotherRiceMill')}
                 </Button>
               </div>
 
@@ -1285,7 +1285,7 @@ const Settings = () => {
                   <CardHeader className="flex items-center justify-between gap-4">
                     <CardTitle className="text-rice-primary flex items-center gap-2">
                       <Building2 className="w-5 h-5" />
-                      <span>Additional Rice Mill {index + 1}</span>
+                      <span>{t('settings.additionalRiceMill', { n: index + 1 })}</span>
                     </CardTitle>
                     <Button variant="ghost" size="sm" className="text-red-600" onClick={() => removeOtherRiceMill(index)}>
                       <Trash2 className="w-4 h-4" />
@@ -1294,73 +1294,73 @@ const Settings = () => {
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                       <div className="space-y-2">
-                        <Label>Rice Mill</Label>
+                        <Label>{t('settings.riceMill')}</Label>
                         <Input
                           value={mill.riceMillName}
                           onChange={(e) => updateOtherRiceMill(index, { riceMillName: e.target.value })}
-                          placeholder="Enter rice mill name"
+                          placeholder={t('settings.enterRiceMillName')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Machine/Lab Incharge</Label>
+                        <Label>{t('settings.machineLabIncharge')}</Label>
                         <Input
                           value={mill.operatorName}
                           onChange={(e) => updateOtherRiceMill(index, { operatorName: e.target.value })}
-                          placeholder="Enter incharge name"
+                          placeholder={t('settings.enterInchargeName')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Owner Contact</Label>
+                        <Label>{t('settings.ownerContact')}</Label>
                         <Input
                           value={mill.ownerContact}
                           onChange={(e) => updateOtherRiceMill(index, { ownerContact: e.target.value })}
-                          placeholder="Owner contact number"
+                          placeholder={t('settings.ownerContactPlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Personal Email ID</Label>
+                        <Label>{t('settings.personalEmailId')}</Label>
                         <Input
                           type="email"
                           value={mill.personalEmail}
                           onChange={(e) => updateOtherRiceMill(index, { personalEmail: e.target.value })}
-                          placeholder="Owner personal email"
+                          placeholder={t('settings.ownerPersonalEmailPlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Support Email ID</Label>
+                        <Label>{t('settings.supportEmailId')}</Label>
                         <Input
                           type="email"
                           value={mill.supportEmail}
                           onChange={(e) => updateOtherRiceMill(index, { supportEmail: e.target.value })}
-                          placeholder="Support email"
+                          placeholder={t('settings.supportEmailPlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Support Contact</Label>
+                        <Label>{t('settings.supportContact')}</Label>
                         <Input
                           value={mill.supportContact}
                           onChange={(e) => updateOtherRiceMill(index, { supportContact: e.target.value })}
-                          placeholder="Support contact number"
+                          placeholder={t('settings.supportContactPlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>GST</Label>
+                        <Label>{t('settings.gst')}</Label>
                         <Input
                           value={mill.gstNumber}
                           onChange={(e) => updateOtherRiceMill(index, { gstNumber: e.target.value })}
-                          placeholder="GST number"
+                          placeholder={t('settings.gstPlaceholder')}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Location</Label>
+                        <Label>{t('settings.location')}</Label>
                         <Input
                           value={mill.location}
                           onChange={(e) => updateOtherRiceMill(index, { location: e.target.value })}
-                          placeholder="Enter location"
+                          placeholder={t('settings.enterLocation')}
                         />
                       </div>
                       <div className="space-y-2 sm:col-span-2 xl:col-span-4">
-                        <Label>Mill Region</Label>
+                        <Label>{t('settings.millRegion')}</Label>
                         <RadioGroup
                           value={mill.region}
                           onValueChange={(val) => updateOtherRiceMill(index, { region: val as "basmati" | "non-basmati" })}
@@ -1368,11 +1368,11 @@ const Settings = () => {
                         >
                           <div className="flex items-center gap-1.5">
                             <RadioGroupItem value="basmati" id={`region-basmati-${index}`} />
-                            <Label htmlFor={`region-basmati-${index}`} className="text-sm font-medium cursor-pointer">Basmati</Label>
+                            <Label htmlFor={`region-basmati-${index}`} className="text-sm font-medium cursor-pointer">{t('procurement.basmati')}</Label>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <RadioGroupItem value="non-basmati" id={`region-non-basmati-${index}`} />
-                            <Label htmlFor={`region-non-basmati-${index}`} className="text-sm font-medium cursor-pointer">Non-Basmati</Label>
+                            <Label htmlFor={`region-non-basmati-${index}`} className="text-sm font-medium cursor-pointer">{t('procurement.nonBasmati')}</Label>
                           </div>
                         </RadioGroup>
                       </div>
@@ -1389,14 +1389,14 @@ const Settings = () => {
                 <CardHeader>
                   <CardTitle className="text-rice-primary flex items-center space-x-2">
                     <Ruler className="w-5 h-5" />
-                    <span>Segmentation Configuration</span>
+                    <span>{t('settings.segmentationConfig')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {segLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin mr-2" />
-                      <span>Loading segmentation config...</span>
+                      <span>{t('settings.loadingSegmentationConfig')}</span>
                     </div>
                   ) : (
                     <>
@@ -1405,11 +1405,11 @@ const Settings = () => {
                         <table className="w-full text-sm border-collapse">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-2 px-3 font-medium" style={{ width: '30%' }}>Class</th>
-                              <th className="text-left py-2 px-3 font-medium" style={{ width: '20%' }}>Ratio</th>
-                              <th className="text-center py-2 px-3 font-medium" style={{ width: '18%' }}>Head Rice</th>
-                              <th className="text-center py-2 px-3 font-medium" style={{ width: '18%' }}>Brokens</th>
-                              <th className="text-center py-2 px-3 font-medium" style={{ width: '14%' }}>Action</th>
+                              <th className="text-left py-2 px-3 font-medium" style={{ width: '30%' }}>{t('settings.class')}</th>
+                              <th className="text-left py-2 px-3 font-medium" style={{ width: '20%' }}>{t('settings.ratio')}</th>
+                              <th className="text-center py-2 px-3 font-medium" style={{ width: '18%' }}>{t('procurementReports.headrice')}</th>
+                              <th className="text-center py-2 px-3 font-medium" style={{ width: '18%' }}>{t('procurementReports.brokens')}</th>
+                              <th className="text-center py-2 px-3 font-medium" style={{ width: '14%' }}>{t('settings.action')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1471,16 +1471,16 @@ const Settings = () => {
                       {/* Add new category */}
                       <div className="flex items-end gap-3 pt-2">
                         <div className="flex-1 space-y-1">
-                          <Label className="text-xs">Class Name</Label>
+                          <Label className="text-xs">{t('settings.className')}</Label>
                           <Input
-                            placeholder="e.g. Monimongra"
+                            placeholder={t('settings.classNamePlaceholder')}
                             value={newCategoryLabel}
                             onChange={(e) => setNewCategoryLabel(e.target.value)}
                             className="h-8 text-sm"
                           />
                         </div>
                         <div className="w-28 space-y-1">
-                          <Label className="text-xs">Ratio (0–1)</Label>
+                          <Label className="text-xs">{t('settings.ratioRange')}</Label>
                           <Input
                             type="number"
                             placeholder="0.5"
@@ -1499,7 +1499,7 @@ const Settings = () => {
                           disabled={!newCategoryLabel.trim() || !newCategoryRatio}
                           className="h-8"
                         >
-                          <Plus className="w-4 h-4 mr-1" /> Add
+                          <Plus className="w-4 h-4 mr-1" /> {t('settings.add')}
                         </Button>
                       </div>
 
@@ -1507,9 +1507,9 @@ const Settings = () => {
                       <div className="mt-6 pt-4 border-t">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h4 className="text-sm font-medium text-gray-700">Thickness Threshold (%)</h4>
+                            <h4 className="text-sm font-medium text-gray-700">{t('settings.thicknessThreshold')}</h4>
                             <p className="text-xs text-gray-500 mt-1">
-                              Grains with width &ge; this % of the variety&apos;s reference breadth are &quot;Thick Rice&quot;. Used by Thickness Grader machines.
+                              {t('settings.thicknessThresholdDesc')}
                             </p>
                           </div>
                           <div className="flex items-center gap-1">
@@ -1542,11 +1542,11 @@ const Settings = () => {
                       <div className="flex justify-between pt-4 border-t">
                         <Button variant="outline" size="sm" onClick={handleResetSegDefaults}>
                           <RotateCcw className="w-4 h-4 mr-2" />
-                          Reset to Defaults
+                          {t('settings.resetToDefaults')}
                         </Button>
                         <Button onClick={handleSaveSegConfig} disabled={segSaving}>
                           {segSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                          Save Configuration
+                          {t('settings.saveConfiguration')}
                         </Button>
                       </div>
 
@@ -1562,23 +1562,23 @@ const Settings = () => {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-rice-primary flex items-center space-x-2 text-base">
                       <Lightbulb className="w-5 h-5" />
-                      <span>Color Index (WI)</span>
+                      <span>{t('settings.colorIndexWi')}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {wiLoading ? (
                       <div className="flex items-center justify-center py-8">
                         <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                        <span className="text-sm">Loading...</span>
+                        <span className="text-sm">{t('settings.loading')}</span>
                       </div>
                     ) : (
                       <>
                         <table className="w-full text-sm border-collapse">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left py-1.5 px-2 font-medium text-xs">Color Grade</th>
-                              <th className="text-center py-1.5 px-2 font-medium text-xs w-16">Min</th>
-                              <th className="text-center py-1.5 px-2 font-medium text-xs w-16">Max</th>
+                              <th className="text-left py-1.5 px-2 font-medium text-xs">{t('procurementReports.colorGrade')}</th>
+                              <th className="text-center py-1.5 px-2 font-medium text-xs w-16">{t('procurementReports.min')}</th>
+                              <th className="text-center py-1.5 px-2 font-medium text-xs w-16">{t('procurementReports.max')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1613,7 +1613,7 @@ const Settings = () => {
                         <div className="flex justify-end pt-2">
                           <Button size="sm" onClick={handleSaveWiConfig} disabled={wiSaving}>
                             {wiSaving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}
-                            Save
+                            {t('settings.save')}
                           </Button>
                         </div>
                       </>
@@ -1623,21 +1623,21 @@ const Settings = () => {
                 <div className="mt-4 rounded-lg border border-dashed border-gray-300 bg-gray-50/80 p-4 opacity-50 pointer-events-none">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-semibold text-gray-400">Moisture Content Ranges</span>
-                    <span className="text-[10px] font-medium text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">Coming Soon</span>
+                    <span className="text-sm font-semibold text-gray-400">{t('settings.moistureContentRanges')}</span>
+                    <span className="text-[10px] font-medium text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">{t('dataReports.comingSoon')}</span>
                   </div>
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="text-left py-1.5 px-2 font-medium text-xs text-gray-400">Stage</th>
-                        <th className="text-center py-1.5 px-2 font-medium text-xs text-gray-400 w-16">Min %</th>
-                        <th className="text-center py-1.5 px-2 font-medium text-xs text-gray-400 w-16">Max %</th>
+                        <th className="text-left py-1.5 px-2 font-medium text-xs text-gray-400">{t('settings.stage')}</th>
+                        <th className="text-center py-1.5 px-2 font-medium text-xs text-gray-400 w-16">{t('settings.minPercent')}</th>
+                        <th className="text-center py-1.5 px-2 font-medium text-xs text-gray-400 w-16">{t('settings.maxPercent')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {[
-                        { label: "Procurement", min: 10, max: 14 },
-                        { label: "Milled Rice", min: 12, max: 13 },
+                        { label: t('dataReports.procurement'), min: 10, max: 14 },
+                        { label: t('dataReports.milledRiceBadge'), min: 12, max: 13 },
                       ].map((g) => (
                         <tr key={g.label} className="border-b border-gray-100 last:border-b-0">
                           <td className="py-1.5 px-2 text-gray-400">{g.label}</td>
@@ -1699,7 +1699,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <Label className="text-base font-bold tracking-tight">Grain Analyzer</Label>
+                          <Label className="text-base font-bold tracking-tight">{t('settings.grainAnalyzer')}</Label>
                           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
                             modbusConnected ? 'bg-rice-primary/10 text-rice-primary'
                             : modbusPortOpen ? 'bg-rice-secondary/20 text-rice-primary'
@@ -1710,15 +1710,15 @@ const Settings = () => {
                               : modbusPortOpen ? 'bg-rice-secondary'
                               : 'bg-gray-400'
                             }`} />
-                            {modbusConnected ? 'Connected' : modbusPortOpen ? 'Machine Off' : 'Disconnected'}
+                            {modbusConnected ? t('settings.connected') : modbusPortOpen ? t('settings.machineOff') : t('settings.disconnected')}
                           </div>
                         </div>
                         <p className="text-sm text-gray-500 mt-1">
                           {modbusConnected
-                            ? "System connected and ready"
+                            ? t('settings.systemConnectedReady')
                             : modbusPortOpen
-                              ? "Connection open, machine not responding"
-                              : "No active connection"}
+                              ? t('settings.connectionOpenNotResponding')
+                              : t('settings.noActiveConnection')}
                         </p>
                         {/* Connection metadata hidden per UX request (port/baud/slave details). */}
                         {/*
@@ -1743,7 +1743,7 @@ const Settings = () => {
                       variant={(modbusConnected || modbusPortOpen) ? "outline" : "default"}
                     >
                       {modbusLoading && <Loader2 className="w-3 h-3 animate-spin mr-1.5" />}
-                      {(modbusConnected || modbusPortOpen) ? 'Disconnect' : 'Connect'}
+                      {(modbusConnected || modbusPortOpen) ? t('settings.disconnect') : t('settings.connect')}
                     </Button>
                   </div>
                 </CardContent>
@@ -1754,16 +1754,16 @@ const Settings = () => {
                 <CardContent className="py-3 px-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Monitor className="w-4 h-4 text-rice-primary" />
-                    <Label className="text-sm font-semibold text-rice-primary">Signal Monitor</Label>
+                    <Label className="text-sm font-semibold text-rice-primary">{t('settings.signalMonitor')}</Label>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
                       <div className="text-xl font-bold text-rice-primary font-mono">{signalCounts.tx}</div>
-                      <div className="text-[10px] text-rice-primary/60 uppercase font-medium">Polls (TX)</div>
+                      <div className="text-[10px] text-rice-primary/60 uppercase font-medium">{t('settings.pollsTx')}</div>
                     </div>
                     <div className="text-center p-3 bg-yellow-50 rounded-lg">
                       <div className="text-xl font-bold text-rice-primary font-mono">{signalCounts.rx_ok}</div>
-                      <div className="text-[10px] text-rice-primary/60 uppercase font-medium">Valid (RX)</div>
+                      <div className="text-[10px] text-rice-primary/60 uppercase font-medium">{t('settings.validRx')}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1775,13 +1775,13 @@ const Settings = () => {
               <CardHeader className="py-3 px-4 border-b bg-gray-50/50">
                 <CardTitle className="text-rice-primary flex items-center space-x-2 text-sm">
                   <Ruler className="w-4 h-4" />
-                  <span>Speed Controls</span>
+                  <span>{t('settings.speedControls')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-4">
                 {([
-                  { key: "conveyor_speed", icon: Truck, label: "Conveyor Speed", min: 5, max: 75, unit: "RPM" },
-                  { key: "vibrator", icon: Activity, label: "Vibrator Intensity", min: 0, max: 100, unit: "%" },
+                  { key: "conveyor_speed", icon: Truck, label: t('settings.conveyorSpeed'), min: 5, max: 75, unit: "RPM" },
+                  { key: "vibrator", icon: Activity, label: t('settings.vibratorIntensity'), min: 0, max: 100, unit: "%" },
                 ] as const).map(({ key, icon: Icon, label, min, max, unit }) => {
                   const device = modbusDevices[key];
                   const currentValue = device?.value ?? min;
@@ -1840,7 +1840,7 @@ const Settings = () => {
               <CardHeader className="py-3 px-4 border-b bg-gray-50/50">
                 <CardTitle className="text-rice-primary flex items-center space-x-2 text-sm">
                   <Zap className="w-4 h-4" />
-                  <span>Device Controls</span>
+                  <span>{t('settings.deviceControls')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -1891,9 +1891,9 @@ const Settings = () => {
                       <div className="flex items-center space-x-3">
                         <Factory className={`w-4 h-4 transition-colors ${machineOn ? 'text-rice-primary' : 'text-gray-300'}`} />
                         <div>
-                          <span className="text-sm font-semibold">Machine</span>
-                          {isUnknown && <span className="text-[10px] text-rice-secondary ml-2">no response</span>}
-                          {machineOn && !isUnknown && <span className="text-[10px] text-rice-primary ml-2">Running</span>}
+                          <span className="text-sm font-semibold">{t('settings.machine')}</span>
+                          {isUnknown && <span className="text-[10px] text-rice-secondary ml-2">{t('settings.noResponse')}</span>}
+                          {machineOn && !isUnknown && <span className="text-[10px] text-rice-primary ml-2">{t('settings.running')}</span>}
                         </div>
                       </div>
                       {isMachineLoading ? (
@@ -1909,7 +1909,7 @@ const Settings = () => {
                               : 'bg-rice-primary hover:bg-rice-primary/90 text-white'
                           }`}
                         >
-                          {machineOn ? 'Stop' : 'Start'}
+                          {machineOn ? t('settings.stop') : t('settings.start')}
                         </Button>
                       )}
                     </div>
@@ -1928,8 +1928,8 @@ const Settings = () => {
                       <div className="flex items-center space-x-3">
                         <Lightbulb className={`w-4 h-4 transition-colors ${lightOn ? 'text-rice-secondary' : 'text-gray-300'}`} />
                         <div>
-                          <span className="text-sm font-medium">Light</span>
-                          {isUnknown && <span className="text-[10px] text-rice-secondary ml-2">no response</span>}
+                          <span className="text-sm font-medium">{t('settings.light')}</span>
+                          {isUnknown && <span className="text-[10px] text-rice-secondary ml-2">{t('settings.noResponse')}</span>}
                         </div>
                       </div>
                       {isLightLoading ? (
@@ -1945,7 +1945,7 @@ const Settings = () => {
                               : 'bg-rice-primary hover:bg-rice-primary/90 text-white'
                           }`}
                         >
-                          {lightOn ? 'Stop' : 'Start'}
+                          {lightOn ? t('settings.stop') : t('settings.start')}
                         </Button>
                       )}
                     </div>
