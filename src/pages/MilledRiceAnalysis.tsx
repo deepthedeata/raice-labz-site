@@ -964,8 +964,8 @@ const MilledRiceAnalysis = () => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <PageHeader
-        title="Milled Rice Quality Analysis"
-        subtitle="Analyze milled rice quality with category-specific parameters and annotations."
+        title={t('milled.pageTitle')}
+        subtitle={t('milled.pageSubtitle')}
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-6">

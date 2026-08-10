@@ -1267,8 +1267,8 @@ const ProcurementAnalysis = () => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <PageHeader
-        title="Procurement Analysis"
-        subtitle="Guide your team from test preparation to live analysis and final insights."
+        title={t('nav.procurementAnalysis')}
+        subtitle={t('procurement.pageSubtitle')}
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-6">

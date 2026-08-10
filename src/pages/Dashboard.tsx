@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Clock,
   TrendingUp,
@@ -36,6 +37,7 @@ const formatVariety = (value: string) => {
 };
 
 const Dashboard = () => {
+  const { t } = useLanguage();
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
@@ -85,8 +87,8 @@ const Dashboard = () => {
   // Analysis tiles definition
   const analysisTiles = [
     {
-      label: "Procurement Analysis",
-      sub: "Raw Paddy Quality",
+      label: t('nav.procurementAnalysis'),
+      sub: t('dashboard.rawPaddyQuality'),
       icon: ShoppingCart,
       link: "/procurement-analysis",
       color: "from-green-500 to-emerald-600",
@@ -96,8 +98,8 @@ const Dashboard = () => {
       disabled: false,
     },
     {
-      label: "Production Analysis",
-      sub: "Machine-Wise Quality",
+      label: t('nav.productionAnalysis'),
+      sub: t('dashboard.machineWiseQuality'),
       icon: Factory,
       link: "/production-analysis",
       color: "from-blue-500 to-blue-700",
@@ -107,8 +109,8 @@ const Dashboard = () => {
       disabled: false,
     },
     {
-      label: "Milled Rice Quality",
-      sub: "Basmati / Non-Basmati",
+      label: t('nav.milledRiceAnalysis'),
+      sub: t('dashboard.basmatiNonBasmati'),
       icon: Wheat,
       link: "/milled-rice-analysis",
       color: "from-teal-500 to-teal-700",
@@ -118,8 +120,8 @@ const Dashboard = () => {
       disabled: false,
     },
     {
-      label: "Cooked Rice Quality",
-      sub: "Cooking Properties",
+      label: t('dashboard.cookedRiceQuality'),
+      sub: t('dashboard.cookingProperties'),
       icon: CookingPot,
       link: null,
       color: "from-purple-400 to-purple-500",
@@ -129,8 +131,8 @@ const Dashboard = () => {
       disabled: true,
     },
     {
-      label: "Predictive Analysis",
-      sub: "Yield Forecasting",
+      label: t('dashboard.predictiveAnalysis'),
+      sub: t('dashboard.yieldForecasting'),
       icon: TrendingUp,
       link: null,
       color: "from-amber-400 to-amber-500",
@@ -144,7 +146,7 @@ const Dashboard = () => {
   // Today's summary metrics
   const summaryMetrics = [
     {
-      label: "Avg Head Rice",
+      label: t('dashboard.avgHeadRice'),
       value: isLoading ? "—" : analyticsData?.avg_head_rice != null ? Number(analyticsData.avg_head_rice).toFixed(1) : "—",
       unit: "%",
       color: "from-green-400 to-green-600",
@@ -153,7 +155,7 @@ const Dashboard = () => {
       textColor: "text-green-700",
     },
     {
-      label: "Avg Broken",
+      label: t('dashboard.avgBroken'),
       value: isLoading ? "—" : analyticsData?.avg_broken != null ? Number(analyticsData.avg_broken).toFixed(1) : "—",
       unit: "%",
       color: "from-red-400 to-red-600",
@@ -162,7 +164,7 @@ const Dashboard = () => {
       textColor: "text-red-700",
     },
     {
-      label: "Whiteness Index",
+      label: t('procurementReports.whitenessIndex'),
       value: isLoading ? "—" : analyticsData?.avg_whiteness_index != null ? Number(analyticsData.avg_whiteness_index).toFixed(1) : "—",
       unit: "WI",
       color: "from-blue-400 to-blue-600",
@@ -171,7 +173,7 @@ const Dashboard = () => {
       textColor: "text-blue-700",
     },
     {
-      label: "Avg Grain Length",
+      label: t('dashboard.avgGrainLength'),
       value: isLoading ? "—" : analyticsData?.avg_grain_length != null ? Number(analyticsData.avg_grain_length).toFixed(2) : "—",
       unit: "mm",
       color: "from-amber-400 to-amber-600",
@@ -184,8 +186,8 @@ const Dashboard = () => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-white">
       <PageHeader
-        title="Dashboard"
-        subtitle="Central hub for rice quality management"
+        title={t('nav.dashboard')}
+        subtitle={t('dashboard.centralHub')}
       />
 
       <div className="flex-1 overflow-auto p-6 space-y-8">
@@ -200,7 +202,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-500 tracking-wider mb-1">
-                  Total Grains Analyzed
+                  {t('dashboard.totalGrainsAnalyzed')}
                 </p>
                 <p className="text-3xl font-bold text-amber-700 group-hover:text-orange-600 transition-colors duration-300">
                   {isLoading ? "…" : (() => {
@@ -222,7 +224,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-500 tracking-wider mb-1">
-                  Samples Analyzed Today
+                  {t('dashboard.samplesAnalyzedToday')}
                 </p>
                 <p className="text-3xl font-bold text-blue-700 group-hover:text-indigo-600 transition-colors duration-300">
                   {isLoading ? "…" : analyticsData?.total_batches ?? "0"}
@@ -239,7 +241,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-500 tracking-wider mb-1">
-                  Grains per Second
+                  {t('dashboard.grainsPerSecond')}
                 </p>
                 <p className="text-3xl font-bold text-green-700 group-hover:text-emerald-600 transition-colors duration-300 font-tabular">
                   {isLoading ? "…" : animatedGrainsPerSecond.toFixed(0)}
@@ -254,7 +256,7 @@ const Dashboard = () => {
           <CardHeader className="bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
             <CardTitle className="text-rice-primary flex items-center gap-2">
               <FileText className="w-5 h-5" />
-              Analysis Modules
+              {t('dashboard.analysisModules')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -290,7 +292,7 @@ const Dashboard = () => {
                           {tile.sub}
                         </div>
                         {tile.disabled && (
-                          <div className="text-xs text-gray-400 mt-1 italic">Coming soon</div>
+                          <div className="text-xs text-gray-400 mt-1 italic">{t('dashboard.comingSoon')}</div>
                         )}
                       </div>
                     </Button>
@@ -317,13 +319,13 @@ const Dashboard = () => {
             <CardHeader className="bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
               <CardTitle className="text-rice-primary flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                Recent Tests Today
+                {t('dashboard.recentTestsToday')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {isLoadingRecentActivities ? (
                 <div className="text-center py-10">
-                  <p className="text-gray-500">Loading recent tests…</p>
+                  <p className="text-gray-500">{t('dashboard.loadingRecentTests')}</p>
                 </div>
               ) : recentActivities.length > 0 ? (
                 <>
@@ -331,10 +333,10 @@ const Dashboard = () => {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-gray-50 to-white border-b">
-                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">Test Id</th>
-                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">Type</th>
-                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">Machine</th>
-                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">Variety</th>
+                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">{t('procurementReports.testId')}</th>
+                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">{t('dashboard.typeCol')}</th>
+                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">{t('dataReports.machineLabel')}</th>
+                          <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 tracking-wider">{t('procurementReports.variety')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -371,14 +373,14 @@ const Dashboard = () => {
                         size="sm"
                         className="text-rice-primary border-rice-primary/30 hover:bg-rice-primary/5 hover:border-rice-primary hover:shadow transition-all duration-200 font-semibold text-sm tracking-wider"
                       >
-                        View All Reports →
+                        {t('dashboard.viewAllReports')} →
                       </Button>
                     </Link>
                   </div>
                 </>
               ) : (
                 <div className="text-center py-10">
-                  <p className="text-gray-500">No tests recorded today</p>
+                  <p className="text-gray-500">{t('dashboard.noTestsToday')}</p>
                 </div>
               )}
             </CardContent>
@@ -389,7 +391,7 @@ const Dashboard = () => {
             <CardHeader className="bg-gradient-to-r from-rice-primary/5 to-rice-secondary/5 border-b">
               <CardTitle className="text-rice-primary flex items-center gap-2">
                 <Wheat className="w-5 h-5" />
-                Today's Summary
+                {t('dashboard.todaysSummary')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">

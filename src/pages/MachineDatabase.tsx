@@ -625,7 +625,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       {!embedded && (
         <PageHeader
           title={t("nav.machineDatabase")}
-          subtitle="View and manage mill machines"
+          subtitle={t("machineDatabase.subtitle")}
         />
       )}
 
@@ -636,13 +636,13 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
             <CardHeader className="pb-3">
               <CardTitle className="text-rice-primary flex items-center gap-2">
                 <Plus className="h-5 w-5 text-rice-primary" />
-                Add machine
+                {t("machineDatabase.addMachine")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="addbox-machine">Machine name <span className="text-rice-primary">*</span></Label>
+                <Label htmlFor="addbox-machine">{t("machineDatabase.machineName")} <span className="text-rice-primary">*</span></Label>
                 <Select
                   value={addBoxMachineValue || "__none__"}
                   onValueChange={(v) => {
@@ -657,11 +657,11 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                     {addBoxMachineValue ? (
                       <span className="truncate">{addBoxMachineValue}</span>
                     ) : (
-                      <SelectValue placeholder="Select machine" />
+                      <SelectValue placeholder={t("machineDatabase.selectMachine")} />
                     )}
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">Select machine…</SelectItem>
+                    <SelectItem value="__none__">{t("machineDatabase.selectMachineEllipsis")}</SelectItem>
                     {MACHINE_NAME_OPTIONS.map((name) => (
                       <SelectItem key={name} value={name}>
                         {name}
@@ -672,18 +672,18 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                         {name}
                       </SelectItem>
                     ))}
-                    <SelectItem value="__others__">Others</SelectItem>
+                    <SelectItem value="__others__">{t("machineDatabase.others")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="addbox-series">Series name <span className="text-rice-primary">*</span></Label>
+                <Label htmlFor="addbox-series">{t("machineDatabase.seriesNameLabel")} <span className="text-rice-primary">*</span></Label>
                 <Popover open={seriesDropdownOpen} onOpenChange={setSeriesDropdownOpen}>
                   <PopoverTrigger asChild>
                     <div className="w-full relative">
                       <Input
                         id="addbox-series"
-                        placeholder="Select or type series name"
+                        placeholder={t("machineDatabase.selectOrTypeSeriesName")}
                         value={addBoxSeriesName}
                         onChange={(e) => { setAddBoxSeriesName(e.target.value); if (!seriesDropdownOpen) setSeriesDropdownOpen(true); }}
                         onClick={() => setSeriesDropdownOpen(true)}
@@ -700,7 +700,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                   >
                     <ul className="max-h-60 overflow-auto py-1">
                       {lines.length === 0 ? (
-                        <li className="px-3 py-2 text-sm text-muted-foreground">No series yet. Type a name to create one.</li>
+                        <li className="px-3 py-2 text-sm text-muted-foreground">{t("machineDatabase.noSeriesYetTypeToCreate")}</li>
                       ) : (
                         lines.map((line) => (
                           <li key={line.id}>
@@ -722,7 +722,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                 </Popover>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="addbox-series-output">Series output (TPH) <span className="text-rice-primary">*</span></Label>
+                <Label htmlFor="addbox-series-output">{t("machineDatabase.seriesOutputTph")} <span className="text-rice-primary">*</span></Label>
                 <div className="relative">
                   <Input
                     id="addbox-series-output"
@@ -744,19 +744,19 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="addbox-model">Machine Model</Label>
+                <Label htmlFor="addbox-model">{t("machineDatabase.machineModelLabel")}</Label>
                 <Input
                   id="addbox-model"
-                  placeholder="e.g. APIT Whitener"
+                  placeholder={t("machineDatabase.machineModelPlaceholder")}
                   value={addBoxMachineModel}
                   onChange={(e) => setAddBoxMachineModel(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="addbox-label">Custom label (optional)</Label>
+                <Label htmlFor="addbox-label">{t("machineDatabase.customLabelOptional")}</Label>
                 <Input
                   id="addbox-label"
-                  placeholder="Optional label"
+                  placeholder={t("machineDatabase.optionalLabelPlaceholder")}
                   value={addBoxCustomLabel}
                   onChange={(e) => setAddBoxCustomLabel(e.target.value)}
                 />
@@ -769,7 +769,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                   className="bg-rice-primary hover:bg-rice-primary/90"
                 >
                   {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                  Add entry
+                  {t("machineDatabase.addEntry")}
                 </Button>
               </div>
             </CardContent>
@@ -782,10 +782,10 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                 <div>
                   <CardTitle className="text-rice-primary flex items-center gap-2">
                     <FolderTree className="w-5 h-5" />
-                    Series & Machine Classification
+                    {t("machineDatabase.seriesMachineClassification")}
                   </CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
-                    Series and machine hierarchy from saved entries
+                    {t("machineDatabase.seriesHierarchyDesc")}
                   </p>
                 </div>
                 <Dialog open={isAddLineOpen} onOpenChange={setIsAddLineOpen}>
@@ -796,22 +796,22 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                       className="bg-rice-primary hover:bg-rice-primary/90 shrink-0"
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      Add line
+                      {t("machineDatabase.addLine")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-sm">
                     <DialogHeader>
-                      <DialogTitle>Add new line / series</DialogTitle>
+                      <DialogTitle>{t("machineDatabase.addNewLineSeries")}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-3">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          Line / series name
+                          {t("machineDatabase.lineSeriesName")}
                         </label>
                         <Input
                           value={newLineName}
                           onChange={(e) => setNewLineName(e.target.value)}
-                          placeholder="e.g. Line C - Export"
+                          placeholder={t("machineDatabase.lineSeriesNamePlaceholder")}
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -823,7 +823,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          Output (TPH)
+                          {t("machineDatabase.outputTph")}
                         </label>
                         <Input
                           value={newLineOutput}
@@ -838,7 +838,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                           variant="ghost"
                           onClick={() => setIsAddLineOpen(false)}
                         >
-                          Cancel
+                          {t("knowGrains.cancel")}
                         </Button>
                         <Button
                           type="button"
@@ -847,7 +847,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                           className="bg-rice-primary hover:bg-rice-primary/90"
                         >
                           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-                          Create line
+                          {t("machineDatabase.createLine")}
                         </Button>
                       </div>
                     </div>
@@ -879,11 +879,11 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                           )}
                           <span className="truncate">{line.name}</span>
                           <span className="text-gray-400 font-normal text-sm shrink-0">
-                            ({line.machines.length} machine{line.machines.length !== 1 ? "s" : ""})
+                            ({line.machines.length} {line.machines.length !== 1 ? t("machineDatabase.machinePlural") : t("machineDatabase.machineSingular")})
                           </span>
                           {(line.status ?? "active") === "inactive" && (
                             <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 shrink-0">
-                              Inactive
+                              {t("machineDatabase.inactive")}
                             </span>
                           )}
                         </CollapsibleTrigger>
@@ -894,14 +894,14 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                           <Switch
                             checked={(line.status ?? "active") === "active"}
                             onCheckedChange={() => handleLineStatusToggle(line.id)}
-                            aria-label={`${(line.status ?? "active") === "active" ? "Deactivate" : "Activate"} ${line.name}`}
-                            title={`${(line.status ?? "active") === "active" ? "Deactivate" : "Activate"} line`}
+                            aria-label={`${(line.status ?? "active") === "active" ? t("machineDatabase.deactivate") : t("machineDatabase.activate")} ${line.name}`}
+                            title={(line.status ?? "active") === "active" ? t("machineDatabase.deactivateLine") : t("machineDatabase.activateLine")}
                           />
                           <button
                             type="button"
                             onClick={() => handleDeleteLine(line.id)}
-                            aria-label={`Delete line ${line.name}`}
-                            title={`Delete line ${line.name}`}
+                            aria-label={`${t("machineDatabase.deleteLine")} ${line.name}`}
+                            title={`${t("machineDatabase.deleteLine")} ${line.name}`}
                             className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -911,7 +911,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                       <CollapsibleContent>
                         <div className="pl-6 pb-2">
                           {line.machines.length === 0 ? (
-                            <p className="text-sm text-gray-500 pl-3">No machines in this series</p>
+                            <p className="text-sm text-gray-500 pl-3">{t("machineDatabase.noMachinesInSeries")}</p>
                           ) : (
                             <div className="flex flex-wrap gap-1 pl-3">
                               {line.machines.map((entry, idx) => {
@@ -952,7 +952,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                 </div>
               ) : (
                 <p className="text-sm text-gray-500 py-4">
-                  {loading ? "Loading…" : "No series yet. Add entries using the form on the left."}
+                  {loading ? t("settings.loading") : t("machineDatabase.noSeriesYetAddEntries")}
                 </p>
               )}
             </CardContent>
@@ -964,31 +964,31 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
           <CardHeader>
             <CardTitle className="text-rice-primary flex items-center gap-2">
               <Database className="w-5 h-5" />
-              Machines
+              {t("machineDatabase.machinesTableTitle")}
             </CardTitle>
             <p className="text-sm text-gray-500 mt-1">
-              All machine entries with status and actions
+              {t("machineDatabase.allMachineEntriesDesc")}
             </p>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading…</div>
+              <div className="text-center py-8 text-gray-500">{t("settings.loading")}</div>
             ) : machineTableRows.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No machine entries yet. Add entries using the form above.
+                {t("machineDatabase.noMachineEntriesYet")}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-gray-50">
-                      <th className="text-left p-3 font-semibold text-gray-700">Machine Name</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Model Series TPH</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Machine Model</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Series Name</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Custom Label</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Status</th>
-                      <th className="text-right p-3 font-semibold text-gray-700">Action</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.machineName")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.modelSeriesTph")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.machineModelLabel")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.seriesNameLabel")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.customLabelCol")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("machineDatabase.statusCol")}</th>
+                      <th className="text-right p-3 font-semibold text-gray-700">{t("settings.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1017,7 +1017,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                             checked={row.status === "active"}
                             onCheckedChange={() => handleStatusToggle(row.lineIndex, row.entryIndex)}
                           />
-                          <span className="ml-2 text-gray-600">{row.status === "active" ? "Active" : "Inactive"}</span>
+                          <span className="ml-2 text-gray-600">{row.status === "active" ? t("machineDatabase.active") : t("machineDatabase.inactive")}</span>
                         </td>
                         <td className="p-3 text-right">
                           <span className="flex items-center justify-end gap-1">
@@ -1026,7 +1026,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                               size="sm"
                               className="text-gray-600 hover:text-rice-primary hover:bg-rice-primary/10"
                               onClick={() => handleEditClick(row)}
-                              title="Edit"
+                              title={t("grainDatabase.editTitle")}
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
@@ -1035,7 +1035,7 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                               size="sm"
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               onClick={() => handleRemoveClick(row)}
-                              title="Remove"
+                              title={t("grainDatabase.removeTitle")}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -1056,25 +1056,25 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={isMachineOtherDialogOpen} onOpenChange={setIsMachineOtherDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Enter custom machine name</DialogTitle>
+            <DialogTitle>{t("machineDatabase.enterCustomMachineName")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="addbox-custom-machine">Machine name <span className="text-rice-primary">*</span></Label>
+              <Label htmlFor="addbox-custom-machine">{t("machineDatabase.machineName")} <span className="text-rice-primary">*</span></Label>
               <Input
                 id="addbox-custom-machine"
                 value={customMachineName}
                 onChange={(e) => setCustomMachineName(e.target.value)}
-                placeholder="Enter machine name"
+                placeholder={t("machineDatabase.enterMachineNamePlaceholder")}
                 onKeyDown={(e) => e.key === "Enter" && handleCustomMachineSubmit()}
               />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsMachineOtherDialogOpen(false)}>
-                Cancel
+                {t("knowGrains.cancel")}
               </Button>
               <Button onClick={handleCustomMachineSubmit} className="bg-rice-primary hover:bg-rice-primary/90" disabled={!customMachineName.trim()}>
-                Add
+                {t("knowGrains.add")}
               </Button>
             </div>
           </div>
@@ -1085,11 +1085,11 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit machine entry</DialogTitle>
+            <DialogTitle>{t("machineDatabase.editMachineEntry")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label>Machine name <span className="text-rice-primary">*</span></Label>
+              <Label>{t("machineDatabase.machineName")} <span className="text-rice-primary">*</span></Label>
               <Select
                 value={editForm.name || "__none__"}
                 onValueChange={(v) => {
@@ -1101,11 +1101,11 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                   {editForm.name ? (
                     <span className="truncate">{formatMachineName(editForm.name)}</span>
                   ) : (
-                    <SelectValue placeholder="Select machine" />
+                    <SelectValue placeholder={t("machineDatabase.selectMachine")} />
                   )}
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">Select machine</SelectItem>
+                  <SelectItem value="__none__">{t("machineDatabase.selectMachine")}</SelectItem>
                   {MACHINE_NAME_OPTIONS.map((name) => (
                     <SelectItem key={name} value={name}>
                       {name}
@@ -1116,18 +1116,18 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                       {name}
                     </SelectItem>
                   ))}
-                  <SelectItem value="others">Others</SelectItem>
+                  <SelectItem value="others">{t("machineDatabase.others")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Series name <span className="text-rice-primary">*</span></Label>
-              <p className="text-xs text-gray-500">Select another series or type a new one</p>
+              <Label>{t("machineDatabase.seriesNameLabel")} <span className="text-rice-primary">*</span></Label>
+              <p className="text-xs text-gray-500">{t("machineDatabase.selectAnotherSeriesOrType")}</p>
               <Popover open={editSeriesPopoverOpen} onOpenChange={setEditSeriesPopoverOpen}>
                 <PopoverTrigger asChild>
                   <div className="w-full relative">
                     <Input
-                      placeholder="Select or type series name"
+                      placeholder={t("machineDatabase.selectOrTypeSeriesName")}
                       value={editForm.seriesName}
                       onChange={(e) => setEditForm((prev) => ({ ...prev, seriesName: e.target.value }))}
                       onFocus={() => setEditSeriesPopoverOpen(true)}
@@ -1156,41 +1156,41 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                       </button>
                     ))}
                     {lines.length === 0 && (
-                      <p className="px-3 py-2 text-sm text-gray-500">Type a new series name above and Save to create it.</p>
+                      <p className="px-3 py-2 text-sm text-gray-500">{t("machineDatabase.typeNewSeriesNameToCreate")}</p>
                     )}
                     {lines.length > 0 && editForm.seriesName.trim() && !lines.some((l) => l.name.trim().toLowerCase() === editForm.seriesName.trim().toLowerCase()) && (
-                      <p className="px-3 py-2 text-sm text-gray-500 border-t">New series: &quot;{editForm.seriesName}&quot; — Save to create.</p>
+                      <p className="px-3 py-2 text-sm text-gray-500 border-t">{t("machineDatabase.newSeriesPrefix")} &quot;{editForm.seriesName}&quot; {t("machineDatabase.saveToCreateSuffix")}</p>
                     )}
                   </div>
                 </PopoverContent>
               </Popover>
             </div>
             <div className="space-y-2">
-              <Label>Machine Model</Label>
+              <Label>{t("machineDatabase.machineModelLabel")}</Label>
               <Input
                 value={editForm.machineModel}
                 onChange={(e) => setEditForm((prev) => ({ ...prev, machineModel: e.target.value }))}
-                placeholder="e.g. APIT Whitener"
+                placeholder={t("machineDatabase.machineModelPlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Custom label (optional)</Label>
+              <Label>{t("machineDatabase.customLabelOptional")}</Label>
               <Input
                 value={editForm.customLabel}
                 onChange={(e) => setEditForm((prev) => ({ ...prev, customLabel: e.target.value }))}
-                placeholder="Optional label"
+                placeholder={t("machineDatabase.optionalLabelPlaceholder")}
               />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-                Cancel
+                {t("knowGrains.cancel")}
               </Button>
               <Button
                 onClick={handleEditSave}
                 className="bg-rice-primary hover:bg-rice-primary/90"
                 disabled={!editForm.name.trim() || !editForm.seriesName.trim()}
               >
-                Save
+                {t("settings.save")}
               </Button>
             </div>
           </div>
@@ -1201,23 +1201,23 @@ const MachineDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Remove machine entry</DialogTitle>
+            <DialogTitle>{t("machineDatabase.removeMachineEntry")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
             {deleteTarget != null && (() => {
               const line = lines[deleteTarget.lineIndex];
               const entry = line?.machines[deleteTarget.entryIndex];
               return entry
-                ? `Are you sure you want to remove "${formatMachineName(entry.name)}" from "${line?.name}"? This action cannot be undone.`
-                : "Remove this machine entry?";
+                ? `${t("machineDatabase.removeConfirmPrefix")} "${formatMachineName(entry.name)}" ${t("machineDatabase.removeConfirmMiddle")} "${line?.name}"? ${t("machineDatabase.removeConfirmSuffix")}`
+                : t("machineDatabase.removeThisMachineEntry");
             })()}
           </p>
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancel
+              {t("knowGrains.cancel")}
             </Button>
             <Button variant="destructive" onClick={handleRemoveConfirm}>
-              Remove
+              {t("machineDatabase.remove")}
             </Button>
           </div>
         </DialogContent>

@@ -3,8 +3,10 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Download, ExternalLink, FileText, Video, HelpCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Manuals = () => {
+  const { t } = useLanguage();
   const manualSections = [
     {
       title: "Quick Start Guide",
@@ -84,9 +86,9 @@ const Manuals = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <PageHeader 
-        title="Manuals & Documentation" 
-        subtitle="Complete documentation and video tutorials"
+      <PageHeader
+        title={t('nav.manuals')}
+        subtitle={t('manuals.subtitle')}
       />
       
       <div className="flex-1 overflow-auto p-6">

@@ -55,6 +55,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // API base URL
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.0.143:5000';
@@ -128,6 +129,7 @@ interface AnalyticsData {
 }
 
 const Analytics = () => {
+  const { t } = useLanguage();
   const [filters, setFilters] = useState<AnalyticsFilters>({
     dateRange: {
       from: new Date(2024, 0, 1), // January 1, 2024
@@ -400,9 +402,9 @@ const Analytics = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <PageHeader 
-        title="Analytics" 
-        subtitle="Visual representation of rice quality data with advanced filtering"
+      <PageHeader
+        title={t('nav.analytics')}
+        subtitle={t('analytics.subtitle')}
       />
       
       <div className="flex-1 overflow-auto p-6">

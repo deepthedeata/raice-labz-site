@@ -2,17 +2,19 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Database, Cpu } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import GrainDatabase from "./GrainDatabase";
 import MachineDatabase from "./MachineDatabase";
 
 const DatabasePage = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("grain");
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
-        title="Database"
-        subtitle="Manage grain and machine information"
+        title={t('nav.database')}
+        subtitle={t('database.subtitle')}
       />
 
       <div className="flex-1 overflow-hidden px-6 pt-4">
@@ -20,11 +22,11 @@ const DatabasePage = () => {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="grain" className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              <span>Grain Database</span>
+              <span>{t('nav.grainDatabase')}</span>
             </TabsTrigger>
             <TabsTrigger value="machine" className="flex items-center gap-2">
               <Cpu className="w-4 h-4" />
-              <span>Machine Database</span>
+              <span>{t('nav.machineDatabase')}</span>
             </TabsTrigger>
           </TabsList>
 

@@ -283,9 +283,28 @@ const PROCESS_DETAILS_CONFIGS: Record<string, Array<{ stage: string; parameter: 
 };
 
 function ProcessDetailsForm({ process, processDetails, setProcessDetails, onClose }: ProcessDetailsFormProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<Record<string, string>>(processDetails[process] ?? {});
 
   const currentConfig = PROCESS_DETAILS_CONFIGS[process] ?? [];
+
+  const STAGE_LABELS: Record<string, string> = {
+    "Presteaming": t("grainDatabase.stagePresteaming"),
+    "Soaking time": t("grainDatabase.stageSoakingTime"),
+    "Final Steaming": t("grainDatabase.stageFinalSteaming"),
+    "Drying": t("grainDatabase.stageDrying"),
+    "Resting time": t("grainDatabase.stageRestingTime"),
+    "Steaming": t("grainDatabase.stageSteaming"),
+  };
+  const PARAMETER_LABELS: Record<string, string> = {
+    "Type": t("grainDatabase.paramType"),
+    "Temperature": t("grainDatabase.paramTemperature"),
+    "Steaming time (Holding)": t("grainDatabase.paramSteamingTimeHolding"),
+    "Time": t("grainDatabase.paramTime"),
+    "Max temp": t("grainDatabase.paramMaxTemp"),
+    "Min temp": t("grainDatabase.paramMinTemp"),
+    "Final Moisture": t("grainDatabase.paramFinalMoisture"),
+  };
 
   const handleInputChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -309,21 +328,21 @@ function ProcessDetailsForm({ process, processDetails, setProcessDetails, onClos
     <div className="space-y-6">
       {Object.entries(groupedByStage).map(([stageName, stageItems]) => (
         <div key={stageName} className="space-y-4">
-          <h3 className="text-lg font-semibold text-rice-primary border-b border-gray-200 pb-2">{stageName}</h3>
+          <h3 className="text-lg font-semibold text-rice-primary border-b border-gray-200 pb-2">{STAGE_LABELS[stageName] ?? stageName}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {stageItems.map((item) => (
               <div key={item.key} className="space-y-2">
                 <Label htmlFor={item.key} className="font-medium">
-                  {item.parameter} ({item.unit})
+                  {PARAMETER_LABELS[item.parameter] ?? item.parameter} ({item.unit})
                 </Label>
                 {item.unit === "Holding/Continuous" ? (
                   <Select value={formData[item.key] ?? ""} onValueChange={(value) => handleInputChange(item.key, value)}>
                     <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder={t("grainDatabase.selectTypePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="holding">Holding</SelectItem>
-                      <SelectItem value="continuous">Continuous</SelectItem>
+                      <SelectItem value="holding">{t("grainDatabase.holding")}</SelectItem>
+                      <SelectItem value="continuous">{t("grainDatabase.continuous")}</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
@@ -332,7 +351,7 @@ function ProcessDetailsForm({ process, processDetails, setProcessDetails, onClos
                     type={item.unit === "%" || item.unit.includes("°") || item.unit === "mins" ? "number" : "text"}
                     value={formData[item.key] ?? ""}
                     onChange={(e) => handleInputChange(item.key, e.target.value)}
-                    placeholder={`Enter ${item.parameter.toLowerCase()}`}
+                    placeholder={`${(PARAMETER_LABELS[item.parameter] ?? item.parameter)}`}
                     className="h-10"
                   />
                 )}
@@ -342,8 +361,8 @@ function ProcessDetailsForm({ process, processDetails, setProcessDetails, onClos
         </div>
       ))}
       <div className="flex justify-end space-x-2 pt-4 border-t">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} className="bg-rice-primary hover:bg-rice-primary/90">Save Details</Button>
+        <Button variant="outline" onClick={onClose}>{t("knowGrains.cancel")}</Button>
+        <Button onClick={handleSave} className="bg-rice-primary hover:bg-rice-primary/90">{t("grainDatabase.saveDetails")}</Button>
       </div>
     </div>
   );
@@ -1027,6 +1046,38 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
     return found ? found.label : value;
   };
 
+  const categoryOptionsTranslated = [
+    { value: "basmati", label: t("procurement.basmati") },
+    { value: "non-basmati", label: t("procurement.nonBasmati") },
+  ];
+  const grainTypeOptionsTranslated = [
+    { value: "long-grain", label: t("grainDatabase.longGrain") },
+    { value: "medium-grain", label: t("grainDatabase.mediumGrain") },
+    { value: "short-grain", label: t("grainDatabase.shortGrain") },
+  ];
+  const translateCategoryValue = (value?: string) => {
+    if (!value) return "-";
+    const v = value.toLowerCase();
+    if (v === "basmati") return t("procurement.basmati");
+    if (v === "non-basmati") return t("procurement.nonBasmati");
+    return formatLabel(value);
+  };
+  const translateGrainTypeValue = (value?: string) => {
+    if (!value) return "-";
+    const v = value.toLowerCase();
+    if (v === "long-grain") return t("grainDatabase.longGrain");
+    if (v === "medium-grain") return t("grainDatabase.mediumGrain");
+    if (v === "short-grain") return t("grainDatabase.shortGrain");
+    return formatLabel(value);
+  };
+  const translateSeasonValue = (value?: string) => {
+    if (!value) return "-";
+    const v = value.toLowerCase();
+    if (v === "rabi") return t("grainDatabase.rabi");
+    if (v === "kharif") return t("grainDatabase.kharif");
+    return formatLabel(value);
+  };
+
   /** Grain classification tree: Category → Grain Type → entries */
   const classificationTree = useMemo(() => {
     const byCategory = new Map<string, Map<string, GrainEntry[]>>();
@@ -1060,7 +1111,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
   return (
     <div className="flex flex-col h-full">
       {!embedded && (
-        <PageHeader title={t("nav.grainDatabase")} subtitle="View and manage grain information entries" />
+        <PageHeader title={t("nav.grainDatabase")} subtitle={t("grainDatabase.subtitle")} />
       )}
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
@@ -1081,7 +1132,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-rice-primary/15 text-rice-primary">
                 <Plus className="w-5 h-5" />
               </span>
-              <span className="text-lg font-medium text-gray-800">Add grain</span>
+              <span className="text-lg font-medium text-gray-800">{t("grainDatabase.addGrain")}</span>
             </span>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-transform duration-200 group-hover:bg-gray-200">
               {addSectionExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -1091,44 +1142,44 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
           <CardContent className="pt-6 pb-6 border-t border-gray-100">
               <CardTitle className="text-rice-primary flex items-center gap-2 mb-6">
                 <Wheat className="w-5 h-5 text-rice-primary" />
-                Primary Classification
+                {t("grainDatabase.primaryClassification")}
               </CardTitle>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label>Category <span className="text-rice-primary">*</span></Label>
+                  <Label>{t("milled.category")} <span className="text-rice-primary">*</span></Label>
                   <Select value={newCategory} onValueChange={setNewCategory}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select category">
-                        {newCategory ? CATEGORY_OPTIONS.find((c) => c.value === newCategory)?.label ?? newCategory : undefined}
+                      <SelectValue placeholder={t("grainDatabase.selectCategory")}>
+                        {newCategory ? categoryOptionsTranslated.find((c) => c.value === newCategory)?.label ?? newCategory : undefined}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {CATEGORY_OPTIONS.map((c) => (
+                      {categoryOptionsTranslated.map((c) => (
                         <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Grain Type <span className="text-rice-primary">*</span></Label>
+                  <Label>{t("grainDatabase.grainType")} <span className="text-rice-primary">*</span></Label>
                   <Select value={newGrainType} onValueChange={setNewGrainType}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select grain type">
-                        {newGrainType ? GRAIN_TYPE_OPTIONS.find((g) => g.value === newGrainType)?.label ?? newGrainType : undefined}
+                      <SelectValue placeholder={t("grainDatabase.selectGrainType")}>
+                        {newGrainType ? grainTypeOptionsTranslated.find((g) => g.value === newGrainType)?.label ?? newGrainType : undefined}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {GRAIN_TYPE_OPTIONS.map((g) => (
+                      {grainTypeOptionsTranslated.map((g) => (
                         <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Variety <span className="text-rice-primary">*</span></Label>
+                  <Label>{t("procurementReports.variety")} <span className="text-rice-primary">*</span></Label>
                   <Select value={newVariety} onValueChange={handleNewVarietyChange}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select variety">
+                      <SelectValue placeholder={t("procurement.selectVariety")}>
                         {newVariety
                           ? varietyOptionsSorted.find((o) => o.value === newVariety)?.label ?? newVariety
                           : undefined}
@@ -1148,10 +1199,10 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Process <span className="text-rice-primary">*</span></Label>
+                  <Label>{t("procurementReports.process")} <span className="text-rice-primary">*</span></Label>
                   <Select value={newProcess} onValueChange={handleNewProcessChange}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select process">
+                      <SelectValue placeholder={t("procurement.selectProcess")}>
                         {newProcess
                           ? processOptionsSorted.find((o) => o.value === newProcess)?.label ?? newProcess
                           : undefined}
@@ -1177,47 +1228,47 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                         onClick={() => setIsNewProcessDetailsDialogOpen(true)}
                         className="w-full mt-2 border-rice-primary text-rice-primary hover:bg-rice-primary hover:text-white"
                       >
-                        Add Process Details (Optional)
+                        {t("grainDatabase.addProcessDetailsOptional")}
                       </Button>
                     )}
                 </div>
                 <div className="space-y-2">
-                  <Label>Harvest Season <span className="text-rice-primary">*</span></Label>
+                  <Label>{t("procurement.harvestSeason")} <span className="text-rice-primary">*</span></Label>
                   <Select value={newHarvestSeason} onValueChange={setNewHarvestSeason}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select harvest season" />
+                      <SelectValue placeholder={t("procurement.selectHarvestSeason")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="rabi">Rabi</SelectItem>
-                      <SelectItem value="kharif">Kharif</SelectItem>
+                      <SelectItem value="rabi">{t("grainDatabase.rabi")}</SelectItem>
+                      <SelectItem value="kharif">{t("grainDatabase.kharif")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Month (optional)</Label>
+                  <Label>{t("procurement.month")}</Label>
                   <Select
                     value={newMonth}
                     onValueChange={setNewMonth}
                     disabled={!newHarvestSeason}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={newHarvestSeason ? "Select month" : "Select season first"} />
+                      <SelectValue placeholder={newHarvestSeason ? t("procurement.selectMonth") : t("procurement.selectHarvestSeasonFirst")} />
                     </SelectTrigger>
                     <SelectContent>
                       {newHarvestSeason === "kharif" && (
                         <>
-                          <SelectItem value="september">September</SelectItem>
-                          <SelectItem value="october">October</SelectItem>
-                          <SelectItem value="november">November</SelectItem>
-                          <SelectItem value="december">December</SelectItem>
+                          <SelectItem value="september">{t("grainDatabase.september")}</SelectItem>
+                          <SelectItem value="october">{t("grainDatabase.october")}</SelectItem>
+                          <SelectItem value="november">{t("grainDatabase.november")}</SelectItem>
+                          <SelectItem value="december">{t("grainDatabase.december")}</SelectItem>
                         </>
                       )}
                       {newHarvestSeason === "rabi" && (
                         <>
-                          <SelectItem value="march">March</SelectItem>
-                          <SelectItem value="april">April</SelectItem>
-                          <SelectItem value="may">May</SelectItem>
-                          <SelectItem value="june">June</SelectItem>
+                          <SelectItem value="march">{t("grainDatabase.march")}</SelectItem>
+                          <SelectItem value="april">{t("grainDatabase.april")}</SelectItem>
+                          <SelectItem value="may">{t("grainDatabase.may")}</SelectItem>
+                          <SelectItem value="june">{t("grainDatabase.june")}</SelectItem>
                         </>
                       )}
                     </SelectContent>
@@ -1231,7 +1282,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-rice-primary">Morphological Properties</CardTitle>
+                          <CardTitle className="text-rice-primary">{t("grainDatabase.morphologicalProperties")}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -1262,8 +1313,8 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                   </div>
 
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline" onClick={handleCancelAdd}>Cancel</Button>
-                <Button onClick={handleAddNew} className="bg-rice-primary hover:bg-rice-primary/90">Save Variety</Button>
+                <Button variant="outline" onClick={handleCancelAdd}>{t("knowGrains.cancel")}</Button>
+                <Button onClick={handleAddNew} className="bg-rice-primary hover:bg-rice-primary/90">{t("grainDatabase.saveVariety")}</Button>
               </div>
             </>
               )}
@@ -1279,27 +1330,27 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
           <CardHeader>
             <CardTitle className="text-rice-primary flex items-center gap-2">
               <Database className="w-5 h-5" />
-              Varieties ({filteredEntries.length})
+              {t("grainDatabase.varietiesCount", { n: filteredEntries.length })}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loadingEntries ? (
-              <div className="text-center py-8 text-gray-500">Loading entries...</div>
+              <div className="text-center py-8 text-gray-500">{t("grainDatabase.loadingEntries")}</div>
             ) : filteredEntries.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                {searchQuery ? "No varieties match your search" : "No varieties yet. Click 'Add grain' above to add one."}
+                {searchQuery ? t("grainDatabase.noVarietiesMatchSearch") : t("grainDatabase.noVarietiesYet")}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-gray-50">
-                      <th className="text-left p-3 font-semibold text-gray-700">Variety</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Category</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Grain Type</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Process</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Season</th>
-                      <th className="text-right p-3 font-semibold text-gray-700">Action</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("procurementReports.variety")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("milled.category")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("grainDatabase.grainType")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("procurementReports.process")}</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">{t("grainDatabase.season")}</th>
+                      <th className="text-right p-3 font-semibold text-gray-700">{t("settings.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1319,10 +1370,10 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                           }`}
                         >
                           <td className="p-3 font-medium">{formatLabel(getVarietyLabel(entry.variety))}</td>
-                          <td className="p-3">{formatLabel(entry.category)}</td>
-                          <td className="p-3">{formatLabel(entry.grainType)}</td>
+                          <td className="p-3">{translateCategoryValue(entry.category)}</td>
+                          <td className="p-3">{translateGrainTypeValue(entry.grainType)}</td>
                           <td className="p-3">{formatLabel(getProcessLabel(entry.process))}</td>
-                          <td className="p-3">{entry.harvestSeason ? formatLabel(entry.harvestSeason) : "-"}</td>
+                          <td className="p-3">{entry.harvestSeason ? translateSeasonValue(entry.harvestSeason) : "-"}</td>
                           <td className="p-3 text-right">
                             <span className="flex items-center justify-end gap-1">
                               <Button
@@ -1333,7 +1384,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                                   e.stopPropagation();
                                   isSelected ? handleDeselectEntry() : handleSelectEntry(realIndex);
                                 }}
-                                title="Edit"
+                                title={t("grainDatabase.editTitle")}
                               >
                                 <Pencil className="w-4 h-4" />
                               </Button>
@@ -1345,7 +1396,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                                   e.stopPropagation();
                                   handleDeleteClick(entry);
                                 }}
-                                title="Remove"
+                                title={t("grainDatabase.removeTitle")}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -1367,10 +1418,10 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
               <CardHeader>
                 <CardTitle className="text-rice-primary flex items-center gap-2">
                   <FolderTree className="w-5 h-5" />
-                  Grain Classification
+                  {t("grainDatabase.grainClassification")}
                 </CardTitle>
                 <p className="text-sm text-gray-500 mt-1">
-                  Basmati and Non-Basmati rice varieties by grain type
+                  {t("grainDatabase.classificationDesc")}
                 </p>
               </CardHeader>
               <CardContent>
@@ -1399,9 +1450,9 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                         ) : (
                           <ChevronRight className="w-4 h-4 shrink-0 text-rice-primary" />
                         )}
-                        <span>{formatLabel(category)}</span>
+                        <span>{translateCategoryValue(category)}</span>
                         <span className="text-gray-400 font-normal text-sm">
-                          ({new Set(grainTypes.flatMap((g) => g.entries.map((e) => e.variety))).size} varieties)
+                          ({new Set(grainTypes.flatMap((g) => g.entries.map((e) => e.variety))).size} {t("grainDatabase.varietiesSuffix")})
                         </span>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
@@ -1420,7 +1471,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
                                 <div className="flex items-center gap-2">
                                   <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                                   <span className="font-medium text-gray-700">
-                                    {formatLabel(grainType)}
+                                    {translateGrainTypeValue(grainType)}
                                   </span>
                                   <span className="text-gray-500 text-xs">
                                     ({new Set(entries.map((e) => e.variety)).size})
@@ -1476,8 +1527,8 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
             <DialogTitle className="text-rice-primary">
               {selectedIndex !== null && (
                 <>
-                  Edit: {getVarietyLabel(allEntries[selectedIndex].variety)} – {getProcessLabel(allEntries[selectedIndex].process)}
-                  {allEntries[selectedIndex].harvestSeason && ` (${allEntries[selectedIndex].harvestSeason})`}
+                  {t("grainDatabase.editColon")} {getVarietyLabel(allEntries[selectedIndex].variety)} – {getProcessLabel(allEntries[selectedIndex].process)}
+                  {allEntries[selectedIndex].harvestSeason && ` (${translateSeasonValue(allEntries[selectedIndex].harvestSeason)})`}
                 </>
               )}
             </DialogTitle>
@@ -1487,7 +1538,7 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
               {/* Morphological Properties */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-rice-primary">Morphological Properties</CardTitle>
+                  <CardTitle className="text-base text-rice-primary">{t("grainDatabase.morphologicalProperties")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -1520,10 +1571,10 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
           )}
           {selectedIndex !== null && (
             <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-              <Button variant="outline" onClick={handleDeselectEntry}>Cancel</Button>
+              <Button variant="outline" onClick={handleDeselectEntry}>{t("knowGrains.cancel")}</Button>
               <Button onClick={handleSave} className="bg-rice-primary hover:bg-rice-primary/90">
                 <Save className="w-4 h-4 mr-1" />
-                Save Changes
+                {t("grainDatabase.saveChanges")}
               </Button>
             </div>
           )}
@@ -1534,22 +1585,22 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={isVarietyDialogOpen} onOpenChange={setIsVarietyDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Enter Custom Variety</DialogTitle>
+            <DialogTitle>{t("grainDatabase.enterCustomVariety")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="grain-db-custom-variety">Variety Name</Label>
+              <Label htmlFor="grain-db-custom-variety">{t("grainDatabase.varietyName")}</Label>
               <Input
                 id="grain-db-custom-variety"
                 value={customVariety}
                 onChange={(e) => setCustomVariety(e.target.value)}
-                placeholder="Enter variety name"
+                placeholder={t("grainDatabase.enterVarietyNamePlaceholder")}
                 onKeyDown={(e) => e.key === "Enter" && handleCustomVarietySubmit()}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsVarietyDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleCustomVarietySubmit} className="bg-rice-primary hover:bg-rice-primary/90">Add</Button>
+              <Button variant="outline" onClick={() => setIsVarietyDialogOpen(false)}>{t("knowGrains.cancel")}</Button>
+              <Button onClick={handleCustomVarietySubmit} className="bg-rice-primary hover:bg-rice-primary/90">{t("knowGrains.add")}</Button>
             </div>
           </div>
         </DialogContent>
@@ -1559,22 +1610,22 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={isProcessDialogOpen} onOpenChange={setIsProcessDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Enter Custom Process</DialogTitle>
+            <DialogTitle>{t("grainDatabase.enterCustomProcess")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="grain-db-custom-process">Process Name</Label>
+              <Label htmlFor="grain-db-custom-process">{t("grainDatabase.processName")}</Label>
               <Input
                 id="grain-db-custom-process"
                 value={customProcess}
                 onChange={(e) => setCustomProcess(e.target.value)}
-                placeholder="Enter process name"
+                placeholder={t("grainDatabase.enterProcessNamePlaceholder")}
                 onKeyDown={(e) => e.key === "Enter" && handleCustomProcessSubmit()}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsProcessDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleCustomProcessSubmit} className="bg-rice-primary hover:bg-rice-primary/90">Add</Button>
+              <Button variant="outline" onClick={() => setIsProcessDialogOpen(false)}>{t("knowGrains.cancel")}</Button>
+              <Button onClick={handleCustomProcessSubmit} className="bg-rice-primary hover:bg-rice-primary/90">{t("knowGrains.add")}</Button>
             </div>
           </div>
         </DialogContent>
@@ -1586,8 +1637,8 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
           <DialogHeader>
             <DialogTitle>
               {newProcess
-                ? `${newProcess.charAt(0).toUpperCase() + newProcess.slice(1).replace(/-/g, " ")} Process Details`
-                : "Process Details"}
+                ? `${newProcess.charAt(0).toUpperCase() + newProcess.slice(1).replace(/-/g, " ")} ${t("grainDatabase.processDetails")}`
+                : t("grainDatabase.processDetails")}
             </DialogTitle>
           </DialogHeader>
           <div className="pt-4">
@@ -1607,20 +1658,20 @@ const GrainDatabase = ({ embedded = false }: { embedded?: boolean }) => {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Grain Entry</DialogTitle>
+            <DialogTitle>{t("grainDatabase.deleteGrainEntry")}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-gray-600">
-              Are you sure you want to delete{" "}
+              {t("grainDatabase.deleteConfirmQuestion")}{" "}
               <span className="font-semibold">
                 {deleteTarget && getVarietyLabel(deleteTarget.variety)} - {deleteTarget && getProcessLabel(deleteTarget.process)}
               </span>
-              ? This action cannot be undone.
+              ? {t("grainDatabase.deleteConfirmSuffix")}
             </p>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>{t("knowGrains.cancel")}</Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>{t("grainDatabase.deleteAction")}</Button>
           </div>
         </DialogContent>
       </Dialog>
