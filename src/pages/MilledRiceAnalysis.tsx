@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import ProcurementLiveAnalysis from "./ProcurementLiveAnalysis";
 import { buildReportFilename } from "@/lib/reportFilename";
+import { GrainTypeIcon } from "@/components/GrainTypeIcon";
 
 const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
 
@@ -1472,20 +1473,23 @@ const MilledRiceAnalysis = () => {
                   <CardContent className="pt-5">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {currentOutputParams ? [
-                        { label: t('procurementReports.headrice'), value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500" },
-                        { label: t('procurementReports.brokens'), value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500" },
-                        { label: t('procurementReports.chalky'), value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400" },
-                        { label: t('procurementReports.discolored'), value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500" },
+                        { label: t('procurementReports.headrice'), value: currentOutputParams.headRicePct, unit: "%", border: "border-blue-200", bg: "bg-gradient-to-br from-blue-50 to-indigo-50", textColor: "text-blue-700", barColor: "bg-blue-500", img: "headrice" },
+                        { label: t('procurementReports.brokens'), value: currentOutputParams.brokenRicePct, unit: "%", border: "border-yellow-200", bg: "bg-gradient-to-br from-yellow-50 to-amber-50", textColor: "text-yellow-700", barColor: "bg-yellow-500", img: "brokens" },
+                        { label: t('procurementReports.chalky'), value: currentOutputParams.chalkyPct, unit: "%", border: "border-blue-300", bg: "bg-gradient-to-br from-blue-50 to-sky-50", textColor: "text-blue-600", barColor: "bg-blue-400", img: "chalky" },
+                        { label: t('procurementReports.discolored'), value: currentOutputParams.discolouredPct, unit: "%", border: "border-indigo-200", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", textColor: "text-indigo-700", barColor: "bg-indigo-500", img: "discolored" },
                         { label: t('procurementReports.rejections'), value: +(currentOutputParams.chalkyPct + currentOutputParams.discolouredPct + currentOutputParams.immaturePct).toFixed(1), unit: "%", border: "border-purple-200", bg: "bg-gradient-to-br from-purple-50 to-indigo-50", textColor: "text-purple-700", barColor: "bg-purple-500" },
-                        { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500" },
-                        { label: t('procurementReports.immature'), value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500" },
+                        { label: t('procurementReports.foreignMatter'), value: currentOutputParams.foreignMatterPct, unit: "%", border: "border-yellow-300", bg: "bg-gradient-to-br from-amber-50 to-yellow-50", textColor: "text-amber-700", barColor: "bg-amber-500", img: "foreignmatter" },
+                        { label: t('procurementReports.immature'), value: currentOutputParams.immaturePct, unit: "%", border: "border-sky-200", bg: "bg-gradient-to-br from-sky-50 to-blue-50", textColor: "text-sky-700", barColor: "bg-sky-500", img: "immature" },
                         { label: t('procurementReports.totalGrains'), value: currentOutputParams.totalGrains, unit: "", border: "border-gray-200", bg: "bg-gradient-to-br from-gray-50 to-slate-50", textColor: "text-gray-800", barColor: "bg-gray-500", isCount: true },
                       ].map((metric) => (
                         <div
                           key={metric.label}
                           className={`group rounded-xl border ${metric.border} ${metric.bg} p-3.5 hover:shadow-lg hover:scale-[1.03] transition-all duration-300 cursor-default`}
                         >
-                          <p className="text-[11px] font-medium text-gray-500 group-hover:text-gray-700 transition-colors duration-300">{metric.label}</p>
+                          <div className="flex items-center gap-2">
+                            {(metric as any).img && <GrainTypeIcon type={(metric as any).img} />}
+                            <p className="text-[11px] font-medium text-gray-500 group-hover:text-gray-700 transition-colors duration-300">{metric.label}</p>
+                          </div>
                           <p className={`text-2xl font-bold ${metric.textColor} mt-1`}>
                             {metric.isCount ? metric.value.toLocaleString() : metric.value}
                             {metric.unit && <span className="text-sm font-normal ml-0.5 text-gray-400">{metric.unit}</span>}
