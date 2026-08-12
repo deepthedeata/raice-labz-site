@@ -1,5 +1,6 @@
 import { Play, Pause, Square, SkipForward, RotateCcw, CheckCircle, Loader2, Percent, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   isRunning: boolean;
@@ -50,13 +51,14 @@ export function LivePillControls({
   onTogglePercent,
   className,
 }: Props) {
+  const { t } = useLanguage();
   const startStopLabel = isLoading
     ? operationType === "starting"
-      ? "Starting…"
-      : "Stopping…"
+      ? t("live.starting")
+      : t("live.stopping")
     : isRunning
-      ? "Stop"
-      : "Start";
+      ? t("settings.stop")
+      : t("settings.start");
   const startStopIcon = isLoading ? (
     <Loader2 className="w-5 h-5 animate-spin" />
   ) : isRunning ? (
@@ -98,7 +100,7 @@ export function LivePillControls({
         className="h-12 px-5 rounded-full flex items-center gap-2 text-[13px] font-semibold border ios-hairline ios-surface ios-text transition-transform duration-150 ios-spring hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-        {isPaused ? "Resume" : "Pause"}
+        {isPaused ? t("live.resume") : t("live.pause")}
       </button>
 
       {/* Restart */}
@@ -124,7 +126,7 @@ export function LivePillControls({
           className="h-12 px-5 rounded-full flex items-center gap-2 text-[13px] font-semibold border ios-hairline ios-surface ios-text transition-transform duration-150 ios-spring hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-4 h-4" />
-          Skip
+          {t("live.skip")}
         </button>
       )}
 
@@ -141,7 +143,7 @@ export function LivePillControls({
           }}
         >
           <CheckCircle className="w-4 h-4" />
-          Complete
+          {t("live.complete")}
         </button>
       )}
 
@@ -155,7 +157,7 @@ export function LivePillControls({
         title="Toggle percent / count display"
       >
         {showPercent ? <Percent className="w-3.5 h-3.5" /> : <Hash className="w-3.5 h-3.5" />}
-        {showPercent ? "Percent" : "Count"}
+        {showPercent ? t("live.percent") : t("live.count")}
       </button>
     </div>
   );

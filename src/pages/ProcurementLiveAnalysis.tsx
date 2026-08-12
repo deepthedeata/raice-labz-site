@@ -1472,49 +1472,49 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
     return [
       // Rice - region-dependent breakdown
       ...(millRegion === 'basmati' ? [
-        { category: 'Rice', name: 'Head Rice', value: displayMetrics.goodRice.headRice, count: displayCounts.goodRice.headRice, color: 'bg-green-600', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Second One', value: displayMetrics.goodRice.secondOne || 0, count: displayCounts.goodRice.secondOne || 0, color: 'bg-green-500', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Tibar', value: displayMetrics.goodRice.tibar || 0, count: displayCounts.goodRice.tibar || 0, color: 'bg-green-400', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Dubar', value: displayMetrics.goodRice.dubar || 0, count: displayCounts.goodRice.dubar || 0, color: 'bg-green-400', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Mini Dubar', value: displayMetrics.goodRice.miniDubar || 0, count: displayCounts.goodRice.miniDubar || 0, color: 'bg-green-300', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Mongra', value: displayMetrics.goodRice.mongra || 0, count: displayCounts.goodRice.mongra || 0, color: 'bg-green-300', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Mini Mongra', value: displayMetrics.goodRice.miniMongra || 0, count: displayCounts.goodRice.miniMongra || 0, color: 'bg-green-200', textColor: 'text-green-700' },
-        { category: 'Rice', name: 'Nakku', value: displayMetrics.goodRice.nakku || 0, count: displayCounts.goodRice.nakku || 0, color: 'bg-green-100', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('procurementReports.headRice'), value: displayMetrics.goodRice.headRice, count: displayCounts.goodRice.headRice, color: 'bg-green-600', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.secondOne'), value: displayMetrics.goodRice.secondOne || 0, count: displayCounts.goodRice.secondOne || 0, color: 'bg-green-500', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.tibar'), value: displayMetrics.goodRice.tibar || 0, count: displayCounts.goodRice.tibar || 0, color: 'bg-green-400', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.dubar'), value: displayMetrics.goodRice.dubar || 0, count: displayCounts.goodRice.dubar || 0, color: 'bg-green-400', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.miniDubar'), value: displayMetrics.goodRice.miniDubar || 0, count: displayCounts.goodRice.miniDubar || 0, color: 'bg-green-300', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.mongra'), value: displayMetrics.goodRice.mongra || 0, count: displayCounts.goodRice.mongra || 0, color: 'bg-green-300', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.miniMongra'), value: displayMetrics.goodRice.miniMongra || 0, count: displayCounts.goodRice.miniMongra || 0, color: 'bg-green-200', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.nakku'), value: displayMetrics.goodRice.nakku || 0, count: displayCounts.goodRice.nakku || 0, color: 'bg-green-100', textColor: 'text-green-700' },
       ] : [
-        { category: 'Rice', name: '1 - 3/4 Head Rice', value: displayMetrics.goodRice.headRice + displayMetrics.goodRice.threeFourthHead, count: displayCounts.goodRice.headRice + displayCounts.goodRice.threeFourthHead, color: 'bg-green-500', textColor: 'text-green-700' },
-        { category: 'Rice', name: '3/4 - 1/2 Half Brokens', value: displayMetrics.goodRice.halfBrokens, count: displayCounts.goodRice.halfBrokens, color: 'bg-green-400', textColor: 'text-green-700' },
-        { category: 'Rice', name: '1/2 - 1/4 Fine Brokens', value: displayMetrics.goodRice.quarterFineBrokens, count: displayCounts.goodRice.quarterFineBrokens, color: 'bg-green-300', textColor: 'text-green-700' },
-        { category: 'Rice', name: '< 1/4 Tips', value: displayMetrics.goodRice.tips, count: displayCounts.goodRice.tips, color: 'bg-green-200', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.oneToThreeQuarterHeadRice'), value: displayMetrics.goodRice.headRice + displayMetrics.goodRice.threeFourthHead, count: displayCounts.goodRice.headRice + displayCounts.goodRice.threeFourthHead, color: 'bg-green-500', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.threeQuarterToHalfHalfBrokens'), value: displayMetrics.goodRice.halfBrokens, count: displayCounts.goodRice.halfBrokens, color: 'bg-green-400', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.halfToQuarterFineBrokens'), value: displayMetrics.goodRice.quarterFineBrokens, count: displayCounts.goodRice.quarterFineBrokens, color: 'bg-green-300', textColor: 'text-green-700' },
+        { category: 'Rice', name: t('live.underQuarterTips'), value: displayMetrics.goodRice.tips, count: displayCounts.goodRice.tips, color: 'bg-green-200', textColor: 'text-green-700' },
       ]),
 
       // Rejections (flattened - no harvest/process subdivisions)
-      { category: 'Rejections', name: chalkyEnabled ? 'Chalky' : 'Chalky — not selected', value: chalkyEnabled ? displayMetrics.rejections.harvest.chalkyBellyCore : 0, count: chalkyEnabled ? displayCounts.rejections.harvest.chalkyBellyCore : 0, color: chalkyEnabled ? 'bg-red-500' : 'bg-gray-300', textColor: chalkyEnabled ? 'text-red-700' : 'text-gray-400' },
-      { category: 'Rejections', name: 'Immature (Green)', value: displayMetrics.rejections.harvest.immatureGreen, count: displayCounts.rejections.harvest.immatureGreen, color: 'bg-red-500', textColor: 'text-red-700' },
-      { category: 'Rejections', name: discoloredEnabled ? 'Discolored' : 'Discolored — not selected', value: discoloredEnabled ? displayMetrics.rejections.harvest.discolored : 0, count: discoloredEnabled ? displayCounts.rejections.harvest.discolored : 0, color: discoloredEnabled ? 'bg-red-500' : 'bg-gray-300', textColor: discoloredEnabled ? 'text-red-700' : 'text-gray-400' },
-      { category: 'Rejections', name: 'Yellow', value: displayMetrics.rejections.harvest.yellow, count: displayCounts.rejections.harvest.yellow, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Rejections', name: 'Pecky grains', value: displayMetrics.rejections.harvest.peckyGrains, count: displayCounts.rejections.harvest.peckyGrains, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Rejections', name: chalkyEnabled ? t('procurementReports.chalky') : t('live.chalkyNotSelected'), value: chalkyEnabled ? displayMetrics.rejections.harvest.chalkyBellyCore : 0, count: chalkyEnabled ? displayCounts.rejections.harvest.chalkyBellyCore : 0, color: chalkyEnabled ? 'bg-red-500' : 'bg-gray-300', textColor: chalkyEnabled ? 'text-red-700' : 'text-gray-400' },
+      { category: 'Rejections', name: t('live.immatureGreen'), value: displayMetrics.rejections.harvest.immatureGreen, count: displayCounts.rejections.harvest.immatureGreen, color: 'bg-red-500', textColor: 'text-red-700' },
+      { category: 'Rejections', name: discoloredEnabled ? t('procurementReports.discolored') : t('live.discoloredNotSelected'), value: discoloredEnabled ? displayMetrics.rejections.harvest.discolored : 0, count: discoloredEnabled ? displayCounts.rejections.harvest.discolored : 0, color: discoloredEnabled ? 'bg-red-500' : 'bg-gray-300', textColor: discoloredEnabled ? 'text-red-700' : 'text-gray-400' },
+      { category: 'Rejections', name: t('live.yellow'), value: displayMetrics.rejections.harvest.yellow, count: displayCounts.rejections.harvest.yellow, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Rejections', name: t('live.peckyGrains'), value: displayMetrics.rejections.harvest.peckyGrains, count: displayCounts.rejections.harvest.peckyGrains, color: 'bg-gray-300', textColor: 'text-gray-400' },
       // { category: 'Rejections', name: 'Black Tips', value: metrics.rejections.process.blackTips, count: actualCounts.rejections.process.blackTips, color: 'bg-red-400', textColor: 'text-red-700' },
       // { category: 'Rejections', name: 'Burnt', value: metrics.rejections.process.burnt, count: actualCounts.rejections.process.burnt, color: 'bg-red-300', textColor: 'text-red-700' },
       // { category: 'Rejections', name: 'Spot', value: metrics.rejections.process.spot, count: actualCounts.rejections.process.spot, color: 'bg-red-200', textColor: 'text-red-700' },
       // { category: 'Rejections', name: 'Discoloration', value: metrics.rejections.process.discoloration, count: actualCounts.rejections.process.discoloration, color: 'bg-pink-100', textColor: 'text-pink-700' },
-      
+
       // Foreign Matter — Red, Husk, Paddy active; rest grayed out
-      { category: 'Foreign Matter', name: 'Red', value: displayMetrics.foreignMatter.organic.red, count: displayCounts.foreignMatter.organic.red, color: 'bg-orange-500', textColor: 'text-orange-700' },
-      { category: 'Foreign Matter', name: 'Husk', value: displayMetrics.foreignMatter.organic.husk, count: displayCounts.foreignMatter.organic.husk, color: 'bg-orange-400', textColor: 'text-orange-700' },
-      { category: 'Foreign Matter', name: 'Paddy', value: displayMetrics.foreignMatter.organic.paddy, count: displayCounts.foreignMatter.organic.paddy, color: 'bg-orange-300', textColor: 'text-orange-700' },
-      { category: 'Foreign Matter', name: 'Chaff', value: displayMetrics.foreignMatter.organic.chaff, count: displayCounts.foreignMatter.organic.chaff, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Straw', value: displayMetrics.foreignMatter.organic.straw, count: displayCounts.foreignMatter.organic.straw, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      ...(!hideBrownRice ? [{ category: 'Foreign Matter', name: 'Brown rice', value: displayMetrics.foreignMatter.organic.brownRice, count: displayCounts.foreignMatter.organic.brownRice, color: 'bg-gray-300', textColor: 'text-gray-400' }] : []),
-      { category: 'Foreign Matter', name: 'Stones', value: displayMetrics.foreignMatter.inorganic.stones, count: displayCounts.foreignMatter.inorganic.stones, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Plastic', value: displayMetrics.foreignMatter.inorganic.plastic, count: displayCounts.foreignMatter.inorganic.plastic, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Metals', value: displayMetrics.foreignMatter.inorganic.metals, count: displayCounts.foreignMatter.inorganic.metals, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Glass', value: displayMetrics.foreignMatter.inorganic.glass, count: displayCounts.foreignMatter.inorganic.glass, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Paper', value: displayMetrics.foreignMatter.inorganic.paper, count: displayCounts.foreignMatter.inorganic.paper, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      { category: 'Foreign Matter', name: 'Cardboard', value: displayMetrics.foreignMatter.inorganic.cardboard, count: displayCounts.foreignMatter.inorganic.cardboard, color: 'bg-gray-300', textColor: 'text-gray-400' },
-      
+      { category: 'Foreign Matter', name: t('live.red'), value: displayMetrics.foreignMatter.organic.red, count: displayCounts.foreignMatter.organic.red, color: 'bg-orange-500', textColor: 'text-orange-700' },
+      { category: 'Foreign Matter', name: t('live.husk'), value: displayMetrics.foreignMatter.organic.husk, count: displayCounts.foreignMatter.organic.husk, color: 'bg-orange-400', textColor: 'text-orange-700' },
+      { category: 'Foreign Matter', name: t('live.paddy'), value: displayMetrics.foreignMatter.organic.paddy, count: displayCounts.foreignMatter.organic.paddy, color: 'bg-orange-300', textColor: 'text-orange-700' },
+      { category: 'Foreign Matter', name: t('live.chaff'), value: displayMetrics.foreignMatter.organic.chaff, count: displayCounts.foreignMatter.organic.chaff, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.straw'), value: displayMetrics.foreignMatter.organic.straw, count: displayCounts.foreignMatter.organic.straw, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      ...(!hideBrownRice ? [{ category: 'Foreign Matter', name: t('live.brownRice'), value: displayMetrics.foreignMatter.organic.brownRice, count: displayCounts.foreignMatter.organic.brownRice, color: 'bg-gray-300', textColor: 'text-gray-400' }] : []),
+      { category: 'Foreign Matter', name: t('live.stones'), value: displayMetrics.foreignMatter.inorganic.stones, count: displayCounts.foreignMatter.inorganic.stones, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.plastic'), value: displayMetrics.foreignMatter.inorganic.plastic, count: displayCounts.foreignMatter.inorganic.plastic, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.metals'), value: displayMetrics.foreignMatter.inorganic.metals, count: displayCounts.foreignMatter.inorganic.metals, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.glass'), value: displayMetrics.foreignMatter.inorganic.glass, count: displayCounts.foreignMatter.inorganic.glass, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.paper'), value: displayMetrics.foreignMatter.inorganic.paper, count: displayCounts.foreignMatter.inorganic.paper, color: 'bg-gray-300', textColor: 'text-gray-400' },
+      { category: 'Foreign Matter', name: t('live.cardboard'), value: displayMetrics.foreignMatter.inorganic.cardboard, count: displayCounts.foreignMatter.inorganic.cardboard, color: 'bg-gray-300', textColor: 'text-gray-400' },
+
       // Quality & Indices (these don't have counts, they're calculated indices)
-      { category: 'Quality & Indices', name: 'Whiteness Index', value: displayMetrics.qualityIndices.whitenessIndex, count: 0, color: 'bg-blue-500', textColor: 'text-blue-700', isIndex: true },
-      { category: 'Quality & Indices', name: 'Slender Ratio', value: displayMetrics.qualityIndices.slenderRatio, count: 0, color: 'bg-blue-400', textColor: 'text-blue-700', isIndex: true },
+      { category: 'Quality & Indices', name: t('procurementReports.whitenessIndex'), value: displayMetrics.qualityIndices.whitenessIndex, count: 0, color: 'bg-blue-500', textColor: 'text-blue-700', isIndex: true },
+      { category: 'Quality & Indices', name: t('live.slenderRatio'), value: displayMetrics.qualityIndices.slenderRatio, count: 0, color: 'bg-blue-400', textColor: 'text-blue-700', isIndex: true },
       // { category: 'Quality & Indices', name: 'Glossy Index', value: displayMetrics.qualityIndices.glossyIndex, count: 0, color: 'bg-blue-400', textColor: 'text-blue-700', isIndex: true },
       // { category: 'Quality & Indices', name: 'DOM (Degree of Milling)', value: displayMetrics.qualityIndices.degreeOfMilling, count: 0, color: 'bg-blue-200', textColor: 'text-blue-700', isIndex: true },
       // { category: 'Quality & Indices', name: 'DON (Degree of Nutrition)', value: displayMetrics.qualityIndices.degreeOfNutrition, count: 0, color: 'bg-blue-100', textColor: 'text-blue-700', isIndex: true },
@@ -2296,9 +2296,9 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
     if (analysisData?.analysisType === "individual" ||
         analysisData?.analysisType === "batch" ||
         analysisData?.analysisType === "machine-wise") {
-      return "Trial";
+      return t("live.trial");
     }
-    return "Sample";
+    return t("live.sampleLabel");
   };
 
   const showTrialCompletionToast = (completedNumber: number, totalOverride?: number) => {
@@ -3879,7 +3879,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
     const ringMetrics: RingMetric[] = [
       {
         key: "wi",
-        label: "Whiteness",
+        label: t('dashboard.whiteness'),
         value: wi,
         count: 0,
         unit: "WI",
@@ -3888,37 +3888,37 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
       },
       {
         key: "head",
-        label: "Head rice",
+        label: t('dashboard.headRice'),
         value: gaugeValues.headRice,
         count: gaugeCounts.headRice,
-        unit: showPercentage ? "%" : "grains",
+        unit: showPercentage ? "%" : t('live.grains'),
         max: 100,
         tokenVar: "--grain-head",
       },
       {
         key: "broken",
-        label: "Broken",
+        label: t('dashboard.broken'),
         value: gaugeValues.broken,
         count: gaugeCounts.broken,
-        unit: showPercentage ? "%" : "grains",
+        unit: showPercentage ? "%" : t('live.grains'),
         max: 100,
         tokenVar: "--grain-broken",
       },
       {
         key: "chalky",
-        label: "Chalky",
+        label: t('procurementReports.chalky'),
         value: gaugeValues.chalky,
         count: gaugeCounts.chalky,
-        unit: showPercentage ? "%" : "grains",
+        unit: showPercentage ? "%" : t('live.grains'),
         max: 100,
         tokenVar: "--grain-chalky",
       },
       {
         key: "rejections",
-        label: "Rejections",
+        label: t('procurementReports.rejections'),
         value: gaugeValues.rejections,
         count: gaugeCounts.rejections,
-        unit: showPercentage ? "%" : "grains",
+        unit: showPercentage ? "%" : t('live.grains'),
         max: 100,
         tokenVar: "--grain-rejection",
       },
@@ -3950,39 +3950,39 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
     const composite: RingDef[] = [
       {
         key: "head",
-        label: "Head rice",
+        label: t('dashboard.headRice'),
         value: gaugeValues.headRice,
         max: 100,
         tokenVar: "--grain-head",
         unit: "%",
-        subtitle: "Target ≥ 80%",
+        subtitle: t('live.targetGte', { n: 80 }),
       },
       {
         key: "broken",
-        label: "Broken",
+        label: t('dashboard.broken'),
         value: gaugeValues.broken,
         max: 100,
         tokenVar: "--grain-broken",
         unit: "%",
-        subtitle: `${(gaugeCounts.broken ?? 0).toLocaleString()} grains`,
+        subtitle: `${(gaugeCounts.broken ?? 0).toLocaleString()} ${t('live.grains')}`,
       },
       {
         key: "chalky",
-        label: "Chalky",
+        label: t('procurementReports.chalky'),
         value: gaugeValues.chalky,
         max: 100,
         tokenVar: "--grain-chalky",
         unit: "%",
-        subtitle: `${(gaugeCounts.chalky ?? 0).toLocaleString()} grains`,
+        subtitle: `${(gaugeCounts.chalky ?? 0).toLocaleString()} ${t('live.grains')}`,
       },
       {
         key: "rejections",
-        label: "Rejections",
+        label: t('procurementReports.rejections'),
         value: gaugeValues.rejections,
         max: 100,
         tokenVar: "--grain-rejection",
         unit: "%",
-        subtitle: `${(gaugeCounts.rejections ?? 0).toLocaleString()} grains`,
+        subtitle: `${(gaugeCounts.rejections ?? 0).toLocaleString()} ${t('live.grains')}`,
       },
     ];
 
@@ -4016,7 +4016,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <div className="text-[13px] font-medium">
-                Grain details not filled — go back and complete the setup before starting.
+                {t('live.grainDetailsNotFilled')}
               </div>
             </div>
           )}
@@ -4043,17 +4043,17 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
               </div>
               {completedSamples.includes(currentSample) && (
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--ios-green) / 0.15)", color: "hsl(var(--ios-green))" }}>
-                  Completed
+                  {t('live.completed')}
                 </span>
               )}
               {isAnalysisRunning && !isPaused && (
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--accent) / 0.15)", color: "hsl(var(--accent))" }}>
-                  Analyzing
+                  {t('live.analyzing')}
                 </span>
               )}
               {isSampleStopped && !isAnalysisRunning && (
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--ios-orange) / 0.15)", color: "hsl(var(--ios-orange))" }}>
-                  Stopped — Complete to advance
+                  {t('live.stoppedCompleteToAdvance')}
                 </span>
               )}
             </div>
@@ -4096,18 +4096,18 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
                 <div>
-                  <p className="font-semibold">Sample stopped</p>
-                  <p className="text-sm text-amber-900/80">Click Complete Sample to save this trial and continue to the next sample, or Restart Sample to try again.</p>
+                  <p className="font-semibold">{t('live.sampleStopped')}</p>
+                  <p className="text-sm text-amber-900/80">{t('live.sampleStoppedDesc')}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={handleCompleteSample} className="bg-rice-primary text-white">
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Complete Sample
+                  {t('live.completeSample')}
                 </Button>
                 <Button onClick={handleRestartSample} className="bg-yellow-500 text-white hover:bg-yellow-600">
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Restart Sample
+                  {t('live.restartSample')}
                 </Button>
               </div>
             </div>
@@ -4117,8 +4117,8 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
             <div className="rounded-[18px] border ios-hairline p-4 bg-emerald-50 text-emerald-900 flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
               <div className="flex-1">
-                <p className="font-semibold">All analysis complete</p>
-                <p className="text-sm text-emerald-900/80">Results are ready. Tap the Proceed button below to go to Insights & Reports.</p>
+                <p className="font-semibold">{t('live.allAnalysisComplete')}</p>
+                <p className="text-sm text-emerald-900/80">{t('live.resultsReadyDesc')}</p>
               </div>
             </div>
           )}
@@ -4183,7 +4183,7 @@ const ProcurementLiveAnalysis = ({ embedded = false, analysisDataOverride, onCom
               {/* Tap-to-feature mini ring strip for all 7 metrics */}
               <div className="w-full">
                 <div className="text-[10px] uppercase tracking-[0.16em] font-semibold ios-text-tertiary mb-2 text-center">
-                  All metrics
+                  {t('live.allMetrics')}
                 </div>
                 <LiveMiniRingStrip
                   metrics={ringMetrics}

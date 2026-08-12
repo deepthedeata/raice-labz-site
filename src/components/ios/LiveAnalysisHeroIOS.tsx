@@ -5,6 +5,7 @@ import { StatusDot } from "./StatusDot";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Play, Pause, Activity, Camera, Cpu, Maximize } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   /** Whether the session is currently running (started, not stopped). */
@@ -48,16 +49,17 @@ export function LiveAnalysisHeroIOS({
   socketConnected,
 }: Props) {
   const { isClassic } = useTheme();
+  const { t } = useLanguage();
   const [isRingFullscreen, setIsRingFullscreen] = useState(false);
   if (isClassic) return null;
 
   const animatedTotal = useAnimatedNumber(totalGrains, { duration: 400 });
 
   const status = !isRunning
-    ? { variant: "neutral" as const, label: "Idle", color: "hsl(var(--ios-text-tertiary))" }
+    ? { variant: "neutral" as const, label: t("live.idle"), color: "hsl(var(--ios-text-tertiary))" }
     : isPaused
-      ? { variant: "warning" as const, label: "Paused", color: "hsl(var(--ios-orange))" }
-      : { variant: "online" as const, label: "Running", color: "hsl(var(--ios-green))" };
+      ? { variant: "warning" as const, label: t("live.paused"), color: "hsl(var(--ios-orange))" }
+      : { variant: "online" as const, label: t("live.running"), color: "hsl(var(--ios-green))" };
 
   const wiFraction = whitenessIndex != null ? Math.max(0, Math.min(1, whitenessIndex / 50)) : 0;
   const wiSize = 140;
@@ -105,7 +107,7 @@ export function LiveAnalysisHeroIOS({
             {whitenessIndex != null ? whitenessIndex.toFixed(1) : "—"}
           </div>
           <div className="text-[9px] uppercase tracking-[0.18em] font-semibold ios-text-tertiary mt-1">
-            Whiteness
+            {t("dashboard.whiteness")}
           </div>
         </div>
       </div>
@@ -125,7 +127,7 @@ export function LiveAnalysisHeroIOS({
                 className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100"
               >
                 <Maximize className="w-3.5 h-3.5" />
-                Full screen
+                {t("live.fullScreen")}
               </button>
             </div>
             {renderWhitenessRing(wiSize)}
@@ -141,11 +143,11 @@ export function LiveAnalysisHeroIOS({
             </div>
             <div className="text-[44px] font-bold ios-text leading-none tabular tracking-tight">
               {Math.round(animatedTotal).toLocaleString()}
-              <span className="text-[16px] ios-text-tertiary font-medium ml-2">grains</span>
+              <span className="text-[16px] ios-text-tertiary font-medium ml-2">{t("live.grains")}</span>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-4 max-w-[420px]">
-              <MiniMetric label="Head rice" value={headRicePercent} unit="%" tokenVar="--grain-head" />
-              <MiniMetric label="Broken" value={brokenPercent} unit="%" tokenVar="--grain-broken" />
+              <MiniMetric label={t("dashboard.headRice")} value={headRicePercent} unit="%" tokenVar="--grain-head" />
+              <MiniMetric label={t("dashboard.broken")} value={brokenPercent} unit="%" tokenVar="--grain-broken" />
             </div>
           </div>
 
@@ -153,20 +155,20 @@ export function LiveAnalysisHeroIOS({
           <div className="flex flex-col gap-2 min-w-[160px]">
             <ConnPill
               icon={<Camera className="w-3.5 h-3.5" />}
-              label="Camera"
+              label={t("live.camera")}
               detail={cameraFps ? `${cameraFps.toFixed(0)} fps` : "—"}
               connected={!!webrtcConnected}
             />
             <ConnPill
               icon={<Cpu className="w-3.5 h-3.5" />}
-              label="Detector"
+              label={t("live.detector")}
               detail={detectionsPerFrame ? `${detectionsPerFrame.toFixed(1)}/frame` : "—"}
               connected={!!socketConnected && !!isRunning}
             />
             <ConnPill
               icon={<Activity className="w-3.5 h-3.5" />}
-              label="Stream"
-              detail={socketConnected ? "Live" : "Offline"}
+              label={t("live.stream")}
+              detail={socketConnected ? t("live.liveLabel") : t("live.offline")}
               connected={!!socketConnected}
             />
           </div>
@@ -175,9 +177,9 @@ export function LiveAnalysisHeroIOS({
         <Dialog open={isRingFullscreen} onOpenChange={setIsRingFullscreen}>
           <DialogContent className="max-w-5xl w-full overflow-hidden">
             <DialogHeader>
-              <DialogTitle>Live Whiteness Ring</DialogTitle>
+              <DialogTitle>{t("live.liveWhitenessRing")}</DialogTitle>
               <DialogDescription>
-                Full-screen view of the live whiteness index graph for easier monitoring.
+                {t("live.whitenessRingDesc")}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr] mt-4">
@@ -186,37 +188,37 @@ export function LiveAnalysisHeroIOS({
               </div>
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm text-slate-500">Whiteness Index</p>
+                  <p className="text-sm text-slate-500">{t("procurementReports.whitenessIndex")}</p>
                   <p className="mt-2 text-3xl font-semibold text-slate-900">
                     {whitenessIndex != null ? whitenessIndex.toFixed(1) : "—"}
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Live measurement from the current analysis stream.
+                    {t("live.liveMeasurementDesc")}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="text-sm font-semibold text-slate-700">Current Metrics</div>
+                  <div className="text-sm font-semibold text-slate-700">{t("live.currentMetrics")}</div>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-slate-600">
                     <div className="rounded-xl bg-white p-3 shadow-sm">
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Head Rice</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{t("procurementReports.headRice")}</div>
                       <div className="mt-2 text-xl font-semibold text-slate-900">
                         {headRicePercent != null ? `${headRicePercent.toFixed(1)}%` : "—"}
                       </div>
                     </div>
                     <div className="rounded-xl bg-white p-3 shadow-sm">
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Broken</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{t("dashboard.broken")}</div>
                       <div className="mt-2 text-xl font-semibold text-slate-900">
                         {brokenPercent != null ? `${brokenPercent.toFixed(1)}%` : "—"}
                       </div>
                     </div>
                     <div className="rounded-xl bg-white p-3 shadow-sm">
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Camera FPS</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{t("live.cameraFps")}</div>
                       <div className="mt-2 text-xl font-semibold text-slate-900">
                         {cameraFps != null ? `${cameraFps.toFixed(0)} fps` : "—"}
                       </div>
                     </div>
                     <div className="rounded-xl bg-white p-3 shadow-sm">
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Detections</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{t("live.detections")}</div>
                       <div className="mt-2 text-xl font-semibold text-slate-900">
                         {detectionsPerFrame != null ? `${detectionsPerFrame.toFixed(1)} / frame` : "—"}
                       </div>

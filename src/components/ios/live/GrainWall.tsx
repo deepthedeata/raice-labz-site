@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ClassCounts {
   good?: number;
@@ -37,14 +38,6 @@ const CLASS_COLOR: Record<keyof ClassCounts, string> = {
   foreign: "hsl(var(--grain-foreign))",    // Pink   — Foreign Matter
 };
 
-const CLASS_LABEL: Record<keyof ClassCounts, string> = {
-  good: "Good",
-  broken: "Broken",
-  chalky: "Chalky",
-  rejection: "Reject",
-  foreign: "Foreign",
-};
-
 let nextId = 0;
 
 /**
@@ -61,6 +54,14 @@ export function GrainWall({
   maxGrains = 600,
   className,
 }: Props) {
+  const { t } = useLanguage();
+  const CLASS_LABEL: Record<keyof ClassCounts, string> = {
+    good: t("live.good"),
+    broken: t("dashboard.broken"),
+    chalky: t("procurementReports.chalky"),
+    rejection: t("live.reject"),
+    foreign: t("live.foreign"),
+  };
   const [grains, setGrains] = useState<Grain[]>([]);
   const lastCountsRef = useRef<ClassCounts>({});
 
@@ -123,7 +124,7 @@ export function GrainWall({
     >
       <div className="flex items-center justify-between mb-2">
         <div className="text-[11px] uppercase tracking-wider font-semibold ios-text-tertiary">
-          Last {windowSec}s · {grains.length.toLocaleString()} grains
+          {t("live.lastNsGrains", { n: windowSec, count: grains.length.toLocaleString() })}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {(Object.keys(CLASS_LABEL) as (keyof ClassCounts)[]).map((cls) => (
@@ -152,7 +153,7 @@ export function GrainWall({
       >
         {grains.length === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[11px] ios-text-tertiary">Waiting for detections…</span>
+            <span className="text-[11px] ios-text-tertiary">{t("live.waitingForDetections")}</span>
           </div>
         ) : (
           <div

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface TimelinePoint {
   time: number;
@@ -23,18 +24,18 @@ interface SeriesDef {
   color: string;
 }
 
-const SERIES: SeriesDef[] = [
-  { key: "headRice", label: "Head", color: "hsl(var(--ios-green))" },
-  { key: "broken", label: "Broken", color: "hsl(var(--ios-red))" },
-  { key: "whitenessIndex", label: "WI", color: "hsl(var(--accent))" },
-];
-
 /**
  * 60-second rolling line chart for the live session. Renders as thin lines
  * with subtle area fills underneath. Pure SVG — no chart library — so it's
  * cheap on every tick.
  */
 export function LiveTimeline({ data, windowSec = 60, height = 110, className }: Props) {
+  const { t } = useLanguage();
+  const SERIES: SeriesDef[] = [
+    { key: "headRice", label: t("live.head"), color: "hsl(var(--ios-green))" },
+    { key: "broken", label: t("dashboard.broken"), color: "hsl(var(--ios-red))" },
+    { key: "whitenessIndex", label: t("live.wi"), color: "hsl(var(--accent))" },
+  ];
   const width = 800; // viewBox width — actual width comes from container
   const padX = 8;
   const padY = 8;
@@ -47,7 +48,7 @@ export function LiveTimeline({ data, windowSec = 60, height = 110, className }: 
         className={cn("ios-surface border ios-hairline rounded-[14px] flex items-center justify-center", className)}
         style={{ height }}
       >
-        <span className="text-[12px] ios-text-tertiary">Waiting for live data…</span>
+        <span className="text-[12px] ios-text-tertiary">{t("live.waitingForLiveData")}</span>
       </div>
     );
   }
@@ -80,7 +81,7 @@ export function LiveTimeline({ data, windowSec = 60, height = 110, className }: 
     >
       <div className="flex items-center justify-between mb-1.5">
         <div className="text-[11px] uppercase tracking-wider font-semibold ios-text-tertiary">
-          Last {windowSec}s
+          {t("live.lastNs", { n: windowSec })}
         </div>
         <div className="flex items-center gap-3">
           {SERIES.map((s) => (

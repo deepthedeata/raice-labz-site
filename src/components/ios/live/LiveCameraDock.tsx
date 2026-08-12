@@ -1,6 +1,7 @@
 import { Camera, ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw, AlertCircle } from "lucide-react";
 import { StatusDot } from "@/components/ios/StatusDot";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   /** Callback that receives the <video> element so the parent can attach the WebRTC stream. */
@@ -37,6 +38,7 @@ export function LiveCameraDock({
   onZoomReset,
   className,
 }: Props) {
+  const { t } = useLanguage();
   return (
     <div
       id="video-container"
@@ -60,7 +62,7 @@ export function LiveCameraDock({
         ) : webrtcError ? (
           <div className="flex flex-col items-center gap-2 text-center px-6">
             <AlertCircle className="w-7 h-7" style={{ color: "hsl(var(--ios-red))" }} />
-            <div className="text-[14px] font-semibold ios-text">Camera unavailable</div>
+            <div className="text-[14px] font-semibold ios-text">{t("live.cameraUnavailable")}</div>
             <div className="text-[12px] ios-text-tertiary max-w-[280px]">{webrtcError}</div>
           </div>
         ) : (
@@ -71,7 +73,7 @@ export function LiveCameraDock({
             >
               <Camera className="w-7 h-7 ios-text-secondary" />
             </div>
-            <div className="text-[14px] font-semibold ios-text">Connecting camera…</div>
+            <div className="text-[14px] font-semibold ios-text">{t("live.connectingCamera")}</div>
           </div>
         )}
       </div>
@@ -87,7 +89,7 @@ export function LiveCameraDock({
       >
         <StatusDot variant={webrtcConnected ? "online" : webrtcError ? "offline" : "warning"} pulse={webrtcConnected} size={6} />
         <span className="text-[10px] font-semibold uppercase tracking-wider ios-text">
-          {webrtcConnected ? "Live" : webrtcError ? "Error" : "Connecting"}
+          {webrtcConnected ? t("live.liveLabel") : webrtcError ? t("live.error") : t("live.connecting")}
         </span>
       </div>
 

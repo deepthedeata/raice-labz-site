@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 import { StatusDot } from "@/components/ios/StatusDot";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   modeId?: string;
@@ -42,12 +43,13 @@ export function LiveStatHeader({
   totalGrains,
   elapsedSec,
 }: Props) {
+  const { t } = useLanguage();
   const animated = useAnimatedNumber(totalGrains, { duration: 350 });
   const status = !isRunning
-    ? { variant: "neutral" as const, label: "Idle" }
+    ? { variant: "neutral" as const, label: t("live.idle") }
     : isPaused
-      ? { variant: "warning" as const, label: "Paused" }
-      : { variant: "online" as const, label: "Running" };
+      ? { variant: "warning" as const, label: t("live.paused") }
+      : { variant: "online" as const, label: t("live.running") };
 
   return (
     <div className="flex flex-col gap-3">
@@ -76,7 +78,7 @@ export function LiveStatHeader({
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] uppercase tracking-wider font-semibold ios-text-tertiary mb-1">
-            Total grains
+            {t("live.totalGrainsLower")}
           </div>
           <div className="text-[44px] font-bold ios-text leading-none tabular tracking-tight">
             {Math.round(animated).toLocaleString()}

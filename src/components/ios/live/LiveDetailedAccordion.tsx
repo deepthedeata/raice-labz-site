@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MetricRow {
   category: string;
@@ -18,13 +19,6 @@ interface Props {
 
 const SECTIONS = ["Rice", "Rejections", "Foreign Matter", "Quality & Indices"];
 
-const SECTION_LABEL: Record<string, string> = {
-  Rice: "Good rice",
-  Rejections: "Rejections",
-  "Foreign Matter": "Foreign matter",
-  "Quality & Indices": "Quality & indices",
-};
-
 const SECTION_COLOR: Record<string, string> = {
   Rice: "hsl(var(--ios-green))",
   Rejections: "hsl(var(--ios-red))",
@@ -37,12 +31,20 @@ const SECTION_COLOR: Record<string, string> = {
  * One section per category with a chevron header + thin progress bars.
  */
 export function LiveDetailedAccordion({ metrics, showPercent, className }: Props) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState<Record<string, boolean>>({
     "Good Rice": true,
     Rejections: false,
     "Foreign Matter": false,
     "Quality & Indices": false,
   });
+
+  const SECTION_LABEL: Record<string, string> = {
+    Rice: t("live.goodRiceSection"),
+    Rejections: t("procurementReports.rejections"),
+    "Foreign Matter": t("procurementReports.foreignMatter"),
+    "Quality & Indices": t("live.qualityIndicesSection"),
+  };
 
   const toggle = (s: string) => setOpen((prev) => ({ ...prev, [s]: !prev[s] }));
 
@@ -74,7 +76,7 @@ export function LiveDetailedAccordion({ metrics, showPercent, className }: Props
                 {SECTION_LABEL[section] ?? section}
               </span>
               <span className="text-[12px] ios-text-tertiary tabular">
-                {sectionTotal.toLocaleString()} {sectionTotal === 1 ? "grain" : "grains"}
+                {sectionTotal.toLocaleString()} {sectionTotal === 1 ? t("live.grain") : t("live.grains")}
               </span>
               <ChevronDown
                 className={cn(
