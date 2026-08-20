@@ -60,12 +60,17 @@ export function AppSidebarIOS() {
       }}
     >
       {/* Brand */}
-      <div className="px-5 pt-4 pb-3 flex flex-col items-center gap-1.5">
+      <a
+        href="/website/index.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-5 pt-4 pb-3 flex flex-col items-center gap-1.5"
+      >
         <div className="text-xs font-bold uppercase tracking-widest text-center leading-tight" style={{ color: "hsl(var(--sidebar-foreground))" }}>
           Total Mill Analyzer
         </div>
         <img src="/tma-icon.png" alt="Total Mill Analyzer" className="w-36 h-10" />
-      </div>
+      </a>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
