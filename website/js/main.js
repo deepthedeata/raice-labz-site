@@ -66,7 +66,8 @@
   "use strict";
 
   var CONTACT_HREF = "about.html#contact";
-  var EMAIL = "hello@yourdomain.com";
+  var EMAIL = "info@apitco.com";
+  var PHONE = "+91 99940 11193";
 
   var FAQS = [
     {
@@ -111,12 +112,17 @@
     },
     {
       keywords: ["demo", "trial", "try it", "see it in action"],
-      reply: 'Happy to set one up — request a demo and our team will reach out to schedule it. <a href="' + CONTACT_HREF + '">Request a Demo →</a>'
+      reply: 'Happy to set one up — bring your own paddy and your own rice, and our team will run the analysis live. <a href="' + CONTACT_HREF + '">Book a Demo →</a>'
     },
     {
       keywords: ["contact", "email", "phone", "human", "talk to someone", "support", "reach you"],
       reply:
-        'You can reach our team directly at <a href="mailto:' + EMAIL + '">' + EMAIL + "</a>, or use the Request a Demo button below and we'll get back to you."
+        'You can reach our team directly at <a href="mailto:' + EMAIL + '">' + EMAIL + "</a> or by phone at " + PHONE + ", or use the Book a Demo button below and we'll get back to you."
+    },
+    {
+      keywords: ["technology", "intel", "qualitas", "eagle eye", "edge ai", "openvino", "architecture"],
+      reply:
+        'TMA is built on the Qualitas Eagle Eye Video Analytics Platform and enabled by Intel edge AI technologies — Intel® Core™ Ultra processors, integrated Intel® Arc™ GPU and OpenVINO™-optimised AI models. <a href="technology.html">See the full architecture →</a>'
     },
     {
       keywords: ["hi", "hello", "hey", "good morning", "good afternoon"],
