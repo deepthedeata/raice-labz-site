@@ -66,7 +66,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div className="flex flex-col items-center gap-1.5">
           <a
-            href="/website/index.html"
+            href="https://website-murex-beta-33.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center gap-1.5"

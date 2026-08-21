@@ -6,6 +6,9 @@
   <title>Production Analysis — TMA | Total Mill Analyzer</title>
   <meta name="description" content="Track head rice, brokens and rejections machine-by-machine and series-by-series across your mill line, live, with TMA's Production Analysis." />
   <link rel="icon" href="assets/images/tma-logo.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -88,24 +91,28 @@
           <div class="label"><span class="step">Stage 04</span><strong>Length Grader</strong><span>Sorts grains by length</span></div>
         </div>
         <div class="machine-card">
+          <div class="thumb"><img src="assets/images/machines/thickness-grader.jpeg" alt="Thickness grader" loading="lazy" /></div>
+          <div class="label"><span class="step">Stage 05</span><strong>Thickness Grader</strong><span>Separates thin &amp; thick grains</span></div>
+        </div>
+        <div class="machine-card">
           <div class="thumb"><img src="assets/images/machines/sifter.png" alt="Sifter" loading="lazy" /></div>
-          <div class="label"><span class="step">Stage 05</span><strong>Sifter</strong><span>Grades by particle size</span></div>
+          <div class="label"><span class="step">Stage 06</span><strong>Sifter</strong><span>Grades by particle size</span></div>
         </div>
         <div class="machine-card">
           <div class="thumb"><img src="assets/images/machines/color-sorter.png" alt="Colour sorter" loading="lazy" /></div>
-          <div class="label"><span class="step">Stage 06</span><strong>Colour Sorter</strong><span>Removes discoloured &amp; chalky grains</span></div>
+          <div class="label"><span class="step">Stage 07</span><strong>Colour Sorter</strong><span>Removes discoloured &amp; chalky grains</span></div>
         </div>
         <div class="machine-card">
           <div class="thumb"><img src="assets/images/machines/whitener.jpg" alt="Whitener" loading="lazy" /></div>
-          <div class="label"><span class="step">Stage 07</span><strong>Whitener</strong><span>Removes bran layers</span></div>
+          <div class="label"><span class="step">Stage 08</span><strong>Whitener</strong><span>Removes bran layers</span></div>
         </div>
         <div class="machine-card">
           <div class="thumb"><img src="assets/images/machines/silky-polisher.jpg" alt="Silky polisher" loading="lazy" /></div>
-          <div class="label"><span class="step">Stage 08</span><strong>Silky Polisher</strong><span>Final polish &amp; shine</span></div>
+          <div class="label"><span class="step">Stage 09</span><strong>Silky Polisher</strong><span>Final polish &amp; shine</span></div>
         </div>
         <div class="machine-card">
           <div class="thumb"><img src="assets/images/machines/tray-separator.jpeg" alt="Tray separator" loading="lazy" /></div>
-          <div class="label"><span class="step">Stage 09</span><strong>Tray Separator</strong><span>Separates long &amp; round grains</span></div>
+          <div class="label"><span class="step">Stage 10</span><strong>Tray Separator</strong><span>Separates long &amp; round grains</span></div>
         </div>
       </div>
     </div>
@@ -148,6 +155,84 @@
 
   <section class="section section-alt">
     <div class="container">
+      <div class="section-head left reveal">
+        <span class="eyebrow">Every machine, on its own terms</span>
+        <h2>A dedicated analysis module for each stage</h2>
+        <p>Different machines do different jobs — so TMA measures each one against the parameters that actually matter for that stage.</p>
+      </div>
+      <div class="param-grid">
+        <div class="module-card param-card reveal">
+          <h4>Husker Analysis</h4>
+          <p class="module-desc">Measure and monitor:</p>
+          <ul class="module-list">
+            <li>Paddy percentage</li>
+            <li>Broken percentage</li>
+            <li>Shelling degree</li>
+            <li>Brown rice percentage</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Tray Separator Analysis</h4>
+          <p class="module-desc">Monitor paddy separation and identify unwanted paddy carryover in rice streams — turning sorting performance into measurable data.</p>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Whitener Analysis</h4>
+          <p class="module-desc">Measure critical parameters, including:</p>
+          <ul class="module-list">
+            <li>Whiteness Index</li>
+            <li>Broken percentage</li>
+            <li>Degree of milling</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Polisher Analysis</h4>
+          <p class="module-desc">Evaluate finished grain quality through:</p>
+          <ul class="module-list">
+            <li>Whiteness &amp; Translucency Index</li>
+            <li>Broken, discoloured &amp; chalky percentage</li>
+            <li>Grain-level chalky area analysis</li>
+            <li>Cooking &amp; nutrition prediction</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Thickness Grader Analysis</h4>
+          <p class="module-desc">Monitor size separation performance and identify grain carryover between streams:</p>
+          <ul class="module-list">
+            <li>Thin rice percentage in thick rice output</li>
+            <li>Thick rice percentage in thin rice output</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Length Grader Analysis</h4>
+          <p class="module-desc">Evaluate separation efficiency and grain composition:</p>
+          <ul class="module-list">
+            <li>Head rice % in broken output, brokens % in head rice output</li>
+            <li>Grain length, width &amp; aspect ratio</li>
+            <li>Detailed broken classification</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Sifter Analysis</h4>
+          <p class="module-desc">Measure separation performance and identify product carryover between fractions.</p>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Colour Sorter Analysis</h4>
+          <p class="module-desc">Know what the sorter is removing — and what valuable rice may be going with it:</p>
+          <ul class="module-list">
+            <li>Good rice % in rejects, reject % in good rice</li>
+            <li>Individual chalky &amp; discoloured percentage</li>
+          </ul>
+        </div>
+        <div class="module-card param-card reveal">
+          <h4>Blend &amp; Pack Analysis</h4>
+          <p class="module-desc">Verify final product composition and broken classification before dispatch — so what's delivered matches the intended specification.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
       <div class="split reverse reveal">
         <div class="split-body">
           <span class="eyebrow">Trend over time</span>
@@ -159,6 +244,41 @@
         </div>
         <div class="split-media">
           <img src="assets/images/machines/color-sorter.png" alt="Colour sorter on the mill line" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-head left reveal">
+        <span class="eyebrow">TMA helps you to mill right… !!</span>
+        <h2>Advantages to millers</h2>
+      </div>
+      <div class="param-grid">
+        <div class="param-card reveal">
+          <h4>Eliminate Labour-Intensive Analysis</h4>
+          <p>Replace manual, sample-by-sample checks with automated grain imaging.</p>
+        </div>
+        <div class="param-card reveal">
+          <h4>Data-Driven Performance Checks</h4>
+          <p>Judge every machine on measured output, not operator impression.</p>
+        </div>
+        <div class="param-card reveal">
+          <h4>Consistency in Reporting</h4>
+          <p>The same standard applied to every sample, every machine, every shift.</p>
+        </div>
+        <div class="param-card reveal">
+          <h4>Vigilance Beyond the Human Eye</h4>
+          <p>Catch subtle quality drift that a manual check would miss.</p>
+        </div>
+        <div class="param-card reveal">
+          <h4>Faster, More Efficient Analysis</h4>
+          <p>Results in minutes, not the hours a manual quality round would take.</p>
+        </div>
+        <div class="param-card reveal">
+          <h4>Machine-Specific Reports</h4>
+          <p>A dedicated, generated report for every machine on the line.</p>
         </div>
       </div>
     </div>

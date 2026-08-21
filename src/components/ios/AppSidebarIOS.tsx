@@ -61,7 +61,7 @@ export function AppSidebarIOS() {
     >
       {/* Brand */}
       <a
-        href="/website/index.html"
+        href="https://website-murex-beta-33.vercel.app/"
         target="_blank"
         rel="noopener noreferrer"
         className="px-5 pt-4 pb-3 flex flex-col items-center gap-1.5"
