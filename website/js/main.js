@@ -57,6 +57,53 @@
       el.classList.add("visible");
     });
   }
+
+  // Count-up animation for stat numbers
+  var counters = document.querySelectorAll(".count-up[data-count-to]");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function formatCount(el, value) {
+    var prefix = el.getAttribute("data-prefix") || "";
+    var suffix = el.getAttribute("data-suffix") || "";
+    return prefix + value.toLocaleString("en-IN") + suffix;
+  }
+
+  if (counters.length) {
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      counters.forEach(function (el) {
+        el.textContent = formatCount(el, parseInt(el.getAttribute("data-count-to"), 10));
+      });
+    } else {
+      var countObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var el = entry.target;
+            countObserver.unobserve(el);
+            var target = parseInt(el.getAttribute("data-count-to"), 10);
+            var duration = 1100;
+            var start = null;
+            function step(ts) {
+              if (start === null) start = ts;
+              var progress = Math.min((ts - start) / duration, 1);
+              var eased = 1 - Math.pow(1 - progress, 3);
+              el.textContent = formatCount(el, Math.floor(eased * target));
+              if (progress < 1) {
+                window.requestAnimationFrame(step);
+              } else {
+                el.textContent = formatCount(el, target);
+              }
+            }
+            window.requestAnimationFrame(step);
+          });
+        },
+        { threshold: 0.4 }
+      );
+      counters.forEach(function (el) {
+        countObserver.observe(el);
+      });
+    }
+  }
 })();
 
 // ============================================================

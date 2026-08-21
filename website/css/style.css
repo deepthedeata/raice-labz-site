@@ -1031,6 +1031,162 @@ ul {
   transform: none;
 }
 
+/* staggered cascade for grid children revealing together */
+.card-grid.reveal.visible > *,
+.card-grid-5.reveal.visible > *,
+.challenge-grid.reveal.visible > *,
+.legend-grid.reveal.visible > *,
+.pillar-grid.reveal.visible > *,
+.param-grid.reveal.visible > *,
+.chain-flow.reveal.visible > .chain-step,
+.machine-strip.reveal.visible > * {
+  animation: staggerIn 0.6s ease backwards;
+}
+
+.card-grid.reveal.visible > *:nth-child(1),
+.card-grid-5.reveal.visible > *:nth-child(1),
+.challenge-grid.reveal.visible > *:nth-child(1),
+.legend-grid.reveal.visible > *:nth-child(1),
+.pillar-grid.reveal.visible > *:nth-child(1),
+.param-grid.reveal.visible > *:nth-child(1),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(1),
+.machine-strip.reveal.visible > *:nth-child(1) { animation-delay: 0.02s; }
+.card-grid.reveal.visible > *:nth-child(2),
+.card-grid-5.reveal.visible > *:nth-child(2),
+.challenge-grid.reveal.visible > *:nth-child(2),
+.legend-grid.reveal.visible > *:nth-child(2),
+.pillar-grid.reveal.visible > *:nth-child(2),
+.param-grid.reveal.visible > *:nth-child(2),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(2),
+.machine-strip.reveal.visible > *:nth-child(2) { animation-delay: 0.08s; }
+.card-grid.reveal.visible > *:nth-child(3),
+.card-grid-5.reveal.visible > *:nth-child(3),
+.challenge-grid.reveal.visible > *:nth-child(3),
+.legend-grid.reveal.visible > *:nth-child(3),
+.pillar-grid.reveal.visible > *:nth-child(3),
+.param-grid.reveal.visible > *:nth-child(3),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(3),
+.machine-strip.reveal.visible > *:nth-child(3) { animation-delay: 0.14s; }
+.card-grid.reveal.visible > *:nth-child(4),
+.card-grid-5.reveal.visible > *:nth-child(4),
+.challenge-grid.reveal.visible > *:nth-child(4),
+.legend-grid.reveal.visible > *:nth-child(4),
+.pillar-grid.reveal.visible > *:nth-child(4),
+.param-grid.reveal.visible > *:nth-child(4),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(4),
+.machine-strip.reveal.visible > *:nth-child(4) { animation-delay: 0.2s; }
+.card-grid.reveal.visible > *:nth-child(5),
+.card-grid-5.reveal.visible > *:nth-child(5),
+.challenge-grid.reveal.visible > *:nth-child(5),
+.param-grid.reveal.visible > *:nth-child(5),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(5),
+.machine-strip.reveal.visible > *:nth-child(5) { animation-delay: 0.26s; }
+.card-grid.reveal.visible > *:nth-child(6),
+.challenge-grid.reveal.visible > *:nth-child(6),
+.param-grid.reveal.visible > *:nth-child(6),
+.chain-flow.reveal.visible > .chain-step:nth-of-type(6),
+.machine-strip.reveal.visible > *:nth-child(6) { animation-delay: 0.32s; }
+.challenge-grid.reveal.visible > *:nth-child(7),
+.param-grid.reveal.visible > *:nth-child(7),
+.machine-strip.reveal.visible > *:nth-child(7) { animation-delay: 0.38s; }
+.challenge-grid.reveal.visible > *:nth-child(8),
+.param-grid.reveal.visible > *:nth-child(8),
+.machine-strip.reveal.visible > *:nth-child(8) { animation-delay: 0.44s; }
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .card-grid.reveal.visible > *,
+  .card-grid-5.reveal.visible > *,
+  .challenge-grid.reveal.visible > *,
+  .legend-grid.reveal.visible > *,
+  .pillar-grid.reveal.visible > *,
+  .param-grid.reveal.visible > *,
+  .chain-flow.reveal.visible > .chain-step,
+  .machine-strip.reveal.visible > * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- animated gradient text ---------- */
+
+.text-gradient {
+  background: linear-gradient(100deg, var(--color-primary) 0%, #2f7fe0 30%, var(--color-accent) 60%, var(--color-primary) 100%);
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientSlide 7s ease-in-out infinite;
+}
+
+.page-banner .text-gradient,
+.section-navy .text-gradient {
+  background: linear-gradient(100deg, #6fb3ff 0%, #ffffff 35%, var(--color-accent) 65%, #6fb3ff 100%);
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientSlide 7s ease-in-out infinite;
+}
+
+@keyframes gradientSlide {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-gradient,
+  .page-banner .text-gradient,
+  .section-navy .text-gradient {
+    animation: none;
+  }
+}
+
+/* ---------- floating / pulse accents ---------- */
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.hero-visual .device-card {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.hero-visual .stat-badge {
+  animation: floatY 5s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(11, 76, 173, 0.28); }
+  50% { box-shadow: 0 10px 34px rgba(11, 76, 173, 0.5); }
+}
+
+.btn-primary {
+  animation: pulseGlow 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual .device-card,
+  .hero-visual .stat-badge,
+  .btn-primary {
+    animation: none;
+  }
+}
+
+/* ---------- animated counter (count-up on scroll) ---------- */
+
+.count-up {
+  display: inline-block;
+}
+
 /* ---------- hero tagline ---------- */
 
 .hero-tagline {
@@ -1200,6 +1356,40 @@ ul {
 
 .section-navy p {
   color: rgba(255, 255, 255, 0.72);
+}
+
+.section-navy .challenge-item {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+.section-navy .challenge-item strong {
+  color: #fff;
+}
+
+.section-navy .challenge-item span {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.section-navy .tag-block,
+.section-navy .legend-card,
+.section-navy .param-card,
+.section-navy .stat-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.section-navy .tag-block-head {
+  color: var(--color-accent);
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+.section-navy .tag-row {
+  color: rgba(255, 255, 255, 0.78);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.section-navy .tag-block-note {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 /* ---------- data-provenance tags (measured / AI-derived / predicted / calculated) ---------- */
