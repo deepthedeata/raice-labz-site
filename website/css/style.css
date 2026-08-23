@@ -187,12 +187,16 @@ ul {
   border-bottom: 1px solid var(--color-line);
 }
 
+.nav .container {
+  max-width: 1320px;
+}
+
 .nav-inner {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
 }
 
 .nav-brand {
@@ -203,24 +207,27 @@ ul {
 }
 
 .nav-brand img {
-  height: 34px;
+  height: 32px;
   width: auto;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
   justify-content: center;
+  min-width: 0;
 }
 
 .nav-links a {
-  padding: 10px 14px;
+  padding: 9px 12px;
   border-radius: 999px;
-  font-size: 14.5px;
+  font-size: 13.6px;
   font-weight: 600;
   color: var(--color-body);
+  white-space: nowrap;
+  line-height: 1.2;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -234,7 +241,19 @@ ul {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+}
+
+.nav-contact-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-body);
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.nav-contact-link:hover {
+  color: var(--color-primary);
 }
 
 .nav-toggle {
@@ -2791,7 +2810,7 @@ ul {
 
 @media (max-width: 760px) {
   .nav-links,
-  .nav-cta .btn-ghost {
+  .nav-contact-link {
     display: none;
   }
 
