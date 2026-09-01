@@ -1,9 +1,36 @@
 import { useState } from "react";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { type AnalyticsDomain, type AnalyticsProcess } from "@/lib/reportsAnalytics";
+import { type AnalyticsDomain, type AnalyticsProcess, METRICS, flattenSamples } from "@/lib/reportsAnalytics";
 import { ProcurementAnalyticsPanel } from "./ProcurementAnalyticsPanel";
 import { ProductionAnalyticsPanel } from "./ProductionAnalyticsPanel";
 import { MilledRiceAnalyticsPanel } from "./MilledRiceAnalyticsPanel";
+
+/** Downloads the currently-filtered domain's flattened sample rows as CSV — client-side only, no backend involved. */
+function exportSamplesCsv(domain: AnalyticsDomain, processes: AnalyticsProcess[]) {
+  const samples = flattenSamples(processes);
+  const identityCols = ["date", "variety", "process", "machineName", "sampleNumber"] as const;
+  const metricCols = METRICS.map((m) => m.key);
+  const header = [...identityCols, ...metricCols].join(",");
+  const escapeCell = (v: unknown) => {
+    const s = String(v ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const rows = samples.map((s) =>
+    [...identityCols.map((c) => escapeCell(s[c])), ...metricCols.map((c) => escapeCell(s[c]))].join(",")
+  );
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${domain}-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 interface ReportsAnalyticsViewProps {
   processes: AnalyticsProcess[];
@@ -42,7 +69,7 @@ export function ReportsAnalyticsView({ processes, selectedAnalysisTypes, lineNam
   if (availableDomains.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No data available for analytics with the current filters.</p>
+        <p>No data available for selected filters.</p>
       </div>
     );
   }
@@ -51,15 +78,22 @@ export function ReportsAnalyticsView({ processes, selectedAnalysisTypes, lineNam
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Analyzing:</span>
-        <ToggleGroup type="single" value={domain ?? undefined} onValueChange={(v) => v && setDomainValue(v as AnalyticsDomain)}>
-          {availableDomains.map((d) => (
-            <ToggleGroupItem key={d} value={d} className="text-xs px-3">
-              {DOMAIN_LABEL[d]}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Analyzing:</span>
+          <ToggleGroup type="single" value={domain ?? undefined} onValueChange={(v) => v && setDomainValue(v as AnalyticsDomain)}>
+            {availableDomains.map((d) => (
+              <ToggleGroupItem key={d} value={d} className="text-xs px-3">
+                {DOMAIN_LABEL[d]}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+        {domain && domainProcesses.length > 0 && (
+          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => exportSamplesCsv(domain, domainProcesses)}>
+            <Download className="w-3.5 h-3.5 mr-1" /> Export CSV
+          </Button>
+        )}
       </div>
 
       {domain === "procurement" && <ProcurementAnalyticsPanel processes={domainProcesses} />}

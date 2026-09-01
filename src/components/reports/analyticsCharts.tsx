@@ -1,7 +1,8 @@
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, ThumbsDown, AlertTriangle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -34,7 +35,11 @@ import {
   type AggregateBucket,
   METRICS,
   computeOutliers,
+  computeBucketOutliers,
+  groupByDay,
+  DEFAULT_CHALKY_THRESHOLD_PCT,
 } from "@/lib/reportsAnalytics";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export const CHART_TOOLTIP_STYLE = { borderRadius: 8, fontSize: 12, border: "1px solid #e5e7eb" };
 
@@ -44,10 +49,20 @@ export function metricDef(key: MetricKey): MetricDef {
 
 /* ─────────────────────────── shared primitives ─────────────────────────── */
 
-export function MetricPicker({ active, onToggle }: { active: MetricKey[]; onToggle: (key: MetricKey) => void }) {
+export function MetricPicker({
+  active,
+  onToggle,
+  available,
+}: {
+  active: MetricKey[];
+  onToggle: (key: MetricKey) => void;
+  /** Restricts the checkbox list to a subset (e.g. a machine type's parameter table) — defaults to every metric. */
+  available?: MetricKey[];
+}) {
+  const options = available ? METRICS.filter((m) => available.includes(m.key)) : METRICS;
   return (
     <div className="flex flex-wrap gap-3">
-      {METRICS.map((m) => (
+      {options.map((m) => (
         <label key={m.key} className="flex items-center gap-1.5 text-sm cursor-pointer select-none">
           <Checkbox checked={active.includes(m.key)} onCheckedChange={() => onToggle(m.key)} />
           <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }} />
@@ -92,18 +107,161 @@ export function InsightCard({
   );
 }
 
+/* ─────────────────────────── chalky threshold ─────────────────────────── */
+
+/** Tailwind classes for a value relative to the chalky threshold — used in both charts and tables. Not user-editable; uses the fixed default. */
+export function chalkyToneClass(value: number, threshold: number = DEFAULT_CHALKY_THRESHOLD_PCT): string {
+  return value > threshold ? "text-red-600 font-semibold" : "text-gray-700";
+}
+
+/* ─────────────────────────── variety / process filters (shared across all three domain panels) ─────────────────────────── */
+
+export const ALL_VARIETIES = "__all_varieties__";
+export const ALL_PROCESSES = "__all_processes__";
+
+/** Narrows a sample list to one variety and/or one process — "All" (the default) passes everything through. */
+export function filterSamplesByVarietyProcess(samples: FlatSample[], variety: string, process: string): FlatSample[] {
+  return samples.filter((s) => (variety === ALL_VARIETIES || s.variety === variety) && (process === ALL_PROCESSES || s.process === process));
+}
+
+/**
+ * Local "Variety" / "Process" narrowing for a single analysis panel — independent of the global
+ * Data Reports filters, so a user can drill into one variety/process's comparison without changing
+ * what the rest of the page shows. Only renders a dropdown when there's more than one option to pick from.
+ */
+export function VarietyProcessFilters({
+  samples,
+  variety,
+  onVarietyChange,
+  process,
+  onProcessChange,
+}: {
+  samples: FlatSample[];
+  variety: string;
+  onVarietyChange: (v: string) => void;
+  process: string;
+  onProcessChange: (v: string) => void;
+}) {
+  const varietyOptions = useMemo(() => [...new Set(samples.map((s) => s.variety))].sort(), [samples]);
+  const processOptions = useMemo(() => [...new Set(samples.map((s) => s.process))].sort(), [samples]);
+
+  if (varietyOptions.length <= 1 && processOptions.length <= 1) return null;
+
+  return (
+    <div className="flex items-center gap-3 flex-wrap">
+      {varietyOptions.length > 1 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Variety:</span>
+          <Select value={variety} onValueChange={onVarietyChange}>
+            <SelectTrigger className="h-8 text-xs w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_VARIETIES} className="text-xs">
+                All varieties (WHOLE)
+              </SelectItem>
+              {varietyOptions.map((v) => (
+                <SelectItem key={v} value={v} className="text-xs">
+                  {v}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {processOptions.length > 1 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Process:</span>
+          <Select value={process} onValueChange={onProcessChange}>
+            <SelectTrigger className="h-8 text-xs w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_PROCESSES} className="text-xs">
+                All processes
+              </SelectItem>
+              {processOptions.map((p) => (
+                <SelectItem key={p} value={p} className="text-xs">
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────── sample-wise vs day-wise granularity ─────────────────────────── */
+
+export type Granularity = "sample" | "day";
+
+/**
+ * Sample-wise plots every individual sample; day-wise averages every sample from the same
+ * calendar day into a single point. Applies to trend charts and detail tables — not to
+ * variety/process/machine comparison charts, which already aggregate across the whole period.
+ */
+export function GranularityToggle({ value, onChange }: { value: Granularity; onChange: (v: Granularity) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-medium text-gray-500 whitespace-nowrap">View:</span>
+      <ToggleGroup type="single" value={value} onValueChange={(v) => v && onChange(v as Granularity)}>
+        <ToggleGroupItem value="sample" className="text-xs px-3">
+          Sample-wise
+        </ToggleGroupItem>
+        <ToggleGroupItem value="day" className="text-xs px-3">
+          Day-wise
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </div>
+  );
+}
+
+/* ─────────────────────────── shared Y-axis domain (for side-by-side scale matching) ─────────────────────────── */
+
+/** Rounds a bucket's max metric value up to a friendly axis ceiling so two compared charts can share a domain. */
+export function sharedYDomain(bucketSets: AggregateBucket[][], metrics: MetricKey[]): [number, number] {
+  let max = 0;
+  for (const buckets of bucketSets) {
+    for (const b of buckets) {
+      for (const mk of metrics) {
+        max = Math.max(max, b.avg[mk] ?? 0);
+      }
+    }
+  }
+  if (max <= 0) return [0, 1];
+  const magnitude = 10 ** Math.floor(Math.log10(max));
+  const ceiling = Math.ceil(max / magnitude) * magnitude;
+  return [0, ceiling];
+}
+
 /* ─────────────────────────── sample-to-sample trend ─────────────────────────── */
+
+interface OutlierDisplay {
+  value: number;
+  caption: string;
+}
+
+function sampleDisplay(s: FlatSample, key: MetricKey): OutlierDisplay {
+  return { value: (s[key] as number) ?? 0, caption: `${format(new Date(s.date), "MMM dd")} · ${s.variety}` };
+}
+
+function bucketDisplay(b: AggregateBucket, key: MetricKey): OutlierDisplay {
+  const n = b.count;
+  return { value: b.avg[key] ?? 0, caption: `${format(new Date(b.key), "MMM dd")} · ${n} sample${n === 1 ? "" : "s"}` };
+}
 
 function OutlierCard({
   icon: Icon,
   label,
-  sample,
+  display,
   metric,
   tone,
 }: {
   icon: LucideIcon;
   label: string;
-  sample: FlatSample | null;
+  display: OutlierDisplay | null;
   metric: MetricDef;
   tone: "green" | "red";
 }) {
@@ -114,15 +272,13 @@ function OutlierCard({
         <Icon className="w-5 h-5 flex-shrink-0" />
         <div>
           <div className="text-xs font-medium opacity-80">{label}</div>
-          {sample ? (
+          {display ? (
             <>
               <div className="text-lg font-bold">
-                {sample[metric.key].toFixed(1)}
+                {display.value.toFixed(1)}
                 {metric.unit}
               </div>
-              <div className="text-xs opacity-70">
-                {format(new Date(sample.date), "MMM dd")} · {sample.variety}
-              </div>
+              <div className="text-xs opacity-70">{display.caption}</div>
             </>
           ) : (
             <div className="text-sm opacity-60">—</div>
@@ -133,13 +289,13 @@ function OutlierCard({
   );
 }
 
-function AbnormalCard({ count, metric }: { count: number; metric: MetricDef }) {
+function AbnormalCard({ count, metric, unitLabel }: { count: number; metric: MetricDef; unitLabel: string }) {
   return (
     <Card className="border bg-amber-50 border-amber-200 text-amber-700">
       <CardContent className="p-4 flex items-center gap-3">
         <AlertTriangle className="w-5 h-5 flex-shrink-0" />
         <div>
-          <div className="text-xs font-medium opacity-80">Abnormal / off-spec samples</div>
+          <div className="text-xs font-medium opacity-80">Abnormal / off-spec {unitLabel}</div>
           <div className="text-lg font-bold">{count}</div>
           <div className="text-xs opacity-70">±1.5σ from mean {metric.label.toLowerCase()}</div>
         </div>
@@ -148,18 +304,36 @@ function AbnormalCard({ count, metric }: { count: number; metric: MetricDef }) {
   );
 }
 
-export function SampleTrendChart({ samples, metrics, title = "Sample-to-sample trend" }: { samples: FlatSample[]; metrics: MetricKey[]; title?: string }) {
+export function SampleTrendChart({
+  samples,
+  metrics,
+  title = "Sample-to-sample trend",
+  granularity = "sample",
+}: {
+  samples: FlatSample[];
+  metrics: MetricKey[];
+  title?: string;
+  granularity?: Granularity;
+}) {
   const [showControlChart, setShowControlChart] = useState(false);
+  const isDay = granularity === "day";
+  const dayBuckets = useMemo(() => groupByDay(samples), [samples]);
   const primaryMetric = metricDef(metrics[0] ?? "goodRice");
-  const primaryOutliers = computeOutliers(samples, primaryMetric.key, primaryMetric.higherIsBetter);
-  const chartData = samples.map((s, i) => ({ ...s, label: `#${i + 1} · ${format(new Date(s.date), "MMM dd")}` }));
+
+  const primaryBest = isDay ? computeBucketOutliers(dayBuckets, primaryMetric.key, primaryMetric.higherIsBetter) : computeOutliers(samples, primaryMetric.key, primaryMetric.higherIsBetter);
+  const bestDisplay = primaryBest.best ? (isDay ? bucketDisplay(primaryBest.best as AggregateBucket, primaryMetric.key) : sampleDisplay(primaryBest.best as FlatSample, primaryMetric.key)) : null;
+  const worstDisplay = primaryBest.worst ? (isDay ? bucketDisplay(primaryBest.worst as AggregateBucket, primaryMetric.key) : sampleDisplay(primaryBest.worst as FlatSample, primaryMetric.key)) : null;
+
+  const chartData = isDay
+    ? dayBuckets.map((b) => ({ ...b.avg, label: format(new Date(b.key), "MMM dd") }))
+    : samples.map((s, i) => ({ ...s, label: `#${i + 1} · ${format(new Date(s.date), "MMM dd")}` }));
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <OutlierCard icon={Trophy} label="Best sample" sample={primaryOutliers.best} metric={primaryMetric} tone="green" />
-        <OutlierCard icon={ThumbsDown} label="Worst sample" sample={primaryOutliers.worst} metric={primaryMetric} tone="red" />
-        <AbnormalCard count={primaryOutliers.abnormal.length} metric={primaryMetric} />
+        <OutlierCard icon={Trophy} label={isDay ? "Best day" : "Best sample"} display={bestDisplay} metric={primaryMetric} tone="green" />
+        <OutlierCard icon={ThumbsDown} label={isDay ? "Worst day" : "Worst sample"} display={worstDisplay} metric={primaryMetric} tone="red" />
+        <AbnormalCard count={primaryBest.abnormal.length} metric={primaryMetric} unitLabel={isDay ? "days" : "samples"} />
       </div>
 
       <div className="flex items-center justify-between">
@@ -185,7 +359,7 @@ export function SampleTrendChart({ samples, metrics, title = "Sample-to-sample t
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {metrics.map((mk) => {
             const def = metricDef(mk);
-            const outliers = computeOutliers(samples, mk, def.higherIsBetter);
+            const outliers = isDay ? computeBucketOutliers(dayBuckets, mk, def.higherIsBetter) : computeOutliers(samples, mk, def.higherIsBetter);
             return (
               <Card key={mk}>
                 <CardHeader className="pb-2">
@@ -235,7 +409,18 @@ export function SampleTrendChart({ samples, metrics, title = "Sample-to-sample t
 
 /* ─────────────────────────── grouped comparison (bar) ─────────────────────────── */
 
-export function GroupedComparisonSection({ title, buckets, metrics }: { title: string; buckets: AggregateBucket[]; metrics: MetricKey[] }) {
+export function GroupedComparisonSection({
+  title,
+  buckets,
+  metrics,
+  yDomain,
+}: {
+  title: string;
+  buckets: AggregateBucket[];
+  metrics: MetricKey[];
+  /** Forces a shared Y-axis range — e.g. so a Line A and Line B chart for the same metric read at the same scale. */
+  yDomain?: [number, number];
+}) {
   if (buckets.length < 2) return null;
   const chartData = buckets.map((b) => ({ name: b.key, ...b.avg }));
   return (
@@ -249,7 +434,7 @@ export function GroupedComparisonSection({ title, buckets, metrics }: { title: s
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} domain={yDomain} />
               <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               {metrics.map((mk) => {

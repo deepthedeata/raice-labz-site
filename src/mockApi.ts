@@ -55,6 +55,8 @@ function getRiceMillSettings(): any {
             { name: "Silky", machineNumber: "1", machineModel: "SK-100", customLabel: "Silky Polisher", status: "active" },
             { name: "Length Grader - Headrice O/P", machineNumber: "1", machineModel: "LG-300", customLabel: "Head Rice Grader", status: "active" },
             { name: "Color Sorter - Accepts", machineNumber: "1", machineModel: "CS-500", customLabel: "Color Sorter Unit", status: "active" },
+            { name: "Thickness Grader - Thin Rice O/P", machineNumber: "1", machineModel: "TG-210", customLabel: "Thin Grader", status: "active" },
+            { name: "Final Rice", machineNumber: "1", machineModel: "FR-100", customLabel: "Packing Line A", status: "active" },
           ],
         },
         {
@@ -62,12 +64,15 @@ function getRiceMillSettings(): any {
           name: "Line B - Secondary",
           output: "350",
           machines: [
-            { name: "Husker", machineNumber: "1", machineModel: "SBR-8", customLabel: "Husker B", status: "active" },
+            { name: "Husker", machineNumber: "2", machineModel: "SBR-8", customLabel: "Husker B", status: "active" },
             { name: "Tray Separator - Rice O/P", machineNumber: "1", machineModel: "TS-150", customLabel: "Rice Output Sep", status: "active" },
-            { name: "Whitener", machineNumber: "1", machineModel: "WH-300", customLabel: "Single Whitener", status: "active" },
-            { name: "Silky", machineNumber: "1", machineModel: "SK-80", customLabel: "Polisher B", status: "active" },
+            { name: "Whitener", machineNumber: "3", machineModel: "WH-300", customLabel: "Single Whitener", status: "active" },
+            { name: "Silky", machineNumber: "2", machineModel: "SK-80", customLabel: "Polisher B", status: "active" },
             { name: "Thickness Grader - Thick Rice O/P", machineNumber: "1", machineModel: "TG-200", customLabel: "Thick Grader", status: "active" },
+            { name: "Length Grader - Broken O/P", machineNumber: "1", machineModel: "LG-310", customLabel: "Broken Grader", status: "active" },
+            { name: "Color Sorter - Rejects", machineNumber: "1", machineModel: "CS-510", customLabel: "Reject Sorter", status: "active" },
             { name: "Sifter", machineNumber: "1", machineModel: "SF-50", customLabel: "Fine Sifter", status: "inactive" },
+            { name: "Final Rice", machineNumber: "1", machineModel: "FR-80", customLabel: "Packing Line B", status: "active" },
           ],
         },
       ],
@@ -395,6 +400,7 @@ const routes: RouteHandler[] = [
         options: {
           varieties: VARIETIES,
           processes: PROCESSES,
+          seasons: HARVEST_SEASONS,
           machines: MACHINES,
           modeTypes: ["procurement", "production", "milled-rice"],
         },
@@ -1323,20 +1329,53 @@ function generateDistributionData() {
   };
 }
 
+const OPERATORS = ["Ramesh Kumar", "Suresh Patel", "Anita Sharma", "Vijay Singh", "Lakshmi Reddy"];
+
 function generateAnalyticsData(count: number) {
   const data = [];
   for (let i = 0; i < count; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i * 2);
     const headRice = +(60 + Math.random() * 15).toFixed(1);
+
+    const modeType = ["procurement", "production", "milled-rice"][i % 3];
+    const modeIdPrefix = modeType === "production" ? "PROD-" : modeType === "milled-rice" ? "MR-" : "IND-";
+
+    const totalGrains = 5000 + Math.floor(Math.random() * 5000);
+    const acceptedPct = 0.78 + Math.random() * 0.15; // ~78-93% good rice
+    const rejectedPct = 0.03 + Math.random() * 0.06; // ~3-9%
+    const brokensPct = 0.02 + Math.random() * 0.04; // ~2-6%
+    const chalkyPct = 0.01 + Math.random() * 0.04; // ~1-5%
+    const accepted = Math.round(totalGrains * acceptedPct);
+    const rejected = Math.round(totalGrains * rejectedPct);
+    const brokens = Math.round(totalGrains * brokensPct);
+    const chalky = Math.round(totalGrains * chalkyPct);
+
+    const dayDrift = Math.sin(i / 3) * 0.5 + 0.5; // smooth-ish day-to-day drift for price/trend realism
+    const weight = 250 + Math.floor(Math.random() * 250); // sample weight, grams
+    const weightKg = weight / 1000;
+
     data.push({
       date: d.toISOString().split('T')[0],
-      modeId: `IND-${String(i + 1).padStart(4, '0')}-${d.toLocaleDateString('en-GB').replace(/\//g, '')}-A`,
-      modeType: ["procurement", "production", "milled-rice"][i % 3],
+      modeId: `${modeIdPrefix}${String(i + 1).padStart(4, '0')}-${d.toLocaleDateString('en-GB').replace(/\//g, '')}-A`,
+      modeType,
+      variety: VARIETIES[i % VARIETIES.length],
+      process: PROCESSES[i % PROCESSES.length],
+      season: HARVEST_SEASONS[i % HARVEST_SEASONS.length],
+      operatorName: OPERATORS[i % OPERATORS.length],
       machineName: MACHINES[i % MACHINES.length],
       sessionId: `session_${String(i + 1).padStart(3, '0')}`,
       sessionStatus: "completed",
-      totalGrains: 5000 + Math.floor(Math.random() * 5000),
+
+      // Raw grain counts — DataReports.tsx derives goodRice/rejection/foreignMatter %ages from these.
+      totalGrains,
+      accepted,
+      rejected,
+      brokens,
+      chalky,
+      weight,
+
+      // Existing detailed breakdown fields (kept for GrainsViewer / detail panels).
       headRice,
       threeFourthHead: +(5 + Math.random() * 8).toFixed(1),
       halfBrokens: +(3 + Math.random() * 5).toFixed(1),
@@ -1376,6 +1415,34 @@ function generateAnalyticsData(count: number) {
       metals: 0,
       glass: 0,
       foreignMatterTotal: +(1.5 + Math.random() * 3).toFixed(1),
+
+      // ---- Machine-type-specific & economics fields (APIT Analytics UI script) ----
+      shellingDegree: +(80 + Math.random() * 15).toFixed(1), // Husker
+      donValue: +(0.5 + Math.random() * 4.5).toFixed(2), // ppm — Whitener/Silky/Packing
+      discoloured: +(0.3 + Math.random() * 2.5).toFixed(1), // % — Silky/Color Sorter/Packing
+      thickRicePct: +(3 + Math.random() * 6).toFixed(1), // % — Thickness Grader
+      thinRicePct: +(2 + Math.random() * 5).toFixed(1), // % — Thickness Grader
+      paddyPctInRiceOutput: +(0.5 + Math.random() * 2).toFixed(1), // % — Tray Separator
+      ricePctInPaddyOutput: +(1 + Math.random() * 3).toFixed(1), // % — Tray Separator
+      gib: +(0.2 + Math.random() * 1.5).toFixed(1), // % Good-in-Bad — Color Sorter
+      big: +(0.3 + Math.random() * 2).toFixed(1), // % Bad-in-Good — Color Sorter
+      branRemovalPct: +(5 + Math.random() * 4).toFixed(1), // % — Whitener/Silky/Packing/Milled Rice/Line
+      branQtyKg: +(weightKg * (0.07 + Math.random() * 0.03)).toFixed(3),
+      huskQtyKg: +(weightKg * (0.18 + Math.random() * 0.05)).toFixed(3),
+      pricePerKg: +(19 + dayDrift * 4 + (Math.random() - 0.5)).toFixed(2), // ₹/kg paddy price
+      cookingQuality: {
+        ler: +(1.5 + Math.random() * 0.7).toFixed(2),
+        ver: +(3.5 + Math.random() * 1).toFixed(2),
+        cookingTimeMin: +(12 + Math.random() * 8).toFixed(1),
+        ci: +(0.6 + Math.random() * 0.3).toFixed(2),
+      },
+      nutritional: {
+        carbsPct: +(75 + Math.random() * 5).toFixed(1),
+        proteinPct: +(6.5 + Math.random() * 2).toFixed(1),
+        fatPct: +(0.5 + Math.random() * 1).toFixed(1),
+        ashPct: +(0.5 + Math.random() * 0.7).toFixed(1),
+        micronutrientsMgPer100g: +(1.5 + Math.random() * 2).toFixed(2),
+      },
     });
   }
   return data;

@@ -497,6 +497,8 @@ interface SampleData {
   rejection: number;
   foreignMatter: number;
   completed: boolean;
+  brokenPct?: number;
+  chalkyPct?: number;
 }
 
 interface GrainData {
@@ -537,18 +539,48 @@ interface ProcessData {
   analysisTime?: string;
   enableChalky?: boolean;
   season?: string;
+  overallBrokenPct?: number;
+  overallChalkyPct?: number;
+  // Machine-type-specific & economics fields (APIT Analytics UI script)
+  shellingDegree?: number;
+  donValue?: number;
+  discoloured?: number;
+  branRemovalPct?: number;
+  thickRicePct?: number;
+  thinRicePct?: number;
+  paddyPctInRiceOutput?: number;
+  ricePctInPaddyOutput?: number;
+  gib?: number;
+  big?: number;
+  branQtyKg?: number;
+  huskQtyKg?: number;
+  pricePerKg?: number;
+  cookingLer?: number;
+  cookingVer?: number;
+  cookingTime?: number;
+  cookingCi?: number;
+  nutritionMicro?: number;
+  nutritionCarbs?: number;
+  nutritionProtein?: number;
+  nutritionFat?: number;
+  nutritionAsh?: number;
 }
+
+// Default date range shown on first load — editable by the user via the date pickers below, same as any other selection.
+const DEFAULT_TO_DATE = new Date();
+const DEFAULT_FROM_DATE = new Date(new Date().setDate(DEFAULT_TO_DATE.getDate() - 30));
 
 const DataReports = () => {
   const navigate = useNavigate();
-  const [fromDate, setFromDate] = useState<Date>();
-  const [toDate, setToDate] = useState<Date>();
+  const [fromDate, setFromDate] = useState<Date | undefined>(DEFAULT_FROM_DATE);
+  const [toDate, setToDate] = useState<Date | undefined>(DEFAULT_TO_DATE);
   const [selectedAnalysisTypes, setSelectedAnalysisTypes] = useState<string[]>(["procurement", "production", "milled-rice"]);
   const [selectedVarieties, setSelectedVarieties] = useState<string[]>([]);
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>([]);
+  const [selectedProcesses, setSelectedProcesses] = useState<string[]>([]);
   const [machineFilter, setMachineFilter] = useState("all");
   const [productionMode, setProductionMode] = useState<"all" | "series" | "single">("all");
-  const [filterOptions, setFilterOptions] = useState<{ varieties: string[]; seasons: string[]; machines: string[] }>({ varieties: [], seasons: [], machines: [] });
+  const [filterOptions, setFilterOptions] = useState<{ varieties: string[]; seasons: string[]; machines: string[]; processes: string[] }>({ varieties: [], seasons: [], machines: [], processes: [] });
   const [lineMachines, setLineMachines] = useState<string[]>([]);
   const [lineNames, setLineNames] = useState<string[]>([]);
   const [millLines, setMillLines] = useState<{ name: string; machines: string[] }[]>([]);
@@ -628,6 +660,7 @@ const DataReports = () => {
         const requestBody: any = { ...baseParams, viewMode: getViewMode() };
         if (selectedVarieties.length > 0) requestBody.varieties = selectedVarieties;
         if (selectedSeasons.length > 0) requestBody.seasons = selectedSeasons;
+        if (selectedProcesses.length > 0) requestBody.processes = selectedProcesses;
         fetches.push(
           fetch(`${BACKEND_URL}/api/raice_labz/analytics/grain-analysis`, {
             method: 'POST',
@@ -651,6 +684,7 @@ const DataReports = () => {
         // Pass variety/season filters so backend can restrict to matching modes
         if (selectedVarieties.length > 0) tmaBody.varieties = selectedVarieties;
         if (selectedSeasons.length > 0) tmaBody.seasons = selectedSeasons;
+        if (selectedProcesses.length > 0) tmaBody.processes = selectedProcesses;
         fetches.push(
           fetch(`${BACKEND_URL}/api/raice_labz/analytics/tma-analysis`, {
             method: 'POST',
@@ -829,6 +863,7 @@ const DataReports = () => {
           varieties,
           seasons: options.seasons || [],
           machines: options.machines || [],
+          processes: options.processes || [],
         });
       } catch (error) {
         console.error('Error fetching filter options:', error);
@@ -1135,7 +1170,9 @@ const DataReports = () => {
         const goodRicePct = totalGrains > 0 ? (accepted / totalGrains) * 100 : 0;
         const rejectionPct = totalGrains > 0 ? (rejected / totalGrains) * 100 : 0;
         const foreignMatterPct = totalGrains > 0 ? (foreignMatter / totalGrains) * 100 : 0;
-        
+        const brokenPct = totalGrains > 0 ? ((item.brokens || 0) / totalGrains) * 100 : 0;
+        const chalkyPct = totalGrains > 0 ? ((item.chalky || 0) / totalGrains) * 100 : 0;
+
         modeIdMap.set(modeId, {
           ...item,
           // Store individual percentages and count for averaging
@@ -1144,6 +1181,8 @@ const DataReports = () => {
               goodRice: goodRicePct,
               rejection: rejectionPct,
               foreignMatter: foreignMatterPct,
+              brokenPct,
+              chalkyPct,
             }
           ],
           trialCount: 1,
@@ -1158,20 +1197,24 @@ const DataReports = () => {
         const rejected = item.rejected || 0;
         // Use foreignMatter field from API (calculated from grains collection by GrainClass)
         // Fallback to brokens + chalky for backward compatibility
-        const foreignMatter = item.foreignMatter !== undefined 
-          ? item.foreignMatter 
+        const foreignMatter = item.foreignMatter !== undefined
+          ? item.foreignMatter
           : (item.brokens || 0) + (item.chalky || 0);
-        
+
         // Calculate percentages for this trailId
         const goodRicePct = totalGrains > 0 ? (accepted / totalGrains) * 100 : 0;
         const rejectionPct = totalGrains > 0 ? (rejected / totalGrains) * 100 : 0;
         const foreignMatterPct = totalGrains > 0 ? (foreignMatter / totalGrains) * 100 : 0;
-        
+        const brokenPct = totalGrains > 0 ? ((item.brokens || 0) / totalGrains) * 100 : 0;
+        const chalkyPct = totalGrains > 0 ? ((item.chalky || 0) / totalGrains) * 100 : 0;
+
         // Add to percentages list
         existing.percentages.push({
           goodRice: goodRicePct,
           rejection: rejectionPct,
           foreignMatter: foreignMatterPct,
+          brokenPct,
+          chalkyPct,
         });
         existing.trialCount++;
         
@@ -1225,18 +1268,24 @@ const DataReports = () => {
       let goodRicePercentage = 0;
       let rejectionPercentage = 0;
       let foreignMatterPercentage = 0;
-      
+      let brokenPercentage = 0;
+      let chalkyPercentage = 0;
+
       if (item.percentages && item.percentages.length > 0) {
         // Average the percentages across all trailIds
         const sumGoodRice = item.percentages.reduce((sum, p) => sum + p.goodRice, 0);
         const sumRejection = item.percentages.reduce((sum, p) => sum + p.rejection, 0);
         const sumForeignMatter = item.percentages.reduce((sum, p) => sum + p.foreignMatter, 0);
+        const sumBroken = item.percentages.reduce((sum, p) => sum + (p.brokenPct || 0), 0);
+        const sumChalky = item.percentages.reduce((sum, p) => sum + (p.chalkyPct || 0), 0);
         const count = item.percentages.length;
-        
+
         goodRicePercentage = sumGoodRice / count;
         rejectionPercentage = sumRejection / count;
         foreignMatterPercentage = sumForeignMatter / count;
-        
+        brokenPercentage = sumBroken / count;
+        chalkyPercentage = sumChalky / count;
+
         console.log(`🔍 [FRONTEND DEBUG] Averaged percentages across ${count} trials:`, {
           goodRicePercentage,
           rejectionPercentage,
@@ -1250,13 +1299,15 @@ const DataReports = () => {
         const rejected = item.rejected || 0;
         // Use foreignMatter field from API (calculated from grains collection by GrainClass)
         // Fallback to brokens + chalky for backward compatibility
-        const foreignMatter = item.foreignMatter !== undefined 
-          ? item.foreignMatter 
+        const foreignMatter = item.foreignMatter !== undefined
+          ? item.foreignMatter
           : (item.brokens || 0) + (item.chalky || 0);
-        
+
         goodRicePercentage = totalGrains > 0 ? (accepted / totalGrains) * 100 : 0;
         rejectionPercentage = totalGrains > 0 ? (rejected / totalGrains) * 100 : 0;
         foreignMatterPercentage = totalGrains > 0 ? (foreignMatter / totalGrains) * 100 : 0;
+        brokenPercentage = totalGrains > 0 ? ((item.brokens || 0) / totalGrains) * 100 : 0;
+        chalkyPercentage = totalGrains > 0 ? ((item.chalky || 0) / totalGrains) * 100 : 0;
       }
       
       console.log(`🔍 [FRONTEND DEBUG] Final calculated percentages for item ${index}:`, {
@@ -1339,6 +1390,8 @@ const DataReports = () => {
           goodRice: goodRicePercentage,
           rejection: rejectionPercentage,
           foreignMatter: foreignMatterPercentage,
+          brokenPct: brokenPercentage,
+          chalkyPct: chalkyPercentage,
           completed: true
         });
       }
@@ -1356,6 +1409,8 @@ const DataReports = () => {
         overallGoodRice: goodRicePercentage,
         overallRejection: rejectionPercentage,
         overallForeignMatter: foreignMatterPercentage,
+        overallBrokenPct: brokenPercentage,
+        overallChalkyPct: chalkyPercentage,
         // grainData: sampleGrainData, // Using sample grain data for now
         machineName: item.machineName || undefined,
         binDryerNumber: item.binDryerNumber || undefined,
@@ -1364,6 +1419,29 @@ const DataReports = () => {
         analysisTime: item.analysisTime || undefined,
         enableChalky: item.enableChalky !== undefined ? item.enableChalky : true,
         season: item.season || undefined,
+        // Machine-type-specific & economics fields (APIT Analytics UI script)
+        shellingDegree: item.shellingDegree,
+        donValue: item.donValue,
+        discoloured: item.discoloured,
+        branRemovalPct: item.branRemovalPct,
+        thickRicePct: item.thickRicePct,
+        thinRicePct: item.thinRicePct,
+        paddyPctInRiceOutput: item.paddyPctInRiceOutput,
+        ricePctInPaddyOutput: item.ricePctInPaddyOutput,
+        gib: item.gib,
+        big: item.big,
+        branQtyKg: item.branQtyKg,
+        huskQtyKg: item.huskQtyKg,
+        pricePerKg: item.pricePerKg,
+        cookingLer: item.cookingQuality?.ler,
+        cookingVer: item.cookingQuality?.ver,
+        cookingTime: item.cookingQuality?.cookingTimeMin,
+        cookingCi: item.cookingQuality?.ci,
+        nutritionCarbs: item.nutritional?.carbsPct,
+        nutritionProtein: item.nutritional?.proteinPct,
+        nutritionFat: item.nutritional?.fatPct,
+        nutritionAsh: item.nutritional?.ashPct,
+        nutritionMicro: item.nutritional?.micronutrientsMgPer100g,
       };
     }).map((transformedItem, index) => {
       console.log(`🔍 [FRONTEND DEBUG] Transformed item ${index}:`, {
@@ -1387,7 +1465,7 @@ const DataReports = () => {
     };
     
     fetchAndTransformData();
-  }, [fromDate, toDate, selectedAnalysisTypes, selectedVarieties, selectedSeasons, machineFilter, productionMode]);
+  }, [fromDate, toDate, selectedAnalysisTypes, selectedVarieties, selectedSeasons, selectedProcesses, machineFilter, productionMode]);
 
   // Show most recent report first: sort by date descending (newest first)
   const currentProcesses = useMemo(() => {
@@ -1415,6 +1493,10 @@ const DataReports = () => {
         }
       }
 
+      if (selectedProcesses.length > 0 && !selectedProcesses.includes(process.process)) {
+        return false;
+      }
+
       if (machineFilter !== 'all') {
         if (machineFilter.startsWith('series:')) {
           const selectedSeries = machineFilter.slice(7);
@@ -1436,7 +1518,7 @@ const DataReports = () => {
 
       return true;
     });
-  }, [currentProcesses, selectedAnalysisTypes, selectedVarieties, selectedSeasons, machineFilter]);
+  }, [currentProcesses, selectedAnalysisTypes, selectedVarieties, selectedSeasons, selectedProcesses, machineFilter]);
 
 
   // Commented out quality status functionality
@@ -1809,8 +1891,8 @@ const DataReports = () => {
                 </div>
               </div>
 
-              {/* Additional Filters: Variety + Season + Production Type/Machine (production only) + Clear */}
-              <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedAnalysisTypes.includes('production') ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 mt-6 pt-4 border-t`}>
+              {/* Additional Filters: Variety + Season + Process + Production Type/Machine (production only) + Clear */}
+              <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedAnalysisTypes.includes('production') ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4 mt-6 pt-4 border-t`}>
                 <div className="space-y-2">
                   <Label className="font-medium text-sm">{t('procurementReports.variety')}</Label>
                   <Popover>
@@ -1915,6 +1997,58 @@ const DataReports = () => {
                   </Popover>
                 </div>
 
+                <div className="space-y-2">
+                  <Label className="font-medium text-sm">{t('procurementReports.process')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-between text-left",
+                          selectedProcesses.length === 0 && "text-muted-foreground"
+                        )}
+                      >
+                        <span>
+                          {selectedProcesses.length === 0
+                            ? "All Processes"
+                            : t('dataReports.nSelected', { n: selectedProcesses.length })}
+                        </span>
+                        <span className="text-xs text-gray-400">▼</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full max-w-sm p-3">
+                      <div className="space-y-2">
+                        <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">Select processes</div>
+                        {filterOptions.processes.map((p) => (
+                          <label key={p} className="flex items-center gap-2 cursor-pointer text-sm">
+                            <Checkbox
+                              checked={selectedProcesses.includes(p)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedProcesses((prev) => [...prev, p]);
+                                } else {
+                                  setSelectedProcesses((prev) => prev.filter((item) => item !== p));
+                                }
+                              }}
+                            />
+                            <span>{p}</span>
+                          </label>
+                        ))}
+                        <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedProcesses([])}
+                          >
+                            {t('dataReports.clear')}
+                          </Button>
+                          <span className="text-xs text-gray-500">{t('dataReports.tapToSelectMultiple')}</span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
                 {selectedAnalysisTypes.includes('production') && (
                 <div className="space-y-2">
                   <Label className="font-medium text-sm">{t('dataReports.machineSeries')}</Label>
@@ -1962,6 +2096,7 @@ const DataReports = () => {
                       setSelectedAnalysisTypes(["procurement", "production", "milled-rice"]);
                       setSelectedVarieties([]);
                       setSelectedSeasons([]);
+                      setSelectedProcesses([]);
                       setMachineFilter("all");
                       setProductionMode("all");
                       setFromDate(undefined);
@@ -2005,6 +2140,18 @@ const DataReports = () => {
               </ToggleGroup>
             </CardHeader>
             <CardContent>
+              <div className="flex flex-wrap items-center gap-2 mb-4 text-xs">
+                <span className="font-semibold text-gray-500 uppercase tracking-wide">Active filters:</span>
+                <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                  {fromDate && toDate ? `${format(fromDate, "MMM dd, yyyy")} – ${format(toDate, "MMM dd, yyyy")}` : "No date range selected"}
+                </span>
+                <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                  Variety: {selectedVarieties.length === 0 ? "All" : selectedVarieties.join(", ")}
+                </span>
+                <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                  Process: {selectedProcesses.length === 0 ? "All" : selectedProcesses.join(", ")}
+                </span>
+              </div>
               <div className="space-y-6">
                 {!fromDate || !toDate ? (
                   <div className="text-center py-8 text-gray-500">
