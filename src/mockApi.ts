@@ -1429,6 +1429,7 @@ function generateAnalyticsData(count: number) {
       branRemovalPct: +(5 + Math.random() * 4).toFixed(1), // % — Whitener/Silky/Packing/Milled Rice/Line
       branQtyKg: +(weightKg * (0.07 + Math.random() * 0.03)).toFixed(3),
       huskQtyKg: +(weightKg * (0.18 + Math.random() * 0.05)).toFixed(3),
+      headRicePctInBrokenOutput: +(0.3 + Math.random() * 1.5).toFixed(1), // % — Length Grader
       pricePerKg: +(19 + dayDrift * 4 + (Math.random() - 0.5)).toFixed(2), // ₹/kg paddy price
       cookingQuality: {
         ler: +(1.5 + Math.random() * 0.7).toFixed(2),

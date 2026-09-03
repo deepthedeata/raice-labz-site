@@ -15,6 +15,7 @@ import {
   machineTypeOf,
   countsTowardLineBroken,
   MACHINE_TYPE_METRICS,
+  METRICS,
 } from "@/lib/reportsAnalytics";
 import {
   MetricPicker,
@@ -34,6 +35,10 @@ import {
 type Mode = "machine" | "compare" | "series";
 
 const COMPARE_ALL = "__compare_all__";
+const ALL_LINES = "__all_lines__";
+
+/** Entire Line KPIs/trends are mill-line-level yield figures — Sample Weight, Rejection and Foreign Matter aren't part of that vocabulary. */
+const ENTIRE_LINE_METRICS: MetricKey[] = METRICS.map((m) => m.key).filter((k) => k !== "weight" && k !== "rejection" && k !== "foreignMatter");
 
 /** Mill-flow order for the "Husker → Packing" stage-wise trend in Entire Line mode. */
 const MACHINE_TYPE_FLOW_ORDER: MachineType[] = [
@@ -108,16 +113,23 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
   };
 
   // ==================== MACHINE-WISE (single machine drill-down) ====================
+  /** Which line's machines to show in Machine-wise — lets a mill with several lines scope the machine type/machine pickers to just one. */
+  const [machineLineFilter, setMachineLineFilter] = useState<string>(ALL_LINES);
+  const machineNamesForLine = useMemo(() => {
+    if (machineLineFilter === ALL_LINES || millLines.length <= 1) return machineNames;
+    const configured = millLines.find((l) => l.name === machineLineFilter)?.machines ?? [];
+    return configured.length > 0 ? machineNames.filter((m) => configured.includes(m)) : machineNames;
+  }, [machineNames, machineLineFilter, millLines]);
   const machineTypesPresent = useMemo(
-    () => MACHINE_TYPE_FLOW_ORDER.filter((t) => machineNames.some((m) => machineTypeOf(m) === t)),
-    [machineNames]
+    () => MACHINE_TYPE_FLOW_ORDER.filter((t) => machineNamesForLine.some((m) => machineTypeOf(m) === t)),
+    [machineNamesForLine]
   );
   const [machineType, setMachineType] = useState<string>("");
   // No "all types" escape hatch — the doc requires a machine type to always be selected, so the parameter list is always scoped to it.
   const effectiveMachineType = (machineTypesPresent.includes(machineType as MachineType) ? machineType : machineTypesPresent[0]) as MachineType | undefined;
   const machineNamesOfType = useMemo(
-    () => (effectiveMachineType ? machineNames.filter((m) => machineTypeOf(m) === effectiveMachineType) : []),
-    [machineNames, effectiveMachineType]
+    () => (effectiveMachineType ? machineNamesForLine.filter((m) => machineTypeOf(m) === effectiveMachineType) : []),
+    [machineNamesForLine, effectiveMachineType]
   );
   const [machineValue, setMachineValue] = useState<string>("");
   const effectiveMachine = machineNamesOfType.includes(machineValue) ? machineValue : (machineNamesOfType[0] ?? "");
@@ -174,9 +186,6 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
         : realSectionBuckets,
     [usingSectionDemo, sectionSamplesForCompare, realSectionBuckets]
   );
-  const sectionVarietyBuckets = useMemo(() => groupByVariety(sectionSamplesForCompare), [sectionSamplesForCompare]);
-  const sectionProcessBuckets = useMemo(() => groupByProcess(sectionSamplesForCompare), [sectionSamplesForCompare]);
-
   // ==================== ENTIRE LINE ====================
   const [seriesValue, setSeriesValue] = useState<string>(COMPARE_ALL);
   const effectiveLine = lineNames.length === 1 ? lineNames[0] : seriesValue === COMPARE_ALL || lineNames.includes(seriesValue) ? seriesValue : COMPARE_ALL;
@@ -259,8 +268,10 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
       ? activeMetrics.filter((m) => machineTypeMetrics.includes(m))
       : mode === "compare" && sectionMetrics
         ? activeMetrics.filter((m) => sectionMetrics.includes(m))
-        : activeMetrics;
-  const pickerAvailable = mode === "machine" ? machineTypeMetrics : mode === "compare" ? sectionMetrics : undefined;
+        : mode === "series"
+          ? activeMetrics.filter((m) => ENTIRE_LINE_METRICS.includes(m))
+          : activeMetrics;
+  const pickerAvailable = mode === "machine" ? machineTypeMetrics : mode === "compare" ? sectionMetrics : mode === "series" ? ENTIRE_LINE_METRICS : undefined;
 
   return (
     <div className="space-y-4">
@@ -292,6 +303,34 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
               Entire Line
             </ToggleGroupItem>
           </ToggleGroup>
+
+          {mode === "machine" && millLines.length > 1 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Line:</span>
+              <Select
+                value={machineLineFilter}
+                onValueChange={(v) => {
+                  setMachineLineFilter(v);
+                  setMachineType("");
+                  setMachineValue("");
+                }}
+              >
+                <SelectTrigger className="h-8 text-xs w-[160px]">
+                  <SelectValue placeholder="Choose a line" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_LINES} className="text-xs font-semibold">
+                    All Lines
+                  </SelectItem>
+                  {millLines.map((l) => (
+                    <SelectItem key={l.name} value={l.name} className="text-xs">
+                      {l.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {mode === "machine" && machineTypesPresent.length > 0 && (
             <>
@@ -427,8 +466,6 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
             )}
             {usingSectionDemo && <DemoNotice label={`None of the configured ${SECTION_LABELS[effectiveSection as MachineType].toLowerCase()} machines`} />}
             <EntityComparisonPanel entityLabel="Machine" buckets={sectionBuckets} samples={sectionSamplesForCompare} metrics={displayMetrics} entityKeyFn={(s) => s.machineName} />
-            <GroupedComparisonSection title="Variety comparison" buckets={sectionVarietyBuckets} metrics={displayMetrics} />
-            <GroupedComparisonSection title="Process comparison" buckets={sectionProcessBuckets} metrics={displayMetrics} />
           </>
         )
       )}

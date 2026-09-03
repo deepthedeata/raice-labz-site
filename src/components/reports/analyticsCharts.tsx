@@ -135,15 +135,18 @@ export function VarietyProcessFilters({
   onVarietyChange,
   process,
   onProcessChange,
+  hideProcess = false,
 }: {
   samples: FlatSample[];
   variety: string;
   onVarietyChange: (v: string) => void;
   process: string;
   onProcessChange: (v: string) => void;
+  /** Procurement doesn't need the Process filter — hide it without touching the shared Variety control. */
+  hideProcess?: boolean;
 }) {
   const varietyOptions = useMemo(() => [...new Set(samples.map((s) => s.variety))].sort(), [samples]);
-  const processOptions = useMemo(() => [...new Set(samples.map((s) => s.process))].sort(), [samples]);
+  const processOptions = useMemo(() => (hideProcess ? [] : [...new Set(samples.map((s) => s.process))].sort()), [samples, hideProcess]);
 
   if (varietyOptions.length <= 1 && processOptions.length <= 1) return null;
 
@@ -404,6 +407,77 @@ export function SampleTrendChart({
         </div>
       )}
     </div>
+  );
+}
+
+/* ─────────────────────────── sample-wise heatmap (most recent N samples) ─────────────────────────── */
+
+/**
+ * Sample-wise view as a heat strip per metric, instead of a line trend — one cell per sample,
+ * capped to the most recent `maxSamples` so the row stays readable. Day-wise still uses
+ * `SampleTrendChart`; this is only for the sample granularity.
+ */
+export function SampleMetricHeatmap({
+  samples,
+  metrics,
+  maxSamples = 15,
+}: {
+  samples: FlatSample[];
+  metrics: MetricKey[];
+  maxSamples?: number;
+}) {
+  const limited = useMemo(() => samples.slice(-maxSamples), [samples, maxSamples]);
+
+  if (limited.length === 0 || metrics.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>No data available for selected filters.</p>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold text-rice-primary">
+          Sample-wise heatmap (last {limited.length} sample{limited.length === 1 ? "" : "s"})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 overflow-x-auto">
+        {metrics.map((mk) => {
+          const def = metricDef(mk);
+          const values = limited.map((s) => (s[mk] as number) ?? 0);
+          const min = Math.min(...values);
+          const max = Math.max(...values);
+          return (
+            <div key={mk}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-gray-600">
+                  {def.label} {def.unit ? `(${def.unit})` : ""}
+                  {def.demo && <span className="text-purple-500 font-normal"> · demo</span>}
+                </span>
+              </div>
+              <HeatLegend metric={def} min={min} max={max} />
+              <div className="flex gap-1 min-w-max">
+                {limited.map((s) => {
+                  const value = (s[mk] as number) ?? 0;
+                  return (
+                    <div
+                      key={s.id}
+                      title={`${format(new Date(s.date), "MMM dd, yyyy")} · ${s.variety} · ${value.toFixed(1)}${def.unit}`}
+                      className="w-11 h-9 rounded-md flex items-center justify-center text-[10px] font-semibold text-white flex-shrink-0 transition-transform duration-150 hover:scale-[1.08] hover:shadow-md"
+                      style={{ backgroundColor: heatColor(value, min, max, def.higherIsBetter) }}
+                    >
+                      {value.toFixed(0)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
   );
 }
 

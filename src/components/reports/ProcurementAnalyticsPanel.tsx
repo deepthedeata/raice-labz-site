@@ -22,6 +22,7 @@ import {
 } from "@/lib/reportsAnalytics";
 import {
   SampleTrendChart,
+  SampleMetricHeatmap,
   GroupedComparisonSection,
   InsightCard,
   CHART_TOOLTIP_STYLE,
@@ -35,20 +36,18 @@ import {
 
 type Section = "quality" | "economics";
 
-/** Exactly the four Quality metrics the APIT Analytics UI script §4.1 calls for — no picker, no extras. */
-const QUALITY_METRICS: MetricKey[] = ["goodRice", "brokenPct", "branQtyKg", "huskQtyKg"];
+/** Quality trend metrics — Bran/Husk Production live only in Economics now, not duplicated here. */
+const QUALITY_METRICS: MetricKey[] = ["goodRice", "brokenPct"];
 
 const avg = (rows: FlatSample[], key: keyof FlatSample) => (rows.length > 0 ? rows.reduce((s, r) => s + (r[key] as number), 0) / rows.length : 0);
-const sum = (rows: FlatSample[], key: keyof FlatSample) => rows.reduce((s, r) => s + (r[key] as number), 0);
 
 export function ProcurementAnalyticsPanel({ processes }: { processes: AnalyticsProcess[] }) {
   const [section, setSection] = useState<Section>("quality");
   const [varietyFilter, setVarietyFilter] = useState(ALL_VARIETIES);
-  const [processFilter, setProcessFilter] = useState(ALL_PROCESSES);
   const [granularity, setGranularity] = useState<Granularity>("sample");
 
   const allSamples = useMemo(() => flattenSamples(processes), [processes]);
-  const samples = useMemo(() => filterSamplesByVarietyProcess(allSamples, varietyFilter, processFilter), [allSamples, varietyFilter, processFilter]);
+  const samples = useMemo(() => filterSamplesByVarietyProcess(allSamples, varietyFilter, ALL_PROCESSES), [allSamples, varietyFilter]);
   const varietyBuckets = useMemo(() => groupByVariety(samples), [samples]);
 
   if (allSamples.length === 0) {
@@ -70,7 +69,7 @@ export function ProcurementAnalyticsPanel({ processes }: { processes: AnalyticsP
             Economics
           </ToggleGroupItem>
         </ToggleGroup>
-        <VarietyProcessFilters samples={allSamples} variety={varietyFilter} onVarietyChange={setVarietyFilter} process={processFilter} onProcessChange={setProcessFilter} />
+        <VarietyProcessFilters samples={allSamples} variety={varietyFilter} onVarietyChange={setVarietyFilter} process={ALL_PROCESSES} onProcessChange={() => {}} hideProcess />
       </div>
 
       {samples.length === 0 ? (
@@ -79,15 +78,17 @@ export function ProcurementAnalyticsPanel({ processes }: { processes: AnalyticsP
         </div>
       ) : section === "quality" ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InsightCard label="Head Rice Yield" value={`${avg(samples, "goodRice").toFixed(1)}%`} sublabel="avg over period" />
             <InsightCard label="Broken" value={`${avg(samples, "brokenPct").toFixed(1)}%`} sublabel="avg over period" />
-            <InsightCard label="Bran Production" value={`${sum(samples, "branQtyKg").toFixed(2)} kg`} sublabel="total over period" />
-            <InsightCard label="Husk Production" value={`${sum(samples, "huskQtyKg").toFixed(2)} kg`} sublabel="total over period" />
           </div>
 
           <GranularityToggle value={granularity} onChange={setGranularity} />
-          <SampleTrendChart samples={samples} metrics={QUALITY_METRICS} title="Head Rice Yield / Broken / Bran / Husk Trend" granularity={granularity} />
+          {granularity === "sample" ? (
+            <SampleMetricHeatmap samples={samples} metrics={QUALITY_METRICS} maxSamples={15} />
+          ) : (
+            <SampleTrendChart samples={samples} metrics={QUALITY_METRICS} title="Head Rice Yield / Broken Trend" granularity={granularity} />
+          )}
 
           <GroupedComparisonSection title="Variety Comparison" buckets={varietyBuckets} metrics={QUALITY_METRICS} />
 
@@ -104,8 +105,6 @@ export function ProcurementAnalyticsPanel({ processes }: { processes: AnalyticsP
                       <TableHead className="text-xs text-right">Samples</TableHead>
                       <TableHead className="text-xs text-right">Head Rice Yield %</TableHead>
                       <TableHead className="text-xs text-right">Broken %</TableHead>
-                      <TableHead className="text-xs text-right">Bran Production (kg)</TableHead>
-                      <TableHead className="text-xs text-right">Husk Production (kg)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -115,8 +114,6 @@ export function ProcurementAnalyticsPanel({ processes }: { processes: AnalyticsP
                         <TableCell className="text-xs text-right">{b.count}</TableCell>
                         <TableCell className="text-xs text-right">{b.avg.goodRice.toFixed(1)}</TableCell>
                         <TableCell className="text-xs text-right">{b.avg.brokenPct.toFixed(1)}</TableCell>
-                        <TableCell className="text-xs text-right">{b.total.branQtyKg.toFixed(2)}</TableCell>
-                        <TableCell className="text-xs text-right">{b.total.huskQtyKg.toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

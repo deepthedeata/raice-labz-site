@@ -58,6 +58,8 @@ export type MetricKey =
   | "big"
   | "branQtyKg"
   | "huskQtyKg"
+  | "brokenPctInHeadRiceOutput"
+  | "headRicePctInBrokenOutput"
   | "pricePerKg"
   | "cookingLer"
   | "cookingVer"
@@ -76,7 +78,7 @@ export const MACHINE_TYPE_METRICS: Record<MachineType, MetricKey[]> = {
   Whitener: ["goodRice", "brokenPct", "whitenessIndex", "donValue", "branRemovalPct"],
   "Polisher / Silky Polisher": ["goodRice", "brokenPct", "discoloured", "chalkyPct", "whitenessIndex", "donValue", "branRemovalPct"],
   "Thickness Grader": ["thickRicePct", "thinRicePct"],
-  "Length Grader": ["brokenPct"],
+  "Length Grader": ["brokenPctInHeadRiceOutput", "headRicePctInBrokenOutput"],
   "Color Sorter": ["gib", "big", "chalkyPct"],
   "Packing / Final Rice": [
     "goodRice",
@@ -126,6 +128,8 @@ export interface AnalyticsProcessExtras {
   big?: number;
   branQtyKg?: number;
   huskQtyKg?: number;
+  /** Length Grader — % of head rice wrongly ejected into the broken output; DEMO, no real backend field yet. */
+  headRicePctInBrokenOutput?: number;
   pricePerKg?: number;
   cookingLer?: number;
   cookingVer?: number;
@@ -178,6 +182,8 @@ export interface FlatSample extends RequiredProcessExtras {
   rejection: number;
   foreignMatter: number;
   brokenPct: number;
+  /** Length Grader — same value as `brokenPct`, exposed under a distinct label ("Broken % in Head Rice O/P") to pair with `headRicePctInBrokenOutput`. */
+  brokenPctInHeadRiceOutput: number;
   chalkyPct: number;
   weight: number;
   /** DEMO — see demoWhitenessIndex() below; whiteness index only exists per-mode in the backend, not per-sample in bulk. */
@@ -215,6 +221,8 @@ export const METRICS: MetricDef[] = [
   { key: "big", label: "Bad-in-Good (BIG)", unit: "%", color: "#f97316", higherIsBetter: false },
   { key: "branQtyKg", label: "Bran Production", unit: "kg", color: "#16a34a", higherIsBetter: true },
   { key: "huskQtyKg", label: "Husk Production", unit: "kg", color: "#65a30d", higherIsBetter: true },
+  { key: "brokenPctInHeadRiceOutput", label: "Broken % in Head Rice O/P", unit: "%", color: "#f97316", higherIsBetter: false },
+  { key: "headRicePctInBrokenOutput", label: "Head Rice % in Broken O/P", unit: "%", color: "#c026d3", higherIsBetter: false, demo: true },
   { key: "pricePerKg", label: "Paddy Price", unit: "₹/kg", color: "#0891b2", higherIsBetter: false },
   { key: "cookingLer", label: "Length Elongation Ratio (LER)", unit: "", color: "#0d9488", higherIsBetter: true },
   { key: "cookingVer", label: "Volume Expansion Ratio (VER)", unit: "", color: "#0f766e", higherIsBetter: true },
@@ -242,6 +250,7 @@ const PROCESS_EXTRA_KEYS: (keyof AnalyticsProcessExtras)[] = [
   "big",
   "branQtyKg",
   "huskQtyKg",
+  "headRicePctInBrokenOutput",
   "pricePerKg",
   "cookingLer",
   "cookingVer",
@@ -293,6 +302,7 @@ export function flattenSamples(processes: AnalyticsProcess[]): FlatSample[] {
         rejection: s.rejection,
         foreignMatter: s.foreignMatter,
         brokenPct: s.brokenPct ?? p.overallBrokenPct ?? 0,
+        brokenPctInHeadRiceOutput: s.brokenPct ?? p.overallBrokenPct ?? 0,
         chalkyPct: s.chalkyPct ?? p.overallChalkyPct ?? 0,
         weight: Number(s.weight) || 0,
         whitenessIndex: demoWhitenessIndex(id),
@@ -568,6 +578,7 @@ function demoExtraFields(seed: string): RequiredProcessExtras {
     big: Math.round((0.3 + seededUnit(`${seed}_big`) * 2) * 10) / 10,
     branQtyKg: Math.round((0.02 + seededUnit(`${seed}_bran`) * 0.03) * 1000) / 1000,
     huskQtyKg: Math.round((0.05 + seededUnit(`${seed}_husk`) * 0.05) * 1000) / 1000,
+    headRicePctInBrokenOutput: Math.round((0.3 + seededUnit(`${seed}_hrinbrk`) * 1.5) * 10) / 10,
     pricePerKg: Math.round((19 + seededUnit(`${seed}_price`) * 4) * 100) / 100,
     cookingLer: Math.round((1.5 + seededUnit(`${seed}_ler`) * 0.7) * 100) / 100,
     cookingVer: Math.round((3.5 + seededUnit(`${seed}_ver`) * 1) * 100) / 100,
@@ -612,6 +623,7 @@ export function generateDemoSamples(entityKey: string, domain: AnalyticsDomain, 
         rejection: Math.round(rejection * 10) / 10,
         foreignMatter: Math.round(foreignMatter * 10) / 10,
         brokenPct: Math.round(brokenPct * 10) / 10,
+        brokenPctInHeadRiceOutput: Math.round(brokenPct * 10) / 10,
         chalkyPct: Math.round(chalkyPct * 10) / 10,
         weight: Math.round(380 + seededUnit(`${seed}_wt`) * 220),
         whitenessIndex: demoWhitenessIndex(seed),
