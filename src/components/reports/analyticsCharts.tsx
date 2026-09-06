@@ -459,16 +459,18 @@ export function SampleMetricHeatmap({
               </div>
               <HeatLegend metric={def} min={min} max={max} />
               <div className="flex gap-1 min-w-max">
-                {limited.map((s) => {
+                {limited.map((s, i) => {
                   const value = (s[mk] as number) ?? 0;
                   return (
-                    <div
-                      key={s.id}
-                      title={`${format(new Date(s.date), "MMM dd, yyyy")} · ${s.variety} · ${value.toFixed(1)}${def.unit}`}
-                      className="w-11 h-9 rounded-md flex items-center justify-center text-[10px] font-semibold text-white flex-shrink-0 transition-transform duration-150 hover:scale-[1.08] hover:shadow-md"
-                      style={{ backgroundColor: heatColor(value, min, max, def.higherIsBetter) }}
-                    >
-                      {value.toFixed(0)}
+                    <div key={s.id} className="flex flex-col items-center gap-1 flex-shrink-0">
+                      <div
+                        title={`S${i + 1} · ${format(new Date(s.date), "MMM dd, yyyy")} · ${s.variety} · ${value.toFixed(1)}${def.unit}`}
+                        className="w-11 h-9 rounded-md flex items-center justify-center text-[10px] font-semibold text-white transition-transform duration-150 hover:scale-[1.08] hover:shadow-md"
+                        style={{ backgroundColor: heatColor(value, min, max, def.higherIsBetter) }}
+                      >
+                        {value.toFixed(0)}
+                      </div>
+                      <span className="text-[9px] font-medium text-gray-400">S{i + 1}</span>
                     </div>
                   );
                 })}

@@ -13,13 +13,13 @@ import {
   groupByProcess,
   generateDemoSamples,
   machineTypeOf,
-  countsTowardLineBroken,
   MACHINE_TYPE_METRICS,
   METRICS,
 } from "@/lib/reportsAnalytics";
 import {
   MetricPicker,
   SampleTrendChart,
+  SampleMetricHeatmap,
   GroupedComparisonSection,
   EntityComparisonPanel,
   DemoBadge,
@@ -155,6 +155,14 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
   const sectionMachines = useMemo(() => (effectiveSection ? machineNames.filter((m) => machineTypeOf(m) === effectiveSection) : []), [machineNames, effectiveSection]);
   const sectionMetrics = effectiveSection ? MACHINE_TYPE_METRICS[effectiveSection] : undefined;
 
+  /** Friendly "<Section> 1", "<Section> 2" display names for the comparison chart — Husker's raw names ("Husker 1") already read this way, but a Length Grader's two O/P-specific instances don't, so every section gets the same sequential-numbering treatment. */
+  const sectionMachineLabels = useMemo(() => {
+    const map = new Map<string, string>();
+    sectionMachines.forEach((m, i) => map.set(m, effectiveSection ? `${effectiveSection.label} ${i + 1}` : m));
+    return map;
+  }, [sectionMachines, effectiveSection]);
+  const labelForSectionMachine = (m: string | undefined): string => (m && sectionMachineLabels.get(m)) || m || "";
+
   /** Which of `sectionMachines` the user has picked to compare — empty means "all of them" (the default). */
   const [includedMachines, setIncludedMachines] = useState<string[]>([]);
   const chosenSectionMachines = includedMachines.length > 0 ? sectionMachines.filter((m) => includedMachines.includes(m)) : sectionMachines;
@@ -170,9 +178,9 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
     () =>
       groupByKey(
         samples.filter((s) => chosenSectionMachines.includes(s.machineName ?? "")),
-        (s) => s.machineName as string
+        (s) => labelForSectionMachine(s.machineName)
       ).sort((a, b) => b.avg.goodRice - a.avg.goodRice),
-    [samples, chosenSectionMachines]
+    [samples, chosenSectionMachines, sectionMachineLabels]
   );
   const usingSectionDemo = chosenSectionMachines.length > 0 && realSectionBuckets.length === 0;
   const sectionSamplesForCompare = useMemo(
@@ -182,9 +190,9 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
   const sectionBuckets = useMemo(
     () =>
       usingSectionDemo
-        ? groupByKey(sectionSamplesForCompare, (s) => s.machineName as string).sort((a, b) => b.avg.goodRice - a.avg.goodRice)
+        ? groupByKey(sectionSamplesForCompare, (s) => labelForSectionMachine(s.machineName)).sort((a, b) => b.avg.goodRice - a.avg.goodRice)
         : realSectionBuckets,
-    [usingSectionDemo, sectionSamplesForCompare, realSectionBuckets]
+    [usingSectionDemo, sectionSamplesForCompare, realSectionBuckets, sectionMachineLabels]
   );
   // ==================== ENTIRE LINE ====================
   const [seriesValue, setSeriesValue] = useState<string>(COMPARE_ALL);
@@ -249,17 +257,22 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
     return selectedLineMachines.map((name) => byName.find((b) => b.key === name)).filter((b): b is NonNullable<typeof b> => !!b);
   }, [withinSeriesSamples, selectedLineMachines]);
 
-  // ---- Entire Line KPI trio (doc §6): sourced from the specific machine types the script names ----
+  // ---- Entire Line KPI trio: Total Broken/Discoloured are the worst (max) reading across the relevant machine types, not an average ----
   const lineKpis = useMemo(() => {
     const packingSamples = samples.filter((s) => machineTypeOf(s.machineName) === "Packing / Final Rice");
-    const brokenSamples = samples.filter((s) => countsTowardLineBroken(s.machineName));
-    const colorSorterSamples = samples.filter((s) => machineTypeOf(s.machineName) === "Color Sorter");
+    const brokenSamples = samples.filter((s) => {
+      const t = machineTypeOf(s.machineName);
+      return t === "Husker" || t === "Whitener" || t === "Polisher / Silky Polisher";
+    });
+    const polisherSamples = samples.filter((s) => machineTypeOf(s.machineName) === "Polisher / Silky Polisher");
     const avg = (rows: FlatSample[], key: keyof FlatSample) =>
       rows.length > 0 ? rows.reduce((sum, r) => sum + (r[key] as number), 0) / rows.length : null;
+    const max = (rows: FlatSample[], key: keyof FlatSample) =>
+      rows.length > 0 ? Math.max(...rows.map((r) => r[key] as number)) : null;
     return {
       headRiceYield: avg(packingSamples, "goodRice"),
-      totalBroken: avg(brokenSamples, "brokenPct"),
-      totalDiscoloured: avg(colorSorterSamples, "discoloured"),
+      totalBroken: max(brokenSamples, "brokenPct"),
+      totalDiscoloured: max(polisherSamples, "discoloured"),
     };
   }, [samples]);
 
@@ -294,7 +307,7 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
             }}
           >
             <ToggleGroupItem value="machine" className="text-xs px-3">
-              Machine-wise
+              Individual Machine Analytics
             </ToggleGroupItem>
             <ToggleGroupItem value="compare" className="text-xs px-3">
               Comparative Analysis
@@ -439,7 +452,11 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
         ) : (
           <>
             {usingMachineTrendDemo && <DemoNotice label={effectiveMachine} />}
-            <SampleTrendChart samples={machineTrendSamples} metrics={displayMetrics} granularity={granularity} />
+            {granularity === "sample" ? (
+              <SampleMetricHeatmap samples={machineTrendSamples} metrics={displayMetrics} maxSamples={15} />
+            ) : (
+              <SampleTrendChart samples={machineTrendSamples} metrics={displayMetrics} granularity={granularity} />
+            )}
             <GroupedComparisonSection title="Variety comparison" buckets={machineVarietyBuckets} metrics={displayMetrics} />
             <GroupedComparisonSection title="Process comparison" buckets={machineProcessBuckets} metrics={displayMetrics} />
           </>
@@ -459,13 +476,13 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
                 {sectionMachines.map((m) => (
                   <label key={m} className="flex items-center gap-1.5 cursor-pointer select-none">
                     <Checkbox checked={chosenSectionMachines.includes(m)} onCheckedChange={() => toggleSectionMachine(m)} />
-                    <span>{m}</span>
+                    <span>{labelForSectionMachine(m)}</span>
                   </label>
                 ))}
               </div>
             )}
             {usingSectionDemo && <DemoNotice label={`None of the configured ${SECTION_LABELS[effectiveSection as MachineType].toLowerCase()} machines`} />}
-            <EntityComparisonPanel entityLabel="Machine" buckets={sectionBuckets} samples={sectionSamplesForCompare} metrics={displayMetrics} entityKeyFn={(s) => s.machineName} />
+            <EntityComparisonPanel entityLabel="Machine" buckets={sectionBuckets} samples={sectionSamplesForCompare} metrics={displayMetrics} entityKeyFn={(s) => labelForSectionMachine(s.machineName)} />
           </>
         )
       )}
@@ -486,12 +503,12 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
               <InsightCard
                 label="Total Broken"
                 value={lineKpis.totalBroken != null ? `${lineKpis.totalBroken.toFixed(1)}%` : "—"}
-                sublabel="Length Grader + Sifter"
+                sublabel="max across Husker/Whitener/Polisher"
               />
               <InsightCard
                 label="Total Discoloured"
                 value={lineKpis.totalDiscoloured != null ? `${lineKpis.totalDiscoloured.toFixed(1)}%` : "—"}
-                sublabel="Color Sorter rejects"
+                sublabel="max across Polisher"
               />
             </div>
             {usingSeriesDemo && <DemoNotice label="None of the configured series" />}
@@ -506,7 +523,11 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
         ) : (
           <>
             {usingLineTrendDemo && <DemoNotice label={effectiveLine} />}
-            <SampleTrendChart samples={lineTrendSamples} metrics={displayMetrics} granularity={granularity} />
+            {granularity === "sample" ? (
+              <SampleMetricHeatmap samples={lineTrendSamples} metrics={displayMetrics} maxSamples={15} />
+            ) : (
+              <SampleTrendChart samples={lineTrendSamples} metrics={displayMetrics} granularity={granularity} />
+            )}
             <GroupedComparisonSection title="Variety comparison" buckets={lineVarietyBuckets} metrics={displayMetrics} />
             <GroupedComparisonSection title="Process comparison" buckets={lineProcessBuckets} metrics={displayMetrics} />
 
