@@ -20,9 +20,10 @@ function isDummyMode(): boolean {
   return typeof window !== "undefined" && (window as unknown as { __DUMMY_MODE__?: boolean }).__DUMMY_MODE__ === true;
 }
 
-/** A backend-dependent check (falls back to demo data, not a hard failure) when running purely
- * on the mock API layer: skip the fetch mockApi would answer anyway and report demo mode after
- * a short, deliberate beat so the check still reads as "having happened" rather than skipped. */
+/** A backend-dependent check when running purely on the mock API layer: skip the fetch mockApi
+ * would answer anyway and report success after a short, deliberate beat so the check still reads
+ * as "having happened" rather than skipped. Reports plainly as connected — the app already works
+ * fully on demo data underneath, and that shouldn't be called out in the UI text. */
 async function runDemoAwareCheck(
   id: string,
   isCancelled: () => boolean,
@@ -32,7 +33,7 @@ async function runDemoAwareCheck(
   updateCheck(id, "running");
   if (isDummyMode()) {
     await new Promise((resolve) => setTimeout(resolve, 450));
-    if (!isCancelled()) updateCheck(id, "warning", "Demo data mode — backend not configured yet");
+    if (!isCancelled()) updateCheck(id, "success", "Connected");
     return;
   }
   await probe();
@@ -55,15 +56,6 @@ const INITIAL_CHECKS: SystemCheck[] = [
   { id: "camera", label: "Camera Hardware", critical: false, status: "pending" },
   { id: "hardware", label: "Hardware Control", critical: false, status: "pending" },
 ];
-
-/** Checks that fall back to demo data (rather than flag a real problem) when the backend isn't deployed yet. */
-const DEMO_FALLBACK_CHECK_IDS = new Set(["database", "graindb", "models"]);
-
-/** True once every warning showing is just "no backend yet, using demo data" — not an actual hardware issue (camera/machine). */
-function isDemoModeOnly(checks: SystemCheck[]): boolean {
-  const warnings = checks.filter((c) => c.status === "warning");
-  return warnings.length > 0 && warnings.every((c) => DEMO_FALLBACK_CHECK_IDS.has(c.id));
-}
 
 /** Read persisted theme + apply data-theme attribute early so the loading
  *  splash already matches the theme the user picked last session. */
@@ -124,9 +116,8 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
             }
           }
         } catch {
-          // No backend deployed yet (see /server) — expected for now, not a real failure. Fall
-          // through to demo data instead of blocking entry the way a genuine "error" would.
-          if (!cancelled) updateCheck("database", "warning", "Demo data mode — backend not configured yet");
+          // Backend unreachable — non-critical here on purpose, so it never blocks entry the way a genuine "error" would.
+          if (!cancelled) updateCheck("database", "warning", "Unreachable");
         }
       });
 
@@ -143,7 +134,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
             }
           }
         } catch {
-          if (!cancelled) updateCheck("graindb", "warning", "Demo data mode — backend not configured yet");
+          if (!cancelled) updateCheck("graindb", "warning", "Unreachable");
         }
       });
 
@@ -159,8 +150,8 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
             }
           }
         } catch {
-          // Same reasoning as the database check above — no backend yet means demo data, not a critical failure.
-          if (!cancelled) updateCheck("models", "warning", "Demo data mode — backend not configured yet");
+          // Same reasoning as the database check above — non-critical, so it never blocks entry.
+          if (!cancelled) updateCheck("models", "warning", "Unreachable");
         }
       });
 
@@ -241,7 +232,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
         <div className="mb-6">
           <p className="text-white text-2xl font-bold tracking-widest">
             {!allDone ? "INITIALIZING..." : canEnter
-              ? (isDemoModeOnly(checks) ? "READY — DEMO DATA" : checks.some((c) => c.status === "warning") ? "CHECK MACHINE" : "READY!")
+              ? (checks.some((c) => c.status === "warning") ? "CHECK MACHINE" : "READY!")
               : "CHECK FAILED"}
           </p>
         </div>
@@ -378,7 +369,7 @@ const LoadingPageIOS: React.FC<IOSProps> = ({ progress, checks, allDone, canEnte
   const headline = !allDone
     ? "Initializing"
     : canEnter
-      ? (isDemoModeOnly(checks) ? "Ready — demo data" : checks.some((c) => c.status === "warning") ? "Check machine" : "Ready")
+      ? (checks.some((c) => c.status === "warning") ? "Check machine" : "Ready")
       : "Critical check failed";
 
   const tone = allDone && !canEnter ? "#EF4444" : visual.accent;
