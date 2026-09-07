@@ -29,9 +29,10 @@ jobs:
         run: |
           xcodebuild \
             -project ios/App/App.xcodeproj \
-            -target App \
+            -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath ios-build \
             CODE_SIGNING_ALLOWED=NO \
             build
