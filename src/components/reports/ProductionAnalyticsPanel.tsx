@@ -67,6 +67,17 @@ const SECTION_LABELS: Record<MachineType, string> = {
   "Packing / Final Rice": "Packing",
 };
 
+/** Shortened machine-instance base name where the full MachineType string reads awkwardly with a trailing number ("Polisher / Silky Polisher 1"); every other type is already fine as its own base name. */
+const MACHINE_DISPLAY_BASE_NAME: Partial<Record<MachineType, string>> = {
+  "Polisher / Silky Polisher": "Polisher",
+};
+
+/** Pulls a machine's own configured instance number off the end of its raw name — e.g. "Whitener 3" -> 3 — so display labels can stay in sync with the machine/series database instead of a synthetic recount. */
+function machineInstanceNumber(name: string): number | null {
+  const match = name.match(/(\d+)\s*$/);
+  return match ? Number(match[1]) : null;
+}
+
 interface ProductionAnalyticsPanelProps {
   processes: AnalyticsProcess[];
   /** Every line/machine configured in the mill's settings, not just ones with samples in the current filters. */
@@ -155,10 +166,34 @@ export function ProductionAnalyticsPanel({ processes, lineNames, lineMachines, m
   const sectionMachines = useMemo(() => (effectiveSection ? machineNames.filter((m) => machineTypeOf(m) === effectiveSection) : []), [machineNames, effectiveSection]);
   const sectionMetrics = effectiveSection ? MACHINE_TYPE_METRICS[effectiveSection] : undefined;
 
-  /** Friendly "<Section> 1", "<Section> 2" display names for the comparison chart — Husker's raw names ("Husker 1") already read this way, but a Length Grader's two O/P-specific instances don't, so every section gets the same sequential-numbering treatment. */
+  /**
+   * Friendly "<Section> N" display names for the comparison chart. Stays in sync with the
+   * machine/series database rather than a positional recount: a machine's own configured number
+   * ("Whitener 3" -> 3) is kept as-is, so it always matches what's configured in Settings → Machine
+   * Database. Only when that number would collide (e.g. Length Grader's "…Headrice O/P 1" and
+   * "…Broken O/P 1" both naturally end in "1") does the next free number get synthesized instead.
+   */
   const sectionMachineLabels = useMemo(() => {
     const map = new Map<string, string>();
-    sectionMachines.forEach((m, i) => map.set(m, effectiveSection ? `${effectiveSection.label} ${i + 1}` : m));
+    if (!effectiveSection) return map;
+    const base = MACHINE_DISPLAY_BASE_NAME[effectiveSection] ?? effectiveSection;
+    const used = new Set<number>();
+    const unresolved: string[] = [];
+    for (const m of sectionMachines) {
+      const n = machineInstanceNumber(m);
+      if (n != null && !used.has(n)) {
+        used.add(n);
+        map.set(m, `${base} ${n}`);
+      } else {
+        unresolved.push(m);
+      }
+    }
+    let next = 1;
+    for (const m of unresolved) {
+      while (used.has(next)) next++;
+      used.add(next);
+      map.set(m, `${base} ${next}`);
+    }
     return map;
   }, [sectionMachines, effectiveSection]);
   const labelForSectionMachine = (m: string | undefined): string => (m && sectionMachineLabels.get(m)) || m || "";

@@ -8,6 +8,36 @@ interface LoadingPageProps {
 
 const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
 
+/** Set by installMockApi() (see src/mockApi.ts) once the fetch interceptor is active. mockApi
+ * answers *every* /api/* call successfully, including these health checks — so a live probe
+ * can't actually distinguish "real backend" from "no backend yet", and would misreport this
+ * screen as truly "Connected". Skip the fake round-trip and say so honestly instead.
+ * Read lazily (not as a module-level constant): main.tsx calls installMockApi() *after*
+ * importing App (and everything App imports, including this module), so the flag isn't set
+ * yet at the time this file's top-level code would run — it only exists by the time the
+ * check actually fires, well after mount. */
+function isDummyMode(): boolean {
+  return typeof window !== "undefined" && (window as unknown as { __DUMMY_MODE__?: boolean }).__DUMMY_MODE__ === true;
+}
+
+/** A backend-dependent check (falls back to demo data, not a hard failure) when running purely
+ * on the mock API layer: skip the fetch mockApi would answer anyway and report demo mode after
+ * a short, deliberate beat so the check still reads as "having happened" rather than skipped. */
+async function runDemoAwareCheck(
+  id: string,
+  isCancelled: () => boolean,
+  updateCheck: (id: string, status: CheckStatus, message?: string) => void,
+  probe: () => Promise<void>,
+) {
+  updateCheck(id, "running");
+  if (isDummyMode()) {
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    if (!isCancelled()) updateCheck(id, "warning", "Demo data mode — backend not configured yet");
+    return;
+  }
+  await probe();
+}
+
 type CheckStatus = "pending" | "running" | "success" | "warning" | "error";
 
 interface SystemCheck {
@@ -81,55 +111,58 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
 
     const runChecks = async () => {
       // 1. Database / MongoDB connection
-      updateCheck("database", "running");
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/raice_labz/debug/database-connection`, { signal: AbortSignal.timeout(5000) });
-        if (!cancelled) {
-          if (res.ok) {
-            const data = await res.json();
-            const connected = data.connection_status?.startsWith("connected");
-            updateCheck("database", connected ? "success" : "error", connected ? "Connected" : "Connection failed");
-          } else {
-            updateCheck("database", "error", `HTTP ${res.status}`);
+      await runDemoAwareCheck("database", () => cancelled, updateCheck, async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/raice_labz/debug/database-connection`, { signal: AbortSignal.timeout(5000) });
+          if (!cancelled) {
+            if (res.ok) {
+              const data = await res.json();
+              const connected = data.connection_status?.startsWith("connected");
+              updateCheck("database", connected ? "success" : "error", connected ? "Connected" : "Connection failed");
+            } else {
+              updateCheck("database", "error", `HTTP ${res.status}`);
+            }
           }
+        } catch {
+          // No backend deployed yet (see /server) — expected for now, not a real failure. Fall
+          // through to demo data instead of blocking entry the way a genuine "error" would.
+          if (!cancelled) updateCheck("database", "warning", "Demo data mode — backend not configured yet");
         }
-      } catch {
-        // No backend deployed yet (see /server) — expected for now, not a real failure. Fall
-        // through to demo data instead of blocking entry the way a genuine "error" would.
-        if (!cancelled) updateCheck("database", "warning", "Demo data mode — backend not configured yet");
-      }
+      });
 
-      updateCheck("graindb", "running");
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/raice_labz/grain-info/varieties`, { signal: AbortSignal.timeout(5000) });
-        if (!cancelled) {
-          if (res.ok) {
-            const data = await res.json();
-            const hasData = Array.isArray(data.varieties) && data.varieties.length > 0;
-            updateCheck("graindb", hasData ? "success" : "warning", hasData ? "Connected" : "No grain data");
-          } else {
-            updateCheck("graindb", "warning", "Unavailable");
+      await runDemoAwareCheck("graindb", () => cancelled, updateCheck, async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/raice_labz/grain-info/varieties`, { signal: AbortSignal.timeout(5000) });
+          if (!cancelled) {
+            if (res.ok) {
+              const data = await res.json();
+              const hasData = Array.isArray(data.varieties) && data.varieties.length > 0;
+              updateCheck("graindb", hasData ? "success" : "warning", hasData ? "Connected" : "No grain data");
+            } else {
+              updateCheck("graindb", "warning", "Unavailable");
+            }
           }
+        } catch {
+          if (!cancelled) updateCheck("graindb", "warning", "Demo data mode — backend not configured yet");
         }
-      } catch {
-        if (!cancelled) updateCheck("graindb", "warning", "Demo data mode — backend not configured yet");
-      }
+      });
 
-      updateCheck("models", "running");
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/models/health`, { signal: AbortSignal.timeout(8000) });
-        if (!cancelled) {
-          if (res.ok) {
-            const data = await res.json();
-            updateCheck("models", data.ready ? "success" : "error", data.ready ? "Connected" : (data.message || "Models not loaded"));
-          } else {
-            updateCheck("models", "error", `HTTP ${res.status}`);
+      await runDemoAwareCheck("models", () => cancelled, updateCheck, async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/models/health`, { signal: AbortSignal.timeout(8000) });
+          if (!cancelled) {
+            if (res.ok) {
+              const data = await res.json();
+              updateCheck("models", data.ready ? "success" : "error", data.ready ? "Connected" : (data.message || "Models not loaded"));
+            } else {
+              updateCheck("models", "error", `HTTP ${res.status}`);
+            }
           }
+        } catch {
+          // Same reasoning as the database check above — no backend yet means demo data, not a critical failure.
+          if (!cancelled) updateCheck("models", "warning", "Demo data mode — backend not configured yet");
         }
-      } catch {
-        // Same reasoning as the database check above — no backend yet means demo data, not a critical failure.
-        if (!cancelled) updateCheck("models", "warning", "Demo data mode — backend not configured yet");
-      }
+      });
 
       updateCheck("camera", "running");
       try {

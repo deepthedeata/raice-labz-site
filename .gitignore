@@ -45,3 +45,6 @@ Thumbs.db
 .claude/
 docs/audio-guide/.langcheck/
 docs/audio-guide/.whisper-model/
+
+# native Android app — kept local only, never pushed
+android/
