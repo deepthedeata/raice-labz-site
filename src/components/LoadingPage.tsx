@@ -26,6 +26,15 @@ const INITIAL_CHECKS: SystemCheck[] = [
   { id: "hardware", label: "Hardware Control", critical: false, status: "pending" },
 ];
 
+/** Checks that fall back to demo data (rather than flag a real problem) when the backend isn't deployed yet. */
+const DEMO_FALLBACK_CHECK_IDS = new Set(["database", "graindb", "models"]);
+
+/** True once every warning showing is just "no backend yet, using demo data" — not an actual hardware issue (camera/machine). */
+function isDemoModeOnly(checks: SystemCheck[]): boolean {
+  const warnings = checks.filter((c) => c.status === "warning");
+  return warnings.length > 0 && warnings.every((c) => DEMO_FALLBACK_CHECK_IDS.has(c.id));
+}
+
 /** Read persisted theme + apply data-theme attribute early so the loading
  *  splash already matches the theme the user picked last session. */
 function readTheme(): ThemeMode {
@@ -85,7 +94,9 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
           }
         }
       } catch {
-        if (!cancelled) updateCheck("database", "error", "Unreachable");
+        // No backend deployed yet (see /server) — expected for now, not a real failure. Fall
+        // through to demo data instead of blocking entry the way a genuine "error" would.
+        if (!cancelled) updateCheck("database", "warning", "Demo data mode — backend not configured yet");
       }
 
       updateCheck("graindb", "running");
@@ -101,7 +112,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
           }
         }
       } catch {
-        if (!cancelled) updateCheck("graindb", "warning", "Unreachable");
+        if (!cancelled) updateCheck("graindb", "warning", "Demo data mode — backend not configured yet");
       }
 
       updateCheck("models", "running");
@@ -116,7 +127,8 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
           }
         }
       } catch {
-        if (!cancelled) updateCheck("models", "error", "Unreachable");
+        // Same reasoning as the database check above — no backend yet means demo data, not a critical failure.
+        if (!cancelled) updateCheck("models", "warning", "Demo data mode — backend not configured yet");
       }
 
       updateCheck("camera", "running");
@@ -196,7 +208,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onLoadingComplete }) => {
         <div className="mb-6">
           <p className="text-white text-2xl font-bold tracking-widest">
             {!allDone ? "INITIALIZING..." : canEnter
-              ? (checks.some((c) => c.status === "warning") ? "CHECK MACHINE" : "READY!")
+              ? (isDemoModeOnly(checks) ? "READY — DEMO DATA" : checks.some((c) => c.status === "warning") ? "CHECK MACHINE" : "READY!")
               : "CHECK FAILED"}
           </p>
         </div>
@@ -333,7 +345,7 @@ const LoadingPageIOS: React.FC<IOSProps> = ({ progress, checks, allDone, canEnte
   const headline = !allDone
     ? "Initializing"
     : canEnter
-      ? (checks.some((c) => c.status === "warning") ? "Check machine" : "Ready")
+      ? (isDemoModeOnly(checks) ? "Ready — demo data" : checks.some((c) => c.status === "warning") ? "Check machine" : "Ready")
       : "Critical check failed";
 
   const tone = allDone && !canEnter ? "#EF4444" : visual.accent;
@@ -371,7 +383,7 @@ const LoadingPageIOS: React.FC<IOSProps> = ({ progress, checks, allDone, canEnte
 
           <div className="px-8 pt-8 pb-6 sm:px-10 flex flex-col items-center text-center">
             <div className="text-xl sm:text-2xl font-bold uppercase tracking-[0.32em]" style={{ color: visual.text }}>
-              {!allDone ? "INITIALIZING..." : canEnter ? (checks.some((c) => c.status === "warning") ? "CHECK MACHINE" : "READY!") : "CHECK FAILED"}
+              {headline}
             </div>
             <div className="mt-5 h-3 w-full max-w-3xl rounded-full overflow-hidden" style={{ background: visual.cardBg }}>
               <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: visual.accent }} />

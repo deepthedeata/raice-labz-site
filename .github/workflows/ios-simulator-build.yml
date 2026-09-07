@@ -23,7 +23,7 @@ jobs:
         run: npm run build
 
       - name: Sync into the iOS project
-        run: npx cap sync ios
+        run: ./node_modules/.bin/cap sync ios
 
       - name: Build for iOS Simulator (unsigned)
         run: |

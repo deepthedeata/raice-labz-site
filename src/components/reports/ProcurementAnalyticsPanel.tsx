@@ -191,7 +191,7 @@ function EconomicsSection({ samples }: { samples: FlatSample[] }) {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Date</Label>
-                <Input type="date" value={costDate} onChange={(e) => setCostDate(e.target.value)} className="h-9 text-sm" />
+                <Input type="date" value={costDate} onChange={(e) => setCostDate(e.target.value)} className="h-9 md:text-sm" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Description</Label>
@@ -199,12 +199,12 @@ function EconomicsSection({ samples }: { samples: FlatSample[] }) {
                   placeholder="e.g. Transport, labour, weighing charges"
                   value={costDescription}
                   onChange={(e) => setCostDescription(e.target.value)}
-                  className="h-9 text-sm"
+                  className="h-9 md:text-sm"
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Amount (₹)</Label>
-                <Input type="number" min={0} value={costAmount} onChange={(e) => setCostAmount(e.target.value)} className="h-9 text-sm" />
+                <Input type="number" min={0} value={costAmount} onChange={(e) => setCostAmount(e.target.value)} className="h-9 md:text-sm" />
               </div>
               <Button className="w-full bg-rice-primary hover:bg-rice-primary/90" onClick={handleAddCost}>
                 Save cost

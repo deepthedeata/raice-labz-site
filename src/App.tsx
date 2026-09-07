@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -155,10 +156,14 @@ const App = () => {
  */
 const ThemedShell = () => {
   const { isIOS } = useTheme();
+  // Inside the native iOS/Android app shell (Capacitor) — as opposed to the "ios" web theme, a
+  // separate concept — the first version only covers Reports & Analytics, so land there directly
+  // instead of the Dashboard/MachineConsole home screen.
+  const isNativeApp = Capacitor.isNativePlatform();
 
   const routes = (
     <Routes>
-      <Route path="/" element={isIOS ? <MachineConsole /> : <Dashboard />} />
+      <Route path="/" element={isNativeApp ? <DataReports /> : isIOS ? <MachineConsole /> : <Dashboard />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/data-reports" element={<DataReports />} />
       <Route path="/database" element={<DatabasePage />} />
