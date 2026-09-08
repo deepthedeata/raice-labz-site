@@ -657,17 +657,15 @@ interface EntitySampleRow {
 }
 
 function HeatLegend({ metric, min, max }: { metric: MetricDef; min: number; max: number }) {
-  const lowLabel = metric.higherIsBetter ? "Lower" : "Higher";
-  const highLabel = metric.higherIsBetter ? "Higher" : "Lower";
   return (
     <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-3">
       <span>
-        {lowLabel} ({min.toFixed(1)}
+        Lower ({min.toFixed(1)}
         {metric.unit})
       </span>
       <span className="h-2 w-28 rounded-full" style={{ background: "linear-gradient(90deg, hsl(0,65%,45%), hsl(60,65%,45%), hsl(120,65%,45%))" }} />
       <span>
-        {highLabel} ({max.toFixed(1)}
+        Higher ({max.toFixed(1)}
         {metric.unit})
       </span>
     </div>

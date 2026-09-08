@@ -16,6 +16,7 @@ import {
 import {
   MetricPicker,
   SampleTrendChart,
+  SampleMetricHeatmap,
   GroupedComparisonSection,
   CompositionPieChart,
   InsightCard,
@@ -81,7 +82,11 @@ export function MilledRiceAnalyticsPanel({ processes }: { processes: AnalyticsPr
           </div>
 
           <GranularityToggle value={granularity} onChange={setGranularity} />
-          <SampleTrendChart samples={samples} metrics={activeMetrics} granularity={granularity} />
+          {granularity === "sample" ? (
+            <SampleMetricHeatmap samples={samples} metrics={activeMetrics} maxSamples={15} />
+          ) : (
+            <SampleTrendChart samples={samples} metrics={activeMetrics} granularity={granularity} />
+          )}
 
           <label className="flex items-center gap-2 text-sm cursor-pointer select-none w-fit">
             <Checkbox checked={compareEnabled} onCheckedChange={(v) => setCompareEnabled(Boolean(v))} />
