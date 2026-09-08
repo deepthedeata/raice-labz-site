@@ -657,13 +657,18 @@ interface EntitySampleRow {
 }
 
 function HeatLegend({ metric, min, max }: { metric: MetricDef; min: number; max: number }) {
+  // Match heatColor()'s mapping: when higher is better, the low end is worst (red) and the high
+  // end is best (green); when lower is better, that's reversed, so the swatch must be too.
+  const gradient = metric.higherIsBetter
+    ? "linear-gradient(90deg, hsl(0,65%,45%), hsl(60,65%,45%), hsl(120,65%,45%))"
+    : "linear-gradient(90deg, hsl(120,65%,45%), hsl(60,65%,45%), hsl(0,65%,45%))";
   return (
     <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-3">
       <span>
         Lower ({min.toFixed(1)}
         {metric.unit})
       </span>
-      <span className="h-2 w-28 rounded-full" style={{ background: "linear-gradient(90deg, hsl(0,65%,45%), hsl(60,65%,45%), hsl(120,65%,45%))" }} />
+      <span className="h-2 w-28 rounded-full" style={{ background: gradient }} />
       <span>
         Higher ({max.toFixed(1)}
         {metric.unit})
